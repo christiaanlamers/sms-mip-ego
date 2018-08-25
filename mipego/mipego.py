@@ -71,7 +71,7 @@ class mipego(object):
     #CHRIS added two surrogate models
     def __init__(self, search_space, obj_func, time_surrogate, loss_surrogate, ftarget=None,
                  minimize=True, noisy=False, max_eval=None, max_iter=None, 
-                 infill='EI', t0=2, tf=1e-1, schedule=None,
+                 infill='HVI', t0=2, tf=1e-1, schedule=None,
                  n_init_sample=None, n_point=1, n_job=1, backend='multiprocessing',
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
@@ -854,7 +854,7 @@ class mipego(object):
                                 
             elif self._optimizer == 'MIES':
                 #CHRIS here send to MIES optimizer that uses s-metric as obj_func
-                opt = mies(self._space, obj_func, max_eval=eval_budget, minimize=self.minimize, verbose=False)
+                opt = mies(self._space, obj_func, max_eval=eval_budget, minimize=False, verbose=False, plus_selection=True)
                 xopt_, fopt_, stop_dict = opt.optimize()
 
             if fopt_ > best:

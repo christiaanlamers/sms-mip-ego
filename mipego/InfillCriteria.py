@@ -60,7 +60,7 @@ class HVI(InfillCriteria):
     """
     Hyper Volume Improvement
     """
-    def __init__(self, model=None, time_model=None, loss_model=None, plugin=None, minimize=True, alpha=0.1, solutions=None, n_left=None, sol=None,ref_time=None,ref_loss=None):
+    def __init__(self, model=None, time_model=None, loss_model=None, plugin=None, minimize=True, alpha=0.9, solutions=None, n_left=None, sol=None,ref_time=None,ref_loss=None):
         assert hasattr(time_model, 'predict')
         assert hasattr(loss_model, 'predict')
         self.time_model = time_model
@@ -88,6 +88,9 @@ class HVI(InfillCriteria):
     def _predict(self, X):
         y_time_hat, time_sd2 = self.time_model.predict(X, eval_MSE=True)
         y_loss_hat, loss_sd2 = self.loss_model.predict(X, eval_MSE=True)
+        if not self.minimize:
+            y_time_hat = -y_time_hat
+            y_loss_hat = -y_loss_hat
         #CHRIS use y_hat and sd2 to calculate LCB of expected time and loss values, pass these to s-metric and calculate hypervolume improvement
         y_time_hat = y_time_hat[0]
         time_sd2 = time_sd2[0]
@@ -110,8 +113,6 @@ class HVI(InfillCriteria):
         
         hyp_vol_imp = s_metric(expected, self.solutions, self.n_left,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
-        if not self.minimize:
-            hyp_vol_imp = -hyp_vol_imp
         return hyp_vol_imp, time_sd, loss_sd
 
     def _gradient(self, X):

@@ -18,12 +18,12 @@ def s_metric(expected, solutions,n_left,ref_time=None,ref_loss=None):
         d_lamb = np.array([max_time-min_time, max_loss-min_loss])
         m = 2 #CHRIS because we have two objectives
         c = 1-(1/(2**m))#TODO_CHRIS this constant might not be ideal for this specific problem
-        eps = d_lamb/len(par)+c*n_left
+        eps = (d_lamb/len(par))*c*n_left
     else:
         eps = np.array([float('inf'),float('inf')])
-    exp_plus_eps = copy.deepcopy(expected)#CHRIS easier to shift expected point rather than entire paretofront
-    exp_plus_eps.time += eps[0]
-    exp_plus_eps.loss += eps[1]
+    exp_min_eps = copy.deepcopy(expected)#CHRIS easier to shift expected point rather than entire paretofront
+    exp_min_eps.time -= eps[0]
+    exp_min_eps.loss -= eps[1]
     val=0.0
 
     skip_hyp_vol = False #CHRIS in case that the expected point lies outside the rectangle formed by the reference point and (0,0), and that the expected point is also not dominated (this can happen), the hyper volume must not be calculated
@@ -32,16 +32,16 @@ def s_metric(expected, solutions,n_left,ref_time=None,ref_loss=None):
     if (not ref_loss is None) and (expected.loss > ref_loss):
         skip_hyp_vol = True
 
-    if (not dominated(exp_plus_eps, par)) and (not skip_hyp_vol):
+    if (not dominated(exp_min_eps, par)) and (not skip_hyp_vol):
         #CHRIS non epsilon dominated solutions receive benefit of hypervolume
-        val -= (hyper_vol(par_and_exp,sol_and_exp,ref_time=ref_time,ref_loss=ref_loss)-hyper_vol(par,sol_and_exp,ref_time=ref_time,ref_loss=ref_loss))
+        val += (hyper_vol(par_and_exp,sol_and_exp,ref_time=ref_time,ref_loss=ref_loss)-hyper_vol(par,sol_and_exp,ref_time=ref_time,ref_loss=ref_loss))
     else:
         #CHRIS epsilon dominated solutions only receive penalty for inferior objectives
-        #val += penalty(exp_plus_eps, par)#CHRIS changed exp_plus_eps to expected because pareto front values got too much penalty. With exp_plus_eps is the hump version, With epxpected is the normal version
-        val += eps_penalty(expected,par)
+        #val -= penalty(exp_min_eps, par)#CHRIS changed exp_min_eps to expected because pareto front values got too much penalty. With exp_min_eps is the hump version, With epxpected is the normal version
+        val -= eps_penalty(expected,par)
     if dominated(expected, par):
         #CHRIS dominated expected point receives penalty
-        val += penalty(expected,solutions)
+        val -= penalty(expected,solutions)
     #print('pareto-front:')
     #if len(par) > 0:
     #    for x in par:
