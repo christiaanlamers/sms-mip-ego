@@ -854,7 +854,7 @@ class mipego(object):
                                 
             elif self._optimizer == 'MIES':
                 #CHRIS here send to MIES optimizer that uses s-metric as obj_func
-                opt = mies(self._space, obj_func, max_eval=eval_budget, minimize=False, verbose=False, plus_selection=True)
+                opt = mies(self._space, obj_func, max_eval=eval_budget, minimize=False, verbose=False, plus_selection=False)
                 xopt_, fopt_, stop_dict = opt.optimize()
 
             if fopt_ > best:

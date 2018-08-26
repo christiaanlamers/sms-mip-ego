@@ -60,7 +60,7 @@ class HVI(InfillCriteria):
     """
     Hyper Volume Improvement
     """
-    def __init__(self, model=None, time_model=None, loss_model=None, plugin=None, minimize=True, alpha=0.9, solutions=None, n_left=None, sol=None,ref_time=None,ref_loss=None):
+    def __init__(self, model=None, time_model=None, loss_model=None, plugin=None, minimize=True, alpha=0.1, solutions=None, n_left=None, sol=None,ref_time=None,ref_loss=None):
         assert hasattr(time_model, 'predict')
         assert hasattr(loss_model, 'predict')
         self.time_model = time_model
