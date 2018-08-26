@@ -135,6 +135,13 @@ search_space =  stack_sizes * strides * filters *  kernel_size * activation * ac
 print('starting program...')    
 #available_gpus = gp.getAvailable(limit=2)
 available_gpus = gp.getAvailable(limit=5)
+
+if len(sys.argv) > 1:
+    for i in range(1,len(sys.argv)):
+        try:
+            available_gpus.remove(sys.argv[i])
+        except:
+            pass
 #try:
 #available_gpus.remove(0)#CHRIS gpu 0 and 5 are differen gpu types on duranium since they are faster, timing will be unreliable, so remove them from list
 #except:
