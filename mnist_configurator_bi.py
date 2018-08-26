@@ -137,9 +137,9 @@ print('starting program...')
 available_gpus = gp.getAvailable(limit=5)
 
 if len(sys.argv) > 1:
-    for i in range(1,len(sys.argv)):
+    for i in range(1,int(len(sys.argv)):
         try:
-            available_gpus.remove(sys.argv[i])
+            available_gpus.remove(int(sys.argv[i]))
         except:
             pass
 #try:
