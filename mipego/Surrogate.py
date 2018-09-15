@@ -30,7 +30,7 @@ class RandomForest(RandomForestRegressor):
     Extension on the sklearn RandomForestRegressor class
     Added functionality: empirical MSE of predictions
     """
-    def __init__(self, levels=None, **kwargs):
+    def __init__(self, levels=None,n_estimators=100, **kwargs):
         """
         parameter
         ---------
@@ -39,6 +39,8 @@ class RandomForest(RandomForestRegressor):
             values: list of levels of categorical variables
         """
         super(RandomForest, self).__init__(**kwargs)
+        
+        self.n_estimators=n_estimators #CHRIS now able to set number of trees in forest
 
         if levels is not None:
             assert isinstance(levels, dict)

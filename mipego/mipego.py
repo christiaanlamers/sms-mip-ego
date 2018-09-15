@@ -75,7 +75,7 @@ class mipego(object):
                  n_init_sample=None, n_point=1, n_job=1, backend='multiprocessing',
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0):
+                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1):
         """
         parameter
         ---------
@@ -121,6 +121,8 @@ class mipego(object):
         self.loss_surrogate = loss_surrogate
         self.async_time_surrogates = {}
         self.async_loss_surrogates = {}
+        self.all_time_r2 = []
+        self.all_loss_r2 = []
         self.n_point = n_point
         self.n_jobs = n_job #min(self.n_point, n_job)#CHRIS why restrict n_jobs with n_points?
         self.available_gpus = available_gpus
@@ -132,6 +134,7 @@ class mipego(object):
         self._best = min if self.minimize else max
         
         self.bi = bi #CHRIS False: only loss, True: time and loss
+        self.hvi_alpha = hvi_alpha #CHRIS allows variable lower confidence interval
         
         self.r_index = self._space.id_C       # index of continuous variable
         self.i_index = self._space.id_O       # index of integer variable
@@ -428,6 +431,8 @@ class mipego(object):
                 
                 time_r2 = r2_score(time_fitness, time_fitness_hat)
                 loss_r2 = r2_score(loss_fitness, loss_fitness_hat)
+                self.all_time_r2.append(time_r2)
+                self.all_loss_r2.append(loss_r2)
                 break
             except Exception as e:
                 print("Error fitting model, retrying...")
@@ -444,7 +449,7 @@ class mipego(object):
 
     def select_candidate(self):
         self.is_update = False
-        X, infill_value = self.arg_max_acquisition(plugin=None, time_surrogate=self.time_surrogate, loss_surrogate=self.loss_surrogate,data=self.data ,n_left=self.n_left)
+        X, infill_value = self.arg_max_acquisition(plugin=None, time_surrogate=self.time_surrogate, loss_surrogate=self.loss_surrogate,data=self.data ,n_left=self.n_left,max_iter=self.max_iter)
         
         if self.n_point > 1:
             X = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
@@ -472,7 +477,7 @@ class mipego(object):
             for i in range(len(self.data)):
                 other_solutions = copy.deepcopy(self.data)
                 del other_solutions[i]
-                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,ref_time=self.ref_time,ref_loss=self.ref_loss)
+                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
             id_, fitness = zip([(i, d.fitness) for i, d in enumerate(self.data) if i != self.incumbent_id])
             __ = proportional_selection(fitness, self.mu, self.minimize, replacement=False)
             candidates_id.append(id_[__])
@@ -480,12 +485,14 @@ class mipego(object):
         # TODO: postpone the evaluate to intensify...
         self.evaluate(X, runs=self.init_n_eval)
         self.n_left -= 1
+        print("n_left,max_iter:")
+        print(self.n_left,self.max_iter)
         self.data += X
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
         for i in range(len(self.data)):
             other_solutions = copy.deepcopy(self.data)
             del other_solutions[i]
-            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,ref_time=self.ref_time,ref_loss=self.ref_loss)
+            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         return candidates_id
 
@@ -540,7 +547,7 @@ class mipego(object):
         for i in range(len(self.data)):
             other_solutions = copy.deepcopy(self.data)
             del other_solutions[i]
-            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,ref_time=self.ref_time,ref_loss=self.ref_loss)
+            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         # set the initial incumbent
         fitness = np.array([s.fitness for s in self.data])
@@ -580,7 +587,7 @@ class mipego(object):
             for i in range(len(self.data)):
                 other_solutions = copy.deepcopy(self.data)
                 del other_solutions[i]
-                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,ref_time=self.ref_time,ref_loss=self.ref_loss)
+                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
             
             perf = np.array([s.fitness for s in self.data])
             #self.data.perf = pd.to_numeric(self.data.perf)
@@ -651,7 +658,7 @@ class mipego(object):
             n_eval_array.append(self.data[i].n_eval)
             index_array.append(self.data[i].index)
             name_array.append(self.data[i].var_name)
-        data_array = [conf_array,fit_array,time_array,loss_array,n_eval_array,index_array,name_array]
+        data_array = [conf_array,fit_array,time_array,loss_array,n_eval_array,index_array,name_array,self.all_time_r2,self.all_loss_r2]
         
         with open(filename + '.json', 'w') as outfile:
             json.dump(data_array,outfile)
@@ -770,7 +777,7 @@ class mipego(object):
 
         return len(self.stop_dict)
 
-    def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None):
+    def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None,max_iter=None):
         if plugin is None:
             # plugin = np.min(self.data.perf) if self.minimize else -np.max(self.data.perf)
             # Note that performance are normalized when building the surrogate
@@ -784,10 +791,12 @@ class mipego(object):
             data = self.data
         if (n_left is None):
             n_left = self.n_left
+        if (max_iter is None):
+            max_iter = self.max_iter
             
         if self.n_point == 1: # sequential mode
             if self.infill == 'HVI':
-                acquisition_func = HVI(time_model=time_surrogate, loss_model=loss_surrogate, plugin=plugin, minimize=self.minimize, solutions=data, n_left=n_left,sol=Solution,ref_time=self.ref_time,ref_loss=self.ref_loss)
+                acquisition_func = HVI(time_model=time_surrogate, loss_model=loss_surrogate, plugin=plugin, minimize=self.minimize, solutions=data, n_left=n_left,max_iter=max_iter,sol=Solution,ref_time=self.ref_time,ref_loss=self.ref_loss, alpha=self.hvi_alpha)
             else:
                 print("Error, only HVI infill criterium works for this implementation")
         else:
@@ -804,7 +813,7 @@ class mipego(object):
             # TODO: verify this
             self.t = self.c / np.log(self.iter_count + 1 + 1)
         
-    def arg_max_acquisition(self, plugin=None, time_surrogate=None, loss_surrogate=None,data=None ,n_left=None):
+    def arg_max_acquisition(self, plugin=None, time_surrogate=None, loss_surrogate=None,data=None ,n_left=None,max_iter=None):
         """
         Global Optimization on the acqusition function 
         """
@@ -813,7 +822,7 @@ class mipego(object):
         
         dx = True if self._optimizer == 'BFGS' else False
         #CHRIS two surrogate functions must be passed
-        obj_func = [self._acquisition(plugin, dx=dx, time_surrogate=time_surrogate, loss_surrogate=loss_surrogate,n_left=n_left) for i in range(self.n_point)]
+        obj_func = [self._acquisition(plugin, dx=dx, time_surrogate=time_surrogate, loss_surrogate=loss_surrogate,n_left=n_left,max_iter=max_iter) for i in range(self.n_point)]
 
         if self.n_point == 1:
             candidates, values = self._argmax_multistart(obj_func[0])

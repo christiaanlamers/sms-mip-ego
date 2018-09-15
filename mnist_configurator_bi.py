@@ -158,8 +158,8 @@ n_job = max(min(5,len(available_gpus)),1)
 
 # use random forest as the surrogate model
 #CHRIS two surrogate models are needed
-time_model = RandomForest(levels=search_space.levels)
-loss_model = RandomForest(levels=search_space.levels)
+time_model = RandomForest(levels=search_space.levels,n_estimators=100)
+loss_model = RandomForest(levels=search_space.levels,n_estimators=100)
 opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  minimize=True, noisy=False, max_eval=None, max_iter=n_step, 
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,

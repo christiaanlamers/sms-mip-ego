@@ -21,15 +21,13 @@ import re
 import traceback
 import time
 
-np.random.seed(42)
-
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 200
+n_step = 110
 n_init_sample = 90
 verbose = True
 save = False
-logfile = 'mnist.log'
+logfile = 'msphere.log'
 class obj_func(object):
     def __init__(self, program):
         self.program = program
@@ -98,47 +96,47 @@ class obj_func(object):
         #return outputval
         return tuple
 
+for it in range(9):
+    np.random.seed(42)
+    #define the search space.
+    objective = obj_func('./all-cnn_bi_msphere.py')
 
-#define the search space.
-objective = obj_func('./all-cnn_bi_mbarrier.py')
+    real_space = ContinuousSpace([0.0, 4.0],'real_space') * 5
+    integer_space = OrdinalSpace([0,4],'integer_space') * 5
+    discrete_space = NominalSpace(['0','1','2','3','4'],'discrete_space') * 5
 
-real_space = ContinuousSpace([0.0, 4.0],'real_space') * 5
-integer_space = OrdinalSpace([0,4],'integer_space') * 5
-discrete_space = NominalSpace(['0','1','2','3','4'],'discrete_space') * 5
+    search_space =  real_space * integer_space * discrete_space
 
-search_space =  real_space * integer_space * discrete_space
+    print('starting program...')
+    #available_gpus = gp.getAvailable(limit=2)
+    available_gpus = gp.getAvailable(limit=5)
+    #try:
+    #available_gpus.remove(0)#CHRIS gpu 0 and 5 are differen gpu types on duranium since they are faster, timing will be unreliable, so remove them from list
+    #except:
+    #pass
+    #try:
+    #available_gpus.remove(5)
+    #except:
+    #pass
+    print(available_gpus)
 
-
-print('starting program...')    
-#available_gpus = gp.getAvailable(limit=2)
-available_gpus = gp.getAvailable(limit=5)
-#try:
-#available_gpus.remove(0)#CHRIS gpu 0 and 5 are differen gpu types on duranium since they are faster, timing will be unreliable, so remove them from list
-#except:
-#pass
-#try:
-#available_gpus.remove(5)
-#except:
-#pass
-print(available_gpus)
-
-n_job = max(min(5,len(available_gpus)),1)
+    n_job = max(min(5,len(available_gpus)),1)
 
 
-# use random forest as the surrogate model
-#CHRIS two surrogate models are needed
-time_model = RandomForest(levels=search_space.levels,n_estimators=100)
-loss_model = RandomForest(levels=search_space.levels,n_estimators=100)
-opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
-                 minimize=True, noisy=False, max_eval=None, max_iter=n_step, 
-                 infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
-                 n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
-                 log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True,save_name='data_mbarrier_bas_MIES_0.1_alpha_quicksort',ref_time=None,ref_loss=None)
+    # use random forest as the surrogate model
+    #CHRIS two surrogate models are needed
+    time_model = RandomForest(levels=search_space.levels,n_estimators=100)
+    loss_model = RandomForest(levels=search_space.levels,n_estimators=100)
+    opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
+                     minimize=True, noisy=False, max_eval=None, max_iter=n_step,
+                     infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
+                     n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
+                     log_file=None, data_file=None, verbose=False, random_seed=None,
+                     available_gpus=available_gpus, bi=True,save_name='data_msphere_logical_eps_' + str(0.1*(it+1))+ 'alpha_mult_' + str(it),ref_time=None,ref_loss=None,hvi_alpha=0.1*(it+1))
 
-#ref_time=1000.0,ref_loss=1000.0
+    #ref_time=150.0,ref_loss=150.0
 
-incumbent, stop_dict = opt.run()
+    incumbent, stop_dict = opt.run()
 #print('incumbent #TODO_CHRIS makes no sense for now:')
 #for x in incumbent:
 #    try:

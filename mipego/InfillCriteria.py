@@ -60,7 +60,7 @@ class HVI(InfillCriteria):
     """
     Hyper Volume Improvement
     """
-    def __init__(self, model=None, time_model=None, loss_model=None, plugin=None, minimize=True, alpha=0.1, solutions=None, n_left=None, sol=None,ref_time=None,ref_loss=None):
+    def __init__(self, model=None, time_model=None, loss_model=None, plugin=None, minimize=True, alpha=0.1, solutions=None, n_left=None, max_iter=None, sol=None,ref_time=None,ref_loss=None):
         assert hasattr(time_model, 'predict')
         assert hasattr(loss_model, 'predict')
         self.time_model = time_model
@@ -69,6 +69,7 @@ class HVI(InfillCriteria):
         self.alpha = alpha#CHRIS alpha for Lower Confidence Bound
         self.solutions = solutions
         self.n_left = n_left
+        self.max_iter = max_iter
         self.Solution = sol
         self.ref_time = ref_time
         self.ref_loss = ref_loss
@@ -111,7 +112,7 @@ class HVI(InfillCriteria):
         expected.time = exp_time
         expected.loss = exp_loss
         
-        hyp_vol_imp = s_metric(expected, self.solutions, self.n_left,ref_time=self.ref_time,ref_loss=self.ref_loss)
+        hyp_vol_imp = s_metric(expected, self.solutions, self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         return hyp_vol_imp, time_sd, loss_sd
 

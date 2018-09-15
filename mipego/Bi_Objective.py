@@ -3,43 +3,36 @@ import numpy as np
 #import matplotlib.pyplot as plt
 import copy
 
-def s_metric(expected, solutions,n_left,ref_time=None,ref_loss=None):
+def s_metric(expected, solutions,n_left,max_iter,ref_time=None,ref_loss=None):
     par = pareto(solutions)#CHRIS pareto front of existing solutions
     sol_and_exp = copy.deepcopy(solutions)
     sol_and_exp.append(expected)#CHRIS existing solutions and expected solution unified
     par_and_exp = pareto(sol_and_exp)#CHRIS pareto front of existing solutions and expected solution unified
     
+    #print("n_left, max_iter:")
+    #print(n_left,max_iter)
     #CHRIS calculate epsilon vector
-    if len(par) >= 1:
-        max_time = max([i.time for i in par])
-        min_time = min([i.time for i in par])
-        max_loss = max([i.loss for i in par])
-        min_loss = min([i.loss for i in par])
-        d_lamb = np.array([max_time-min_time, max_loss-min_loss])
-        m = 2 #CHRIS because we have two objectives
-        c = 1-(1/(2**m))#TODO_CHRIS this constant might not be ideal for this specific problem
-        eps = (d_lamb/len(par))*c*n_left
-    else:
-        eps = np.array([float('inf'),float('inf')])
-    exp_min_eps = copy.deepcopy(expected)#CHRIS easier to shift expected point rather than entire paretofront
-    exp_min_eps.time -= eps[0]
-    exp_min_eps.loss -= eps[1]
+    eps = 0.98 - 0.08*(n_left/max_iter)#CHRIS vary eps starting at 10% going down to 2%
+    eps_par = copy.deepcopy(par)
+    for x in eps_par:
+        x.time *= eps
+        x.loss *= eps
     val=0.0
-
     skip_hyp_vol = False #CHRIS in case that the expected point lies outside the rectangle formed by the reference point and (0,0), and that the expected point is also not dominated (this can happen), the hyper volume must not be calculated
     if (not ref_time is None) and (expected.time > ref_time):
         skip_hyp_vol = True
     if (not ref_loss is None) and (expected.loss > ref_loss):
         skip_hyp_vol = True
 
-    if (not dominated(exp_min_eps, par)) and (not skip_hyp_vol):
+    if (not dominated(expected, eps_par)) and (not skip_hyp_vol):
         #CHRIS non epsilon dominated solutions receive benefit of hypervolume
         val += (hyper_vol(par_and_exp,sol_and_exp,ref_time=ref_time,ref_loss=ref_loss)-hyper_vol(par,sol_and_exp,ref_time=ref_time,ref_loss=ref_loss))
     else:
         #CHRIS epsilon dominated solutions only receive penalty for inferior objectives
-        #val -= penalty(exp_min_eps, par)#CHRIS changed exp_min_eps to expected because pareto front values got too much penalty. With exp_min_eps is the hump version, With epxpected is the normal version
-        val -= eps_penalty(expected,par)
-    if dominated(expected, par):
+        #val -= penalty(exp_plus_eps, par)#CHRIS changed exp_plus_eps to expected because pareto front values got too much penalty. With exp_plus_eps is the hump version, With epxpected is the normal version
+        #val -= eps_penalty(expected,par)
+        pass
+    if dominated(expected,par):
         #CHRIS dominated expected point receives penalty
         val -= penalty(expected,solutions)
     #print('pareto-front:')
@@ -57,7 +50,7 @@ def penalty(expected,solutions):
     return val
 
 def sort_par(par):
-    #sort pareto front ascending on loss
+    #sort pareto front descending on loss
     for i in range(len(par)):
         for j in range(i+1, len(par)):
             if (par[i].loss < par[j].loss):
@@ -65,6 +58,27 @@ def sort_par(par):
                 par[i] = par[j]
                 par[j] = help
     return par
+
+def quicksort_par(par, lo, hi):
+    #sort pareto front ascending on time, thus descending on loss
+    if lo < hi:
+        p = partition_par(par, lo, hi)
+        quicksort_par(par, lo, p - 1 )
+        quicksort_par(par, p + 1, hi)
+
+def partition_par(par, lo, hi):
+    pivot = par[hi].time
+    i = lo
+    for j in range(lo, hi):
+        if par[j].time < pivot:
+            help = par[i]
+            par[i] = par[j]
+            par[j] = help
+            i = i + 1
+    help = par[i]
+    par[i] = par[hi]
+    par[hi] = help
+    return i
 
 def hyper_vol(par, solutions,ref_time=None,ref_loss=None):
     #set maximum values in pareto front as reference points
@@ -93,7 +107,8 @@ def hyper_vol(par, solutions,ref_time=None,ref_loss=None):
         else:
             i += 1
     #sort pareto front
-    loc_par = sort_par(loc_par)
+    #loc_par = sort_par(loc_par)
+    quicksort_par(loc_par, 0, len(loc_par)-1)
 
     #calculate hypervolume
     if len(loc_par) > 0:
