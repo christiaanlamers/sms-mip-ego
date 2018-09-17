@@ -164,7 +164,7 @@ for it in range(10):
                      infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                      n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
                      log_file=None, data_file=None, verbose=False, random_seed=None,
-                     available_gpus=available_gpus, bi=True, save_name='data_mnist_bas_MIES_alpha_mult' + str(it),ref_time=None,ref_loss=None)
+                     available_gpus=available_gpus, bi=True, save_name='data_mnist_kayfeng_eps_var_alpha_mult_' + str(it),ref_time=None,ref_loss=None)
 
     #ref_time=3000.0,ref_loss=3.0
 

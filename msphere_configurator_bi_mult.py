@@ -96,8 +96,8 @@ class obj_func(object):
         #return outputval
         return tuple
 
-for it in range(9):
-    np.random.seed(42)
+for it in range(10):
+    np.random.seed(it)
     #define the search space.
     objective = obj_func('./all-cnn_bi_msphere.py')
 
@@ -132,7 +132,7 @@ for it in range(9):
                      infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                      n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
                      log_file=None, data_file=None, verbose=False, random_seed=None,
-                     available_gpus=available_gpus, bi=True,save_name='data_msphere_logical_eps_' + str(0.1*(it+1))+ 'alpha_mult_' + str(it),ref_time=None,ref_loss=None,hvi_alpha=0.1*(it+1))
+                     available_gpus=available_gpus, bi=True,save_name='data_msphere_kayfeng_eps_var_alpha_mult_' + str(it),ref_time=None,ref_loss=None,hvi_alpha=0.1
 
     #ref_time=150.0,ref_loss=150.0
 

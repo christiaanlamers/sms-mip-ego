@@ -66,7 +66,8 @@ class HVI(InfillCriteria):
         self.time_model = time_model
         self.loss_model = loss_model
         self.minimize = minimize
-        self.alpha = alpha#CHRIS alpha for Lower Confidence Bound
+        #self.alpha = alpha#CHRIS alpha for Lower Confidence Bound
+        self.alpha = 0.1 + 0.8*(n_left/max_iter)#CHRIS variable alpha for Lower Confidence Bound
         self.solutions = solutions
         self.n_left = n_left
         self.max_iter = max_iter

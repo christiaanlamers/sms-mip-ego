@@ -128,7 +128,7 @@ x_bound = min(0.0,min(time)),max(time)
 y_bound = min(0.0,min(loss)),max(loss)
 
 plt.ion()
-for i in range(1,len(solutions)):
+for i in range(1,0):#len(solutions)):
     plt.clf()
     plt.xlabel('time')
     plt.ylabel('loss')
@@ -159,7 +159,14 @@ HV = hyper_vol(par, solutions, ref_time, ref_loss)
 objective = obj_func('./all-cnn_bi_mbarrier.py')
 print("Hyper Volume:")
 print(HV)
+print("len pareto front:")
+print(len(par))
 print("paretofront:")
+if all_time_r2 is not None and all_loss_r2 is not None:
+    print("all_time_r2 average:")
+    print(np.average(np.array(all_time_r2)))
+    print("all_loss_r2 average:")
+    print(np.average(np.array(all_loss_r2)))
 for i in range(len(par)):
     print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
 if all_time_r2 is not None and all_loss_r2 is not None:
@@ -174,8 +181,10 @@ if all_time_r2 is not None and all_loss_r2 is not None:
 #    print(vec)
 #    print(objective(vec))
 plt.clf()
-plt.xlabel('time')
-plt.ylabel('loss')
+#plt.xlabel('time')
+#plt.ylabel('loss')
+plt.xlabel('f_sphere_1')#CHRIS x^2
+plt.ylabel('f_sphere_2')#(x-2)^2
 axes = plt.gca()
 axes.set_xlim([x_bound[0],x_bound[1]])
 axes.set_ylim([y_bound[0],y_bound[1]])
