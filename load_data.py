@@ -169,11 +169,11 @@ if all_time_r2 is not None and all_loss_r2 is not None:
     print(np.average(np.array(all_loss_r2)))
 for i in range(len(par)):
     print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
-if all_time_r2 is not None and all_loss_r2 is not None:
-    print("all_time_r2:")
-    print(all_time_r2)
-    print("all_loss_r2:")
-    print(all_loss_r2)
+#if all_time_r2 is not None and all_loss_r2 is not None:
+#    print("all_time_r2:")
+#    print(all_time_r2)
+#    print("all_loss_r2:")
+#    print(all_loss_r2)
 #print(par)
 #print(par[0].var_name)
 #for i in range(1):#range(len(par)):
