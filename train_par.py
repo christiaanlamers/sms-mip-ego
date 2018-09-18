@@ -267,7 +267,7 @@ for x in par:
                 pass
     print(available_gpus)
     gpu = available_gpus[0]
-    CNN_conf(x.tolist(),hist_save,gpu=gpu)
+    CNN_conf(x.tolist(),hist_save,gpu_no=gpu)
     with open('train_par_out.json', 'w') as outfile:
             json.dump(hist_save,outfile)
 #for each in par build network and train
