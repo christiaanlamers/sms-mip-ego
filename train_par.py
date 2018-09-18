@@ -9,6 +9,8 @@ import json
 
 import sys
 
+import gputil as gp
+
 from mipego.mipego import Solution
 from mipego.Bi_Objective import *
 
@@ -190,22 +192,16 @@ def CNN_conf(cfg,hist_save):
     return timer,loss
 
 
-if len(sys.argv) != 3 and len(sys.argv) != 5:
-    print("usage: python3 load_data.py 'data_file_name.json' init_solution_number (optional: ref_time ref_loss)")
+if len(sys.argv) < 2:
+    print("usage: python3 load_data.py 'data_file_name.json' (optional: to be removed gpu's)")
     exit(0)
 file_name = str(sys.argv[1])
 with open(file_name) as f:
     for line in f:
         data = json.loads(line)
 
-init_amount = int(sys.argv[2])
-
-if len(sys.argv) == 5:
-    ref_time = float(sys.argv[3])
-    ref_loss = float(sys.argv[4])
-else:
-    ref_time = None
-    ref_loss = None
+ref_time = None
+ref_loss = None
 
 conf_array = data[0]
 fit_array = data[1]
@@ -260,7 +256,18 @@ for i in range(len(par)):
     print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
 hist_save = []
 for x in par:
-    CNN_conf(x.tolist(),hist_save)
+    available_gpus = gp.getAvailable(limit=5)
+
+    if len(sys.argv) > 2:
+        for i in range(3,int(len(sys.argv))):
+            print(int(sys.argv[i]))
+            try:
+                available_gpus.remove(int(sys.argv[i]))
+            except:
+                pass
+    print(available_gpus)
+    gpu = available_gpus[0]
+    CNN_conf(x.tolist(),hist_save,gpu=gpu)
     with open('train_par_out.json', 'w') as outfile:
             json.dump(hist_save,outfile)
 #for each in par build network and train
