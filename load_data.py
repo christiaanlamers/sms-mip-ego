@@ -162,14 +162,14 @@ print(HV)
 print("len pareto front:")
 print(len(par))
 print("paretofront:")
+for i in range(len(par)):
+    print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
 if all_time_r2 is not None and all_loss_r2 is not None:
     print("all_time_r2 average:")
     print(np.average(np.array(all_time_r2)))
     print("all_loss_r2 average:")
     print(np.average(np.array(all_loss_r2)))
-for i in range(len(par)):
-    print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
-print(par[0].var_name)
+#print(par[0].var_name)
 print(par)
 #if all_time_r2 is not None and all_loss_r2 is not None:
 #    print("all_time_r2:")

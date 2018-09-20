@@ -797,6 +797,8 @@ class mipego(object):
         if self.n_point == 1: # sequential mode
             if self.infill == 'HVI':
                 acquisition_func = HVI(time_model=time_surrogate, loss_model=loss_surrogate, plugin=plugin, minimize=self.minimize, solutions=data, n_left=n_left,max_iter=max_iter,sol=Solution,ref_time=self.ref_time,ref_loss=self.ref_loss, alpha=self.hvi_alpha)
+            elif: self.infill == 'MC':
+                acquisition_func = MC(model=time_surrogate, plugin=plugin, minimize=self.minimize)
             else:
                 print("Error, only HVI infill criterium works for this implementation")
         else:
