@@ -27,7 +27,7 @@ from joblib import Parallel, delayed
 from scipy.optimize import fmin_l_bfgs_b
 from sklearn.metrics import r2_score
 
-from .InfillCriteria import EI, PI, MGFI, HVI
+from .InfillCriteria import EI, PI, MGFI, HVI, MONTECARLO
 from .optimizer import mies
 from .utils import proportional_selection
 
@@ -797,8 +797,8 @@ class mipego(object):
         if self.n_point == 1: # sequential mode
             if self.infill == 'HVI':
                 acquisition_func = HVI(time_model=time_surrogate, loss_model=loss_surrogate, plugin=plugin, minimize=self.minimize, solutions=data, n_left=n_left,max_iter=max_iter,sol=Solution,ref_time=self.ref_time,ref_loss=self.ref_loss, alpha=self.hvi_alpha)
-            elif: self.infill == 'MC':
-                acquisition_func = MC(model=time_surrogate, plugin=plugin, minimize=self.minimize)
+            elif self.infill == 'MC':
+                acquisition_func = MONTECARLO(model=time_surrogate, plugin=plugin, minimize=self.minimize)
             else:
                 print("Error, only HVI infill criterium works for this implementation")
         else:
