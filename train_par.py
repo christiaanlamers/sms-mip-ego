@@ -30,6 +30,16 @@ from keras.regularizers import l2
 
 import time #CHRIS added to measure runtime of training
 
+class TimedAccHistory(keras.callbacks.Callback):
+    def on_train_begin(self, logs={}):
+        self.accuracy_log = []
+        self.timed = []
+        self.start_time = time.time()
+    
+    def on_batch_end(self, batch, logs={}):
+        self.accuracy_log.append(logs.get('val_acc'))
+        self.timed.append(time.time() - self.start_time)
+
 def CNN_conf(cfg,hist_save):
     verbose = 0
     batch_size = 100
@@ -128,7 +138,10 @@ def CNN_conf(cfg,hist_save):
     x_test = x_test.astype('float32')
     x_train /= 255.
     x_test /= 255.
+    
 
+    hist_func = TimedAccHistory()
+    
     if not data_augmentation:
         print('Not using data augmentation.')
         start = time.time()
@@ -136,7 +149,7 @@ def CNN_conf(cfg,hist_save):
                   batch_size=batch_size,
                   epochs=epochs,
                   validation_data=(x_test, y_test),
-                         callbacks=callbacks,
+                         callbacks=[hist_func],
                          verbose=verbose,
                   shuffle=True)
         stop = time.time()
@@ -254,6 +267,8 @@ if all_time_r2 is not None and all_loss_r2 is not None:
     print(np.average(np.array(all_loss_r2)))
 for i in range(len(par)):
     print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
+
+
 hist_save = []
 for x in par:
     available_gpus = gp.getAvailable(limit=5)
