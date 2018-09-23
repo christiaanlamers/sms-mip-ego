@@ -266,7 +266,7 @@ for x in par:
             except:
                 pass
     print(available_gpus)
-    gpu = available_gpus[0]
+    #gpu = available_gpus[0]
     CNN_conf(x.tolist(),hist_save)
     with open('train_par_out.json', 'w') as outfile:
             json.dump(hist_save,outfile)
