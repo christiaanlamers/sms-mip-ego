@@ -181,7 +181,7 @@ def CNN_conf(cfg,hist_save):
     timer = stop-start
     print('run-time:')
     print(timer)
-    hist_save.append([[hist.accuracy_log], [hist.timed]])
+    hist_save.append([[hist_func.accuracy_log], [hist_func.timed]])
     if savemodel:
         model.save('best_model_mnist.h5')
     maxval = max(hist.history['val_acc'])
