@@ -34,7 +34,7 @@ def CNN_conf(cfg,hist_save):
     verbose = 0
     batch_size = 100
     num_classes = 10
-    epochs = 1 #CHRIS increased from 1 to 5 to make results less random and noisy
+    epochs = 2 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
