@@ -128,7 +128,7 @@ x_bound = min(0.0,min(time)),max(time)
 y_bound = min(0.0,min(loss)),max(loss)
 
 plt.ion()
-for i in range(1,0):#len(solutions)):
+for i in range(1,len(solutions)):
     plt.clf()
     plt.xlabel('time')
     plt.ylabel('loss')

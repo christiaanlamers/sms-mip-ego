@@ -134,10 +134,12 @@ for it in range(10):
     print('starting program...')
     #available_gpus = gp.getAvailable(limit=2)
     available_gpus = gp.getAvailable(limit=5)
-
+    
+    ignore_gpu = []
     if len(sys.argv) > 1:
         for i in range(1,int(len(sys.argv))):
             print(int(sys.argv[i]))
+            ignore_gpu.append(int(sys.argv[i]))
             try:
                 available_gpus.remove(int(sys.argv[i]))
             except:
@@ -164,7 +166,7 @@ for it in range(10):
                      infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                      n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
                      log_file=None, data_file=None, verbose=False, random_seed=None,
-                     available_gpus=available_gpus, bi=True, save_name='data_mnist_kayfeng_eps_var_alpha_mult_' + str(it),ref_time=None,ref_loss=None,hvi_alpha=0.1)
+                     available_gpus=available_gpus, bi=True, save_name='data_mnist_kayfeng_eps_var_alpha_mult_' + str(it),ref_time=None,ref_loss=None,hvi_alpha=0.1, ignore_gpu=ignore_gpu)
 
     #ref_time=3000.0,ref_loss=3.0
 

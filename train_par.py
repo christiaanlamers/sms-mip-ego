@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import numpy as np
-#np.random.seed(43)
+np.random.seed(44)
 import tensorflow as tf
-tf.set_random_seed(43)
+tf.set_random_seed(44)
 
 import json
 

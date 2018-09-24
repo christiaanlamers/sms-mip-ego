@@ -75,7 +75,7 @@ class mipego(object):
                  n_init_sample=None, n_point=1, n_job=1, backend='multiprocessing',
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1):
+                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1, ignore_gpu=[]):
         """
         parameter
         ---------
@@ -132,6 +132,7 @@ class mipego(object):
         self.minimize = minimize
         self.dim = len(self._space)
         self._best = min if self.minimize else max
+        self.ignore_gpu = ignore_gpu
         
         self.bi = bi #CHRIS False: only loss, True: time and loss
         self.hvi_alpha = hvi_alpha #CHRIS allows variable lower confidence interval
@@ -284,7 +285,12 @@ class mipego(object):
             else:
                 while True:
                     print('gpu ' + str(gpu_patch) + ' failed to give answer, searching for new gpu')
-                    available_gpus_patch = gp.getAvailable(limit=1)
+                    available_gpus_patch = gp.getAvailable(limit=5)
+                    for i in range(len(self.ignore_gpu)):
+                        try:
+                            available_gpus_patch.remove(self.ignore_gpu[i])
+                        except:
+                            pass
                     if len(available_gpus_patch) > 0:
                         gpu_patch = available_gpus_patch[0]
                         break
