@@ -36,7 +36,7 @@ class TimedAccHistory(keras.callbacks.Callback):
         self.timed = []
         self.start_time = time.time()
     
-    def on_batch_end(self, batch, logs={}):
+    def on_epoch_end(self, batch, logs={}):
         self.accuracy_log.append(logs.get('val_acc'))
         self.timed.append(time.time() - self.start_time)
 
