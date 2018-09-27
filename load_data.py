@@ -128,7 +128,7 @@ x_bound = min(0.0,min(time)),max(time)
 y_bound = min(0.0,min(loss)),max(loss)
 
 plt.ion()
-for i in range(1,len(solutions)):
+for i in range(1,0):#len(solutions)):
     plt.clf()
     plt.xlabel('time')
     plt.ylabel('loss')
@@ -161,6 +161,10 @@ print("Hyper Volume:")
 print(HV)
 print("len pareto front:")
 print(len(par))
+print("len loss r2 score:")
+print(len(all_loss_r2))
+print("len time r2 score:")
+print(len(all_time_r2))
 print("paretofront:")
 for i in range(len(par)):
     print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
@@ -185,8 +189,8 @@ print(par)
 plt.clf()
 #plt.xlabel('time')
 #plt.ylabel('loss')
-plt.xlabel('f_sphere_1')#CHRIS x^2
-plt.ylabel('f_sphere_2')#(x-2)^2
+plt.xlabel('time')#CHRIS x^2
+plt.ylabel('loss')#(x-2)^2
 axes = plt.gca()
 axes.set_xlim([x_bound[0],x_bound[1]])
 axes.set_ylim([y_bound[0],y_bound[1]])

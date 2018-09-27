@@ -172,7 +172,7 @@ class mipego(object):
             
             # TODO: find a nicer way to integrate this part
             # cooling down to 1e-1
-            max_iter = self.max_eval - self.n_init_sample
+            max_iter = self.max_eval - self.n_init_sample #TODO_CHRIS why is this here? max_iter is now infinite, while schedule is None, so if statement below does nothing (for current settings)
             if self.schedule == 'exp':                         # exponential
                 self.alpha = (self.tf / t0) ** (1. / max_iter) 
             elif self.schedule == 'linear':
@@ -705,7 +705,7 @@ class mipego(object):
                 print("Not enough GPUs available for n_jobs")
                 return 1,1 #CHRIS changed "1" to "1,1". This avoids an error message
 
-            self.n_point = 1 #set n_point to 1 because we only do one evaluation at a time (async)
+            #self.n_point = 1 #set n_point to 1 because we only do one evaluation at a time (async)#CHRIS n_point is set to 1 at initialisation
             # initialize
             self.logger.info('selected time_surrogate model: {}'.format(self.time_surrogate.__class__))
             self.logger.info('selected loss_surrogate model: {}'.format(self.loss_surrogate.__class__))
@@ -771,17 +771,22 @@ class mipego(object):
     def check_stop(self):
         # TODO: add more stop criteria
         # unify the design purpose of stop_dict
+        val = 0 #CHRIS simpler way to check stop condition
         if self.iter_count >= self.max_iter:
             self.stop_dict['max_iter'] = True
+            val += 1
 
         if self.eval_count >= self.max_eval:
             self.stop_dict['max_eval'] = True
+            val += 1
         
         if self.ftarget is not None and hasattr(self, 'incumbent') and \
             self._compare(self.incumbent.perf, self.ftarget):
             self.stop_dict['ftarget'] = True
+            val += 1
 
-        return len(self.stop_dict)
+        #return len(self.stop_dict)#CHRIS this was buggy
+        return val#CHRIS this should be less buggy
 
     def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None,max_iter=None):
         if plugin is None:
