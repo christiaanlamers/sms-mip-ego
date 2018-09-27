@@ -577,6 +577,7 @@ class mipego(object):
             self.logger.info('Evaluating:')
             self.logger.info(confs_.to_dict())
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
+            self.n_left -= 1
 
             
             if self.data is None:
