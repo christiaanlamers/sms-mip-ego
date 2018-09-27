@@ -277,6 +277,8 @@ class mipego(object):
         gpu_patch = gpu
         while True:
             ans = self.obj_func(x.to_dict(), gpu_no=gpu_patch)
+            print("n_left,max_iter:")
+            print(self.n_left,self.max_iter)
             print('_eval_gpu():')
             print(ans)
             time_ans,loss_ans,success= ans[0],ans[1],ans[2]
@@ -491,7 +493,6 @@ class mipego(object):
         
         # TODO: postpone the evaluate to intensify...
         self.evaluate(X, runs=self.init_n_eval)
-        self.n_left -= 1
         print("n_left,max_iter:")
         print(self.n_left,self.max_iter)
         self.data += X
@@ -578,7 +579,7 @@ class mipego(object):
             self.logger.info(confs_.to_dict())
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
             self.n_left -= 1
-
+            self.iter_count += 1
             
             if self.data is None:
                 self.data = [confs_]
@@ -610,7 +611,6 @@ class mipego(object):
             self.logger.info("{} threads still running...".format(threading.active_count()))
 
             # model re-training
-            self.iter_count += 1
             self.hist_f.append(self.incumbent.fitness)
 
             self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
@@ -690,6 +690,7 @@ class mipego(object):
         # if self.eval_count % 2 == 0:
             # self.fit_and_assess()
         self.fit_and_assess()
+        self.n_left -= 1
         self.iter_count += 1
         self.hist_f.append(self.incumbent.fitness)
 
@@ -783,7 +784,7 @@ class mipego(object):
             self._compare(self.incumbent.perf, self.ftarget):
             self.stop_dict['ftarget'] = True
 
-        return self.n_left <= 0
+        return len(self.stop_dict)
 
     def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None,max_iter=None):
         if plugin is None:
