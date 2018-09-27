@@ -25,8 +25,8 @@ np.random.seed(42)
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 100
-n_init_sample = 10
+n_step = 4
+n_init_sample = 2
 verbose = True
 save = False
 logfile = 'mnist.log'
@@ -136,9 +136,11 @@ print('starting program...')
 #available_gpus = gp.getAvailable(limit=2)
 available_gpus = gp.getAvailable(limit=5)
 
+ignore_gpu = []
 if len(sys.argv) > 1:
     for i in range(1,int(len(sys.argv))):
         print(int(sys.argv[i]))
+        ignore_gpu.append(int(sys.argv[i]))
         try:
             available_gpus.remove(int(sys.argv[i]))
         except:
