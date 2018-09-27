@@ -317,7 +317,7 @@ class mipego(object):
         x.time = time_loc / runs if time_ is None else (time_ * n_eval + time_loc) / x.n_eval
         x.loss = loss_loc / runs if loss_ is None else (loss_ * n_eval + loss_loc) / x.n_eval
 
-        self.eval_count += runs
+        #self.eval_count += runs#CHRIS no double counting
         self.eval_hist_loss += [loss_ans] #CHRIS added time and loss history
         self.eval_hist_time += [time_ans]
         self.eval_hist_id += [x.index] * runs
@@ -355,7 +355,7 @@ class mipego(object):
         #x.n_eval += runs
         #x.fitness = fitness / runs if fitness_ is None else (fitness_ * n_eval + fitness) / x.n_eval
 
-        self.eval_count += runs
+        #self.eval_count += runs#CHRIS no double counting
         self.eval_hist_loss += [x.loss]
         self.eval_hist_time += [x.time]
         self.eval_hist_id += [x.index] * runs
@@ -390,6 +390,7 @@ class mipego(object):
             else:
                 for x in data:
                     self._eval_one(x)
+                    self.eval_count += 1
 
     def fit_and_assess(self, time_surrogate = None, loss_surrogate = None):
         while True:
@@ -771,22 +772,17 @@ class mipego(object):
     def check_stop(self):
         # TODO: add more stop criteria
         # unify the design purpose of stop_dict
-        val = 0 #CHRIS simpler way to check stop condition
         if self.iter_count >= self.max_iter:
             self.stop_dict['max_iter'] = True
-            val += 1
 
         if self.eval_count >= self.max_eval:
             self.stop_dict['max_eval'] = True
-            val += 1
         
         if self.ftarget is not None and hasattr(self, 'incumbent') and \
             self._compare(self.incumbent.perf, self.ftarget):
             self.stop_dict['ftarget'] = True
-            val += 1
 
-        #return len(self.stop_dict)#CHRIS this was buggy
-        return val#CHRIS this should be less buggy
+        return len(self.stop_dict)
 
     def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None,max_iter=None):
         if plugin is None:
