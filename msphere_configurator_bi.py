@@ -25,8 +25,8 @@ np.random.seed(42)
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 110
-n_init_sample = 90
+n_step = 4
+n_init_sample = 2
 verbose = True
 save = False
 logfile = 'msphere.log'
@@ -134,7 +134,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True,save_name='data_msphere_kayfeng_eps_var_alpha_large_forest',ref_time=None,ref_loss=None)
+                 available_gpus=available_gpus, bi=True,save_name='data_msphere_test_please_delete_me',ref_time=None,ref_loss=None)
 
 #ref_time=150.0,ref_loss=150.0
 

@@ -782,7 +782,7 @@ class mipego(object):
             self._compare(self.incumbent.perf, self.ftarget):
             self.stop_dict['ftarget'] = True
 
-        return len(self.stop_dict)
+        return self.n_left <= 0
 
     def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None,max_iter=None):
         if plugin is None:
