@@ -783,7 +783,10 @@ class mipego(object):
         if self.ftarget is not None and hasattr(self, 'incumbent') and \
             self._compare(self.incumbent.perf, self.ftarget):
             self.stop_dict['ftarget'] = True
-
+        print("stop_dict in check_stop:")
+        print(self.stop_dict)
+        print("len stop_dict:")
+        print(len(self.stop_dict))
         return len(self.stop_dict)
 
     def _acquisition(self, plugin=None, dx=False, time_surrogate=None, loss_surrogate=None,data=None,n_left=None,max_iter=None):
