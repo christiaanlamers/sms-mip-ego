@@ -579,6 +579,8 @@ class mipego(object):
             self.logger.info(confs_.to_dict())
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
             self.n_left -= 1
+            if self.n_left < 0:
+                self.n_left = 0
             self.iter_count += 1
             
             if self.data is None:
@@ -691,6 +693,8 @@ class mipego(object):
             # self.fit_and_assess()
         self.fit_and_assess()
         self.n_left -= 1
+        if self.n_left < 0:
+            self.n_left = 0
         self.iter_count += 1
         self.hist_f.append(self.incumbent.fitness)
 
