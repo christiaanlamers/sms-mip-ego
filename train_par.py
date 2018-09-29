@@ -64,32 +64,39 @@ def CNN_conf(cfg,hist_save):
     model = Sequential()
     
     model.add(Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:]))
-    model.add(Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+    model.add(Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
     model.add(Activation(cfg['activation']))#kernel_initializer='random_uniform',
     
     #stack 0
     for i in range(cfg['stack_0']):
-        model.add(Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+        model.add(Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
         model.add(Activation(cfg['activation']))
     #maxpooling as cnn
-    model.add(Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), strides=(cfg['s_0'], cfg['s_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+    model.add(Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), strides=(cfg['s_0'], cfg['s_0']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
     model.add(Activation(cfg['activation']))
     model.add(Dropout(cfg['dropout_1']))
     
     #stack 1
     for i in range(cfg['stack_1']):
-        model.add(Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+        model.add(Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
         model.add(Activation(cfg['activation']))
-    model.add(Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), strides=(cfg['s_1'], cfg['s_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+    model.add(Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), strides=(cfg['s_1'], cfg['s_1']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
     model.add(Activation(cfg['activation']))
     model.add(Dropout(cfg['dropout_2']))
 
     #stack 2
     for i in range(cfg['stack_2']):
-        model.add(Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+        model.add(Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
         model.add(Activation(cfg['activation']))
     if (cfg['stack_2']>0):
-        model.add(Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), strides=(cfg['s_2'], cfg['s_2']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
+        model.add(Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), strides=(cfg['s_2'], cfg['s_2']), padding='same', 
+                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2'])))
         model.add(Activation(cfg['activation']))
         model.add(Dropout(cfg['dropout_3']))
     
@@ -110,7 +117,8 @@ def CNN_conf(cfg,hist_save):
         initial_lrate = cfg['lr']
         drop = 0.1
         epochs_drop = 20.0
-        lrate = initial_lrate * math.pow(drop,math.floor((1+epoch)/epochs_drop))
+        lrate = initial_lrate * math.pow(drop,  
+                                         math.floor((1+epoch)/epochs_drop))
         return lrate
     callbacks = []
     if (cfg['step'] == True):
@@ -122,7 +130,9 @@ def CNN_conf(cfg,hist_save):
     opt = keras.optimizers.SGD(lr=cfg['lr'], momentum=0.9, decay=cfg['decay'], nesterov=False)
 
     # Let's train the model using RMSprop
-    model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=opt,
+                  metrics=['accuracy'])
 
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
@@ -135,7 +145,13 @@ def CNN_conf(cfg,hist_save):
     if not data_augmentation:
         print('Not using data augmentation.')
         start = time.time()
-        hist = model.fit(x_train, y_train,batch_size=batch_size,epochs=epochs,validation_data=(x_test, y_test),callbacks=[hist_func],verbose=verbose,shuffle=True)
+        hist = model.fit(x_train, y_train,
+                  batch_size=batch_size,
+                  epochs=epochs,
+                  validation_data=(x_test, y_test),
+                         callbacks=[hist_func],
+                         verbose=verbose,
+                  shuffle=True)
         stop = time.time()
     else:
         print('Using real-time data augmentation.')
@@ -155,7 +171,11 @@ def CNN_conf(cfg,hist_save):
 
         # Fit the model on the batches generated by datagen.flow().
         start = time.time()
-        hist = model.fit_generator(datagen.flow(x_train, y_train,batch_size=batch_size), verbose=verbose,callbacks=callbacks,epochs=epochs, steps_per_epoch = len(x_train)/batch_size,validation_data=(x_test, y_test))
+        hist = model.fit_generator(datagen.flow(x_train, y_train,
+                                         batch_size=batch_size), verbose=verbose,
+                                   callbacks=callbacks,
+                            epochs=epochs, steps_per_epoch = len(x_train)/batch_size,
+                            validation_data=(x_test, y_test))
         stop = time.time()
 
     timer = stop-start
