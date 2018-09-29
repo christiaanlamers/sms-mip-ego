@@ -725,6 +725,9 @@ class mipego(object):
 
             for i in range(self.n_init_sample):
                 self.evaluation_queue.put(datasamples[i])
+            
+            self.iter_count -= self.n_init_sample#CHRIS because initial samples are in queue, counters count them as normal samples, so this needs to be coutered
+            self.n_left += self.n_init_sample
 
             #self.evaluate(self.data, runs=self.init_n_eval)
             ## set the initial incumbent

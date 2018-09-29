@@ -23,7 +23,7 @@ import time
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 200#110
+n_step = 110
 n_init_sample = 90#90
 verbose = True
 save = False
