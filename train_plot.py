@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import sys
 
-display_time = False
+display_time = True
 
 file_name = str(sys.argv[1])
 with open(file_name) as f:
