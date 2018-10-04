@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import sys
 
 display_time = True
+display_max_data = True
 
 file_name = str(sys.argv[1])
 with open(file_name) as f:
@@ -29,10 +30,19 @@ for i in range(len(data)):
         if max_acc < data[i][0][j]:
             max_acc = data[i][0][j]
             max_time = data[i][1][j]
+    max_data= []
+    for j in range(len(data[i][0])):
+        max_data.append(max(data[i][0][:j+1]))
     if display_time:
-        plt.plot(data[i][1],data[i][0],label='par '+str(i))
+        if display_max_data:
+            plt.plot(data[i][1],max_data,label='par '+str(i))
+        else:
+            plt.plot(data[i][1],data[i][0],label='par '+str(i))
     else:
-        plt.plot(data[i][0],label='par '+str(i))
+        if display_max_data:
+            plt.plot(max_data,label='par '+str(i))
+        else:
+            plt.plot(data[i][0],label='par '+str(i))
 print("max accuracy:")
 print(max_acc)
 print("at time (seconds):")

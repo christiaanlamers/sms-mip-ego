@@ -130,7 +130,7 @@ y_bound = min(0.0,min(loss)),max(loss)
 plt.ion()
 for i in range(1,0):#len(solutions)):
     plt.clf()
-    plt.xlabel('time')
+    plt.xlabel('time (s)')
     plt.ylabel('loss')
     axes = plt.gca()
     axes.set_xlim([x_bound[0],x_bound[1]])
@@ -189,7 +189,7 @@ print(par)
 plt.clf()
 #plt.xlabel('time')
 #plt.ylabel('loss')
-plt.xlabel('time')#CHRIS x^2
+plt.xlabel('time (s)')#CHRIS x^2
 plt.ylabel('loss')#(x-2)^2
 axes = plt.gca()
 axes.set_xlim([x_bound[0],x_bound[1]])
