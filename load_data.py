@@ -1,7 +1,11 @@
 import json
 import numpy as np
+import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(style="darkgrid")
+
 
 import sys
 
@@ -76,8 +80,8 @@ class obj_func(object):
         #return outputval
         return tuple
 
-if len(sys.argv) != 3 and len(sys.argv) != 5:
-    print("usage: python3 load_data.py 'data_file_name.json' init_solution_number (optional: ref_time ref_loss)")
+if len(sys.argv) != 4 and len(sys.argv) != 6:
+    print("usage: python3 load_data.py 'data_file_name.json' init_solution_number zoom(0,1) (optional: ref_time ref_loss)")
     exit(0)
 file_name = str(sys.argv[1])
 with open(file_name) as f:
@@ -85,10 +89,11 @@ with open(file_name) as f:
         data = json.loads(line)
 
 init_amount = int(sys.argv[2])
+zoom = int(sys.argv[3])
 
-if len(sys.argv) == 5:
-    ref_time = float(sys.argv[3])
-    ref_loss = float(sys.argv[4])
+if len(sys.argv) == 6:
+    ref_time = float(sys.argv[4])
+    ref_loss = float(sys.argv[5])
 else:
     ref_time = None
     ref_loss = None
@@ -194,7 +199,18 @@ plt.ylabel('loss')#(x-2)^2
 axes = plt.gca()
 axes.set_xlim([x_bound[0],x_bound[1]])
 axes.set_ylim([y_bound[0],y_bound[1]])
-plt.plot(time[0:init_amount], loss[0:init_amount],'yo')
-plt.plot(time[init_amount:], loss[init_amount:], 'o')
-plt.plot(par_time, par_loss, 'ro')
+#plt.plot(time[0:init_amount], loss[0:init_amount],'yo')
+#plt.plot(time[init_amount:], loss[init_amount:], 'o')
+#plt.plot(par_time, par_loss, 'ro')
+#plt.pause(float('inf'))
+init = pd.DataFrame(data={'msphere_1':time[0:init_amount], 'msphere_2':loss[0:init_amount]})
+a=sns.scatterplot(x='msphere_1', y='msphere_2', data=init,color = 'y')
+heur = pd.DataFrame(data={'msphere_1':time[init_amount:], 'msphere_2':loss[init_amount:]})
+b=sns.scatterplot(x='msphere_1', y='msphere_2', data=heur, color = 'b')
+par_data = pd.DataFrame(data={'msphere_1':par_time, 'msphere_2':par_loss})
+c=sns.scatterplot(x='msphere_1', y='msphere_2', data=par_data, color = 'r')
+if zoom:
+    a.set(xlim=(0,200),ylim=(0, 0.5))
+    b.set(xlim=(0,200),ylim=(0, 0.5))
+    c.set(xlim=(0,200),ylim=(0, 0.5))
 plt.pause(float('inf'))
