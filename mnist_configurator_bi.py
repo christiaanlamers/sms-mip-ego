@@ -25,8 +25,8 @@ np.random.seed(42)
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 4
-n_init_sample = 2
+n_step = 110
+n_init_sample = 90
 verbose = True
 save = False
 logfile = 'mnist.log'
