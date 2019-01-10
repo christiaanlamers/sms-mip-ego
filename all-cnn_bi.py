@@ -35,9 +35,6 @@ def CNN_conf(cfg,epochs=1):
     # The data, shuffled and split between train and test sets:
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     
-    x_train = tf.keras.utils.normalize(x_train,axis=1)#CHRIS normalisation helps
-    x_test = tf.keras.utils.normalize(x_test,axis=1)
-    
     x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
     x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
     

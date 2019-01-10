@@ -403,8 +403,17 @@ class mipego(object):
                 #TODO_CHRIS is normalization really a good idea here? can be removed, or save scaling factor and give to s-metric (min and max)
                 # normalization the response for numerical stability
                 # e.g., for MGF-based acquisition function
-                _time_min, _time_max = np.min(time_fitness), np.max(time_fitness)
-                time_fitness_scaled = (time_fitness - _time_min) / (_time_max - _time_min)
+                #_time_min, _time_max = np.min(time_fitness), np.max(time_fitness)
+                #time_fitness_scaled = (time_fitness - _time_min) / (_time_max - _time_min) #Xin Guo improvement
+                
+                if len(time_fitness) == 1: # for the case n_init_sample=1 #Xin Guo improvement
+                    time_fitness_scaled = time_fitness
+                else:
+                    time_min, time_max = np.min(time_fitness), np.max(time_fitness)
+                        if not time_min == time_max: # for the case of flat fitness
+                            time_fitness_scaled = (time_fitness - time_min) / (time_max - time_min)
+                        else:
+                            time_fitness_scaled = time_fitness
 
                 # fit the time surrogate model
                 if (time_surrogate is None):
@@ -421,8 +430,17 @@ class mipego(object):
                 
                 # normalization the response for numerical stability
                 # e.g., for MGF-based acquisition function
-                _loss_min, _loss_max = np.min(loss_fitness), np.max(loss_fitness)
-                loss_fitness_scaled = (loss_fitness - _loss_min) / (_loss_max - _loss_min)
+                #_loss_min, _loss_max = np.min(loss_fitness), np.max(loss_fitness) #Xin Guo improvement
+                #loss_fitness_scaled = (loss_fitness - _loss_min) / (_loss_max - _loss_min)
+                
+                if len(loss_fitness) == 1: # for the case n_init_sample=1 #Xin Guo improvement
+                    loss_fitness_scaled = loss_fitness
+                else:
+                    loss_min, loss_max = np.min(loss_fitness), np.max(loss_fitness)
+                        if not loss_min == loss_max: # for the case of flat fitness
+                            loss_fitness_scaled = (loss_fitness - loss_min) / (loss_max - loss_min)
+                        else:
+                            loss_fitness_scaled = loss_fitness
                 
                 # fit the loss surrogate model
                 if (loss_surrogate is None):
