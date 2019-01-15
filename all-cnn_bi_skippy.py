@@ -86,9 +86,9 @@ def CNN_conf(cfg,epochs=1,test=False):
     skip_manager = Skip_manager([6,6,6],[1,2,3])
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
-    layer = skip_manager.connect_skip(input1)
     
-    layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(layer)
+    layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)
+    layer = skip_manager.connect_skip(layer)
     layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',
                      kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
