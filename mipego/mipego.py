@@ -410,10 +410,10 @@ class mipego(object):
                     time_fitness_scaled = time_fitness
                 else:
                     time_min, time_max = np.min(time_fitness), np.max(time_fitness)
-                        if not time_min == time_max: # for the case of flat fitness
-                            time_fitness_scaled = (time_fitness - time_min) / (time_max - time_min)
-                        else:
-                            time_fitness_scaled = time_fitness
+                    if not time_min == time_max: # for the case of flat fitness
+                        time_fitness_scaled = (time_fitness - time_min) / (time_max - time_min)
+                    else:
+                        time_fitness_scaled = time_fitness
 
                 # fit the time surrogate model
                 if (time_surrogate is None):
@@ -437,10 +437,10 @@ class mipego(object):
                     loss_fitness_scaled = loss_fitness
                 else:
                     loss_min, loss_max = np.min(loss_fitness), np.max(loss_fitness)
-                        if not loss_min == loss_max: # for the case of flat fitness
-                            loss_fitness_scaled = (loss_fitness - loss_min) / (loss_max - loss_min)
-                        else:
-                            loss_fitness_scaled = loss_fitness
+                    if not loss_min == loss_max: # for the case of flat fitness
+                        loss_fitness_scaled = (loss_fitness - loss_min) / (loss_max - loss_min)
+                    else:
+                        loss_fitness_scaled = loss_fitness
                 
                 # fit the loss surrogate model
                 if (loss_surrogate is None):
