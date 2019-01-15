@@ -23,8 +23,8 @@ import time #CHRIS added to measure runtime of training
 
 class Skip_manager(object):
     def __init__(self,skip_ints,skip_ints_count):
-        self.skip_ints= [6,6,6]#TODO move to cfg vector
-        self.skip_ints_count = [1,2,3]#TODO move to cfg vector
+        self.skip_ints= skip_ints
+        self.skip_ints_count = skip_ints_count
         self.skip_connections = []
         self.layer_num = 0 #layer number of currently build layer
     
@@ -40,7 +40,7 @@ class Skip_manager(object):
     def connect_skip(self,layer):
         #start skip connections
         for j in range(len(self.skip_ints)):
-            if self.startpoint(self.gray,self.skip_ints[j]):
+            if self.startpoint(self.identity,self.skip_ints[j]):#TODO self.identity should be self.gray
                 self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
     
         #end skip connections
@@ -50,7 +50,21 @@ class Skip_manager(object):
             if self.skip_connections[j][1] <= 0:
                 print(prev_skip,self.skip_connections[j][2])
                 if prev_skip != self.skip_connections[j][2]:#this removes skip connection duplicates (works because same skip connections are next to eachother) TODO maybe better to make more robust
-                    layer = keras.layers.Concatenate()([layer, self.skip_connections[j][0]])
+                    if K.int_shape(self.skip_connections[j][0])[1] != K.int_shape(layer)[1]:
+                        pass#TODO find a solution to this
+                        #pad_tpl = (int(np.floor(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)))
+                        #print(pad_tpl)
+                        #if K.int_shape(self.skip_connections[j][0])[1] < K.int_shape(layer)[1]:
+                            #padded = K.spatial_2d_padding(self.skip_connections[j][0], padding=(pad_tpl, pad_tpl))
+                            #layer = keras.layers.Concatenate()([layer, padded])
+                        #else:
+                            #print(layer.shape)
+                            #padded = K.spatial_2d_padding(layer, padding=(pad_tpl, pad_tpl))
+                            #print(padded.shape)
+                            #print(self.skip_connections[j][0].shape)
+                            #layer = keras.layers.Concatenate()([padded, self.skip_connections[j][0]])
+                    else:
+                        layer = keras.layers.Concatenate()([layer, self.skip_connections[j][0]])
                 prev_skip = self.skip_connections[j][2]
                 del self.skip_connections[j]
             else:
@@ -83,7 +97,7 @@ def CNN_conf(cfg,epochs=1,test=False):
     y_test = keras.utils.to_categorical(y_test.flatten(), num_classes)
     
     #(skip_ints,skip_ints_count) passed to Skip_manager constructor TODO get from cfg vector
-    skip_manager = Skip_manager([6,6,6],[1,2,3])
+    skip_manager = Skip_manager([2**10-1,2**10-1,2**10-1],[1,2,3])
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
@@ -298,19 +312,19 @@ def test_skippy():
 
     #test parameters
     #original parameters
-    stack_0 = 1
-    stack_1 =1
-    stack_2 =1
+    stack_0 = 3
+    stack_1 =3
+    stack_2 =3
     s_0=1
-    s_1=1#2
-    s_2=1#3
+    s_1=2
+    s_2=3
     filters_0=10
-    filters_1=10
-    filters_2=10
-    filters_3=10
-    filters_4=10
-    filters_5=10
-    filters_6=10
+    filters_1=8
+    filters_2=6
+    filters_3=5
+    filters_4=4
+    filters_5=6
+    filters_6=4
     k_0=3
     k_1=4
     k_2=2
