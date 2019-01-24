@@ -10,7 +10,7 @@ from keras.datasets import mnist
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D,UpSampling2D,ZeroPadding2D
 import os
 import sys
 import pandas as pd
@@ -20,6 +20,14 @@ from keras.callbacks import LearningRateScheduler
 from keras.regularizers import l2
 
 import time #CHRIS added to measure runtime of training
+from fractions import gcd #CHRIS needed for proper upscaling
+
+def inv_gray(num):#TODO only for testing
+    n = 0
+    while num != 0:
+        n = num ^ n
+        num = num >> 1
+    return n
 
 class Skip_manager(object):
     def __init__(self,skip_ints,skip_ints_count):
@@ -40,7 +48,7 @@ class Skip_manager(object):
     def connect_skip(self,layer):
         #start skip connections
         for j in range(len(self.skip_ints)):
-            if self.startpoint(self.identity,self.skip_ints[j]):#TODO self.identity should be self.gray
+            if self.startpoint(self.gray,self.skip_ints[j]):
                 self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
     
         #end skip connections
@@ -48,21 +56,39 @@ class Skip_manager(object):
         prev_skip = -1
         while j < len(self.skip_connections):
             if self.skip_connections[j][1] <= 0:
-                print(prev_skip,self.skip_connections[j][2])
+                #print(prev_skip,self.skip_connections[j][2])
                 if prev_skip != self.skip_connections[j][2]:#this removes skip connection duplicates (works because same skip connections are next to eachother) TODO maybe better to make more robust
-                    if K.int_shape(self.skip_connections[j][0])[1] != K.int_shape(layer)[1]:
-                        pass#TODO find a solution to this
-                        #pad_tpl = (int(np.floor(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)))
+                    if K.int_shape(self.skip_connections[j][0])[1] != K.int_shape(layer)[1] or K.int_shape(self.skip_connections[j][0])[2] != K.int_shape(layer)[2]:
+                        pad_tpl1 = (int(np.floor(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)))
+                        pad_tpl2 = (int(np.floor(np.abs(K.int_shape(self.skip_connections[j][0])[2]-K.int_shape(layer)[2])/2)),int(np.ceil(np.abs(K.int_shape(self.skip_connections[j][0])[2]-K.int_shape(layer)[2])/2)))
                         #print(pad_tpl)
-                        #if K.int_shape(self.skip_connections[j][0])[1] < K.int_shape(layer)[1]:
-                            #padded = K.spatial_2d_padding(self.skip_connections[j][0], padding=(pad_tpl, pad_tpl))
-                            #layer = keras.layers.Concatenate()([layer, padded])
-                        #else:
+                        if K.int_shape(self.skip_connections[j][0])[1] < K.int_shape(layer)[1] and K.int_shape(self.skip_connections[j][0])[2] < K.int_shape(layer)[2]:
+                            padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(self.skip_connections[j][0])
+                            layer = keras.layers.Concatenate()([layer, padded])
+                        elif K.int_shape(self.skip_connections[j][0])[1] < K.int_shape(layer)[1] and K.int_shape(self.skip_connections[j][0])[2] >= K.int_shape(layer)[2]:
+                            padded1 = ZeroPadding2D(padding=(pad_tpl1, 0))(self.skip_connections[j][0])
+                            padded2 = ZeroPadding2D(padding=(0, pad_tpl2))(layer)
+                            layer = keras.layers.Concatenate()([padded1, padded2])
+                        elif K.int_shape(self.skip_connections[j][0])[1] >= K.int_shape(layer)[1] and K.int_shape(self.skip_connections[j][0])[2] < K.int_shape(layer)[2]:
+                            padded1 = ZeroPadding2D(padding=(0, pad_tpl2))(self.skip_connections[j][0])
+                            padded2 = ZeroPadding2D(padding=(pad_tpl1, 0))(layer)
+                            layer = keras.layers.Concatenate()([padded1, padded2])
+                        else:
                             #print(layer.shape)
-                            #padded = K.spatial_2d_padding(layer, padding=(pad_tpl, pad_tpl))
+                            padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(layer)
                             #print(padded.shape)
                             #print(self.skip_connections[j][0].shape)
-                            #layer = keras.layers.Concatenate()([padded, self.skip_connections[j][0]])
+                            layer = keras.layers.Concatenate()([padded, self.skip_connections[j][0]])
+                        #if upscaling is desired: (can result in enormous tensors though)
+                        #shape1 = K.int_shape(layer)
+                        #shape2 = K.int_shape(self.skip_connections[j][0])
+                        #gcd_x = gcd(shape1[1], shape2[1])
+                        #gcd_y = gcd(shape1[2], shape2[2])
+                        #scale1 =shape2[1] // gcd_x, shape2[2] // gcd_y
+                        #scale2 =shape1[1] // gcd_x, shape1[2] // gcd_y
+                        #upscaled1 = UpSampling2D(size=scale1, interpolation='nearest')(layer)
+                        #upscaled2 = UpSampling2D(size=scale2, interpolation='nearest')(self.skip_connections[j][0])
+                        #layer = keras.layers.Concatenate()([upscaled1, upscaled2])
                     else:
                         layer = keras.layers.Concatenate()([layer, self.skip_connections[j][0]])
                 prev_skip = self.skip_connections[j][2]
@@ -97,7 +123,7 @@ def CNN_conf(cfg,epochs=1,test=False):
     y_test = keras.utils.to_categorical(y_test.flatten(), num_classes)
     
     #(skip_ints,skip_ints_count) passed to Skip_manager constructor TODO get from cfg vector
-    skip_manager = Skip_manager([2**10-1,2**10-1,2**10-1],[1,2,3])
+    skip_manager = Skip_manager([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
@@ -139,13 +165,39 @@ def CNN_conf(cfg,epochs=1,test=False):
                      kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
-    if (cfg['stack_2']>0):
+    if (cfg['stack_2']>0):#TODO waarom?
         layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), strides=(cfg['s_2'], cfg['s_2']), padding='same',
                      kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_3'])(layer)
-    
+
+    #stack 3
+    for i in range(cfg['stack_3']):
+        layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), padding='same',
+                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+    if (cfg['stack_3']>0):#TODO waarom?
+        layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), strides=(cfg['s_3'], cfg['s_3']), padding='same',
+                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+        layer = Dropout(cfg['dropout_4'])(layer)
+
+    #stack 4
+    for i in range(cfg['stack_4']):
+        layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), padding='same',
+                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+    if (cfg['stack_4']>0):#TODO waarom?
+        layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), strides=(cfg['s_4'], cfg['s_4']), padding='same',
+                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+        layer = Dropout(cfg['dropout_5'])(layer)
+
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
@@ -155,6 +207,8 @@ def CNN_conf(cfg,epochs=1,test=False):
     
     
     #head
+    layer = Dense(1000, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
+    layer = Activation(cfg['activ_dense'])(layer)
     layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
     layer = Activation(cfg['activ_dense'])(layer)
     
@@ -192,6 +246,7 @@ def CNN_conf(cfg,epochs=1,test=False):
 
     if not data_augmentation:
         print('Not using data augmentation.')
+        verbose = True #TODO remove this
         start = time.time()
         hist = model.fit(x_train, y_train,
                   batch_size=batch_size,
@@ -218,6 +273,7 @@ def CNN_conf(cfg,epochs=1,test=False):
         datagen.fit(x_train)
 
         # Fit the model on the batches generated by datagen.flow().
+        verbose = True #TODO remove this
         start = time.time()
         hist = model.fit_generator(datagen.flow(x_train, y_train,
                                          batch_size=batch_size), verbose=verbose,
@@ -274,10 +330,10 @@ def test_skippy():
     activation_fun = ["softmax"]
     activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-    filters = OrdinalSpace([10, 600], 'filters') * 7
-    kernel_size = OrdinalSpace([1, 6], 'k') * 7
-    strides = OrdinalSpace([1, 5], 's') * 3
-    stack_sizes = OrdinalSpace([1, 5], 'stack') * 3
+    filters = OrdinalSpace([10, 600], 'filters') * 11
+    kernel_size = OrdinalSpace([1, 6], 'k') * 11
+    strides = OrdinalSpace([1, 5], 's') * 5
+    stack_sizes = OrdinalSpace([1, 12], 'stack') * 5
     #TODO_CHRIS these changes are just for cigar test function
     #filters = OrdinalSpace([0, 5], 'filters') * 7
     #kernel_size = OrdinalSpace([0, 5], 'k') * 7
@@ -289,8 +345,13 @@ def test_skippy():
     activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
     step = NominalSpace([True, False], "step")  # step
     global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
+    
+    #skippy parameters
+    skints = OrdinalSpace([0, 2**30], 'skint') * 3
+    skst = OrdinalSpace([2, 10], 'skst') * 3
+    #skippy parameters
 
-    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 4        # drop_out rate
+    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
     l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
     #TODO_CHRIS these changes are just for cigar test function
@@ -299,7 +360,7 @@ def test_skippy():
     #l2_regularizer = ContinuousSpace([0.0, 1e-2], 'l2')# l2_regularizer
     #TODO_CHRIS these changes are just for cigar test function
 
-    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling
+    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst
     
     n_init_sample = 1
     samples = search_space.sampling(n_init_sample)
@@ -312,41 +373,67 @@ def test_skippy():
 
     #test parameters
     #original parameters
-    stack_0 = 3
-    stack_1 =3
-    stack_2 =3
-    s_0=1
-    s_1=2
-    s_2=3
-    filters_0=10
-    filters_1=8
-    filters_2=6
-    filters_3=5
-    filters_4=4
-    filters_5=6
-    filters_6=4
-    k_0=3
-    k_1=4
-    k_2=2
-    k_3=1
+    stack_0 = 1
+    stack_1 = 6
+    stack_2 = 8
+    stack_3 = 12
+    stack_4 = 6
+    s_0=2
+    s_1=3
+    s_2=5
+    s_3=1
+    s_4=4
+    filters_0=64
+    filters_1=64
+    filters_2=128
+    filters_3=128
+    filters_4=256
+    filters_5=256
+    filters_6=512
+    filters_7=128
+    filters_8=256
+    filters_9=256
+    filters_10=512
+    k_0=1
+    k_1=7
+    k_2=7
+    k_3=3
     k_4=3
-    k_5=1
+    k_5=3
     k_6=3
+    k_7=3
+    k_8=3
+    k_9=3
+    k_10=3
     activation='relu'
     activ_dense='softmax'
     dropout_0=0.7105013348601977
     dropout_1=0.24225495530708516
     dropout_2=0.5278997344637044
     dropout_3=0.7264822991098491
+    dropout_4=0.7105013348601977
+    dropout_5=0.24225495530708516
     lr=0.0072338759099408985
     l2=0.00010867041652507452
     step=False
     global_pooling=True
 
     #skippy parameters
+    om_en_om = 1
+    for w in range((stack_0+stack_1+stack_2+stack_3+stack_4)//2):#TODO testcode: remove
+        om_en_om = om_en_om << 2
+        om_en_om += 1
+    om_en_om = om_en_om << 3
+    skint_0 = 3826103921638#2**30-1
+    skint_1 = 19283461627361826#2**30-1
+    skint_2 = 473829102637452916#2**30-1
+    skst_0 = 2
+    skst_1 = 3
+    skst_2 = 5
+    #skippy parameters
 
     #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, s_0, s_1, s_2, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, k_0, k_1, k_2, k_3, k_4, k_5, k_6, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, lr, l2, step, global_pooling]]
+    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, s_0, s_1, s_2, s_3, s_4, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2 ]]
     
     #var_names
     #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
@@ -355,8 +442,13 @@ def test_skippy():
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
     print(X)
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    model = CNN_conf(X[0].to_dict(),test=True)
-    plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
-    model.summary()
-
+    test = True
+    if test:
+        model = CNN_conf(X[0].to_dict(),test=test)
+        plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
+        model.summary()
+    else:
+        timer, loss = CNN_conf(X[0].to_dict(),test=test)
+        print('timer, loss:')
+        print(timer, loss)
 test_skippy()
