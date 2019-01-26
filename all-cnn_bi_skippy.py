@@ -412,7 +412,7 @@ def test_skippy():
 
     #skippy parameters
     om_en_om = 1
-    for w in range((stack_0+stack_1+stack_2+stack_3+stack_4)//2):#TODO testcode: remove
+    for w in range((stack_0+stack_1+stack_2+stack_3+stack_4+1)//2):#TODO testcode: remove
         om_en_om = om_en_om << 2
         om_en_om += 1
     om_en_om = om_en_om << 2
