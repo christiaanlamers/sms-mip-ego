@@ -406,7 +406,7 @@ def test_skippy():
     dropout_4=0.1
     dropout_5=0.1
     lr=0.01
-    l2=0.01
+    l2=0.00010867041652507452
     step=False
     global_pooling=True
 
