@@ -20,7 +20,7 @@ from keras.callbacks import LearningRateScheduler
 from keras.regularizers import l2
 
 import time #CHRIS added to measure runtime of training
-from fractions import gcd #CHRIS needed for proper upscaling
+#from fractions import gcd #CHRIS needed for proper upscaling
 
 def inv_gray(num):#TODO only for testing
     n = 0
@@ -104,7 +104,7 @@ def CNN_conf(cfg,epochs=1,test=False):
     verbose = 0
     batch_size = 100
     num_classes = 10
-    #epochs = 1 #CHRIS increased from 1 to 5 to make results less random and noisy
+    #epochs = 3 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
@@ -129,71 +129,63 @@ def CNN_conf(cfg,epochs=1,test=False):
     
     layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)
     layer = skip_manager.connect_skip(layer)
-    layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
-    layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
-    layer = skip_manager.connect_skip(layer)
+    #CHRIS removed following:
+    #layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+    #layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
+    #layer = skip_manager.connect_skip(layer)
     
     #stack 0
     for i in range(cfg['stack_0']):
-        layer = Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
-    #maxpooling as cnn
-    layer = Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), strides=(cfg['s_0'], cfg['s_0']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
-    layer = Activation(cfg['activation'])(layer)
-    layer = skip_manager.connect_skip(layer)
-    layer = Dropout(cfg['dropout_1'])(layer)
+    if (cfg['stack_0']>0):
+        #maxpooling as cnn
+        layer = Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+        layer = Dropout(cfg['dropout_1'])(layer)
     
     #stack 1
     for i in range(cfg['stack_1']):
-        layer = Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
-    layer = Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), strides=(cfg['s_1'], cfg['s_1']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
-    layer = Activation(cfg['activation'])(layer)
-    layer = skip_manager.connect_skip(layer)
-    layer = Dropout(cfg['dropout_2'])(layer)
+    if (cfg['stack_1']>0):
+        layer = Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+        layer = Dropout(cfg['dropout_2'])(layer)
 
     #stack 2
     for i in range(cfg['stack_2']):
-        layer = Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
-    if (cfg['stack_2']>0):#TODO waarom?
-        layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), strides=(cfg['s_2'], cfg['s_2']), padding='same',
-                     kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+    if (cfg['stack_2']>0):
+        layer = Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_3'])(layer)
 
     #stack 3
     for i in range(cfg['stack_3']):
-        layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), padding='same',
-                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
-    if (cfg['stack_3']>0):#TODO waarom?
-        layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), strides=(cfg['s_3'], cfg['s_3']), padding='same',
-                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+    if (cfg['stack_3']>0):
+        layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_4'])(layer)
 
     #stack 4
     for i in range(cfg['stack_4']):
-        layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), padding='same',
-                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
-    if (cfg['stack_4']>0):#TODO waarom?
-        layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), strides=(cfg['s_4'], cfg['s_4']), padding='same',
-                       kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+    if (cfg['stack_4']>0):
+        layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
         layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_5'])(layer)
@@ -207,7 +199,7 @@ def CNN_conf(cfg,epochs=1,test=False):
     
     
     #head
-    layer = Dense(1000, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
+    layer = Dense(cfg['dense_size'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
     layer = Activation(cfg['activ_dense'])(layer)
     layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
     layer = Activation(cfg['activ_dense'])(layer)
@@ -246,7 +238,7 @@ def CNN_conf(cfg,epochs=1,test=False):
 
     if not data_augmentation:
         print('Not using data augmentation.')
-        verbose = True #TODO remove this
+        #verbose = True #TODO remove this
         start = time.time()
         hist = model.fit(x_train, y_train,
                   batch_size=batch_size,
@@ -273,7 +265,7 @@ def CNN_conf(cfg,epochs=1,test=False):
         datagen.fit(x_train)
 
         # Fit the model on the batches generated by datagen.flow().
-        verbose = True #TODO remove this
+        #verbose = True #TODO remove this
         start = time.time()
         hist = model.fit_generator(datagen.flow(x_train, y_train,
                                          batch_size=batch_size), verbose=verbose,
@@ -321,6 +313,7 @@ if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
     print(CNN_conf(cfg))
     K.clear_session()
 
+#CHRIS testcode
 def test_skippy():
     from mipego.mipego import Solution #TODO remove this, only for testing
     from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
@@ -330,10 +323,10 @@ def test_skippy():
     activation_fun = ["softmax"]
     activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-    filters = OrdinalSpace([10, 600], 'filters') * 11
-    kernel_size = OrdinalSpace([1, 6], 'k') * 11
+    filters = OrdinalSpace([10, 600], 'filters') * 10
+    kernel_size = OrdinalSpace([1, 6], 'k') * 10
     strides = OrdinalSpace([1, 5], 's') * 5
-    stack_sizes = OrdinalSpace([1, 12], 'stack') * 5
+    stack_sizes = OrdinalSpace([0, 12], 'stack') * 5
     #TODO_CHRIS these changes are just for cigar test function
     #filters = OrdinalSpace([0, 5], 'filters') * 7
     #kernel_size = OrdinalSpace([0, 5], 'k') * 7
@@ -349,6 +342,7 @@ def test_skippy():
     #skippy parameters
     skints = OrdinalSpace([0, 2**30], 'skint') * 3
     skst = OrdinalSpace([2, 10], 'skst') * 3
+    dense_size = OrdinalSpace([1, 2000], 'dense_size')
     #skippy parameters
 
     drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
@@ -360,7 +354,7 @@ def test_skippy():
     #l2_regularizer = ContinuousSpace([0.0, 1e-2], 'l2')# l2_regularizer
     #TODO_CHRIS these changes are just for cigar test function
 
-    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst
+    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size
     
     n_init_sample = 1
     samples = search_space.sampling(n_init_sample)
@@ -374,17 +368,17 @@ def test_skippy():
     #test parameters
     #original parameters
     stack_0 = 1
-    stack_1 = 6
-    stack_2 = 8
-    stack_3 = 12
-    stack_4 = 6
+    stack_1 = 0
+    stack_2 = 0
+    stack_3 = 0
+    stack_4 = 0
     s_0=2
-    s_1=3
-    s_2=5
+    s_1=1
+    s_2=1
     s_3=1
-    s_4=4
-    filters_0=64
-    filters_1=64
+    s_4=1
+    filters_0=20
+    filters_1=15
     filters_2=128
     filters_3=128
     filters_4=256
@@ -393,10 +387,9 @@ def test_skippy():
     filters_7=128
     filters_8=256
     filters_9=256
-    filters_10=512
-    k_0=1
-    k_1=7
-    k_2=7
+    k_0=3
+    k_1=3
+    k_2=3
     k_3=3
     k_4=3
     k_5=3
@@ -404,19 +397,18 @@ def test_skippy():
     k_7=3
     k_8=3
     k_9=3
-    k_10=3
     activation='relu'
     activ_dense='softmax'
-    dropout_0=0.7105013348601977
-    dropout_1=0.24225495530708516
-    dropout_2=0.5278997344637044
-    dropout_3=0.7264822991098491
-    dropout_4=0.7105013348601977
-    dropout_5=0.24225495530708516
-    lr=0.0072338759099408985
-    l2=0.00010867041652507452
+    dropout_0=0.0
+    dropout_1=0.0
+    dropout_2=0.0
+    dropout_3=0.0
+    dropout_4=0.0
+    dropout_5=0.0
+    lr=0.01
+    l2=0.01
     step=False
-    global_pooling=True
+    global_pooling=False
 
     #skippy parameters
     om_en_om = 1
@@ -424,16 +416,17 @@ def test_skippy():
         om_en_om = om_en_om << 2
         om_en_om += 1
     om_en_om = om_en_om << 3
-    skint_0 = 3826103921638#2**30-1
-    skint_1 = 19283461627361826#2**30-1
-    skint_2 = 473829102637452916#2**30-1
+    skint_0 = 0#3826103921638#2**30-1
+    skint_1 = 0#19283461627361826#2**30-1
+    skint_2 = 0#473829102637452916#2**30-1
     skst_0 = 2
     skst_1 = 3
     skst_2 = 5
+    dense_size = 128
     #skippy parameters
 
     #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, s_0, s_1, s_2, s_3, s_4, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2 ]]
+    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, s_0, s_1, s_2, s_3, s_4, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, dense_size]]
     
     #var_names
     #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
@@ -442,7 +435,7 @@ def test_skippy():
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
     print(X)
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
@@ -451,4 +444,5 @@ def test_skippy():
         timer, loss = CNN_conf(X[0].to_dict(),test=test)
         print('timer, loss:')
         print(timer, loss)
-test_skippy()
+#CHRIS uncomment following to test the code
+#test_skippy()
