@@ -104,7 +104,7 @@ objective = obj_func('./all-cnn_bi_skippy.py')
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-filters = OrdinalSpace([10, 600], 'filters') * 10
+filters = OrdinalSpace([10, 100], 'filters') * 10#CHRIS TODO 100 should be 600
 kernel_size = OrdinalSpace([1, 6], 'k') * 10
 strides = OrdinalSpace([1, 5], 's') * 5
 stack_sizes = OrdinalSpace([1, 5], 'stack') * 5
