@@ -424,7 +424,7 @@ def test_skippy():
     lr=0.01
     l2=0.0001
     step=False
-    global_pooling=False
+    global_pooling=True
 
     #skippy parameters
     om_en_om = 1
