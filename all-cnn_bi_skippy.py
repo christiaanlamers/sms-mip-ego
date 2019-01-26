@@ -6,7 +6,8 @@ import tensorflow as tf
 tf.set_random_seed(43)
 
 import keras
-from keras.datasets import mnist
+#from keras.datasets import mnist
+from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
@@ -111,10 +112,11 @@ def CNN_conf(cfg,epochs=1,test=False):
     savemodel = False
 
     # The data, shuffled and split between train and test sets:
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
     
-    x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
-    x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
+    #CHRIS reshape only needed for mnist
+    #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
+    #x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
     
     cfg_df = pd.DataFrame(cfg, index=[0])
 
@@ -143,8 +145,8 @@ def CNN_conf(cfg,epochs=1,test=False):
         #maxpooling as cnn
         layer = Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
-        layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_1'])(layer)
+        layer = skip_manager.connect_skip(layer)
     
     #stack 1
     for i in range(cfg['stack_1']):
@@ -154,8 +156,8 @@ def CNN_conf(cfg,epochs=1,test=False):
     if (cfg['stack_1']>0):
         layer = Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
-        layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_2'])(layer)
+        layer = skip_manager.connect_skip(layer)
 
     #stack 2
     for i in range(cfg['stack_2']):
@@ -165,8 +167,8 @@ def CNN_conf(cfg,epochs=1,test=False):
     if (cfg['stack_2']>0):
         layer = Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
-        layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_3'])(layer)
+        layer = skip_manager.connect_skip(layer)
 
     #stack 3
     for i in range(cfg['stack_3']):
@@ -176,8 +178,8 @@ def CNN_conf(cfg,epochs=1,test=False):
     if (cfg['stack_3']>0):
         layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
-        layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_4'])(layer)
+        layer = skip_manager.connect_skip(layer)
 
     #stack 4
     for i in range(cfg['stack_4']):
@@ -187,8 +189,8 @@ def CNN_conf(cfg,epochs=1,test=False):
     if (cfg['stack_4']>0):
         layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
-        layer = skip_manager.connect_skip(layer)
         layer = Dropout(cfg['dropout_5'])(layer)
+        layer = skip_manager.connect_skip(layer)
 
     #global averaging
     if (cfg['global_pooling']):
@@ -366,26 +368,26 @@ def test_skippy():
     #test parameters
     #original parameters
     stack_0 = 1
-    stack_1 = 0
-    stack_2 = 0
-    stack_3 = 0
-    stack_4 = 0
-    s_0=1
+    stack_1 = 6
+    stack_2 = 8
+    stack_3 = 12
+    stack_4 = 6
+    s_0=2
     s_1=1
     s_2=1
     s_3=1
     s_4=1
-    filters_0=100
-    filters_1=50
-    filters_2=20
-    filters_3=20
-    filters_4=256
-    filters_5=256
-    filters_6=512
-    filters_7=128
-    filters_8=256
-    filters_9=256
-    k_0=3
+    filters_0=64
+    filters_1=64
+    filters_2=64
+    filters_3=64
+    filters_4=128
+    filters_5=128
+    filters_6=256
+    filters_7=256
+    filters_8=512
+    filters_9=512
+    k_0=7
     k_1=3
     k_2=3
     k_3=3
@@ -413,14 +415,14 @@ def test_skippy():
     for w in range((stack_0+stack_1+stack_2+stack_3+stack_4)//2):#TODO testcode: remove
         om_en_om = om_en_om << 2
         om_en_om += 1
-    om_en_om = om_en_om << 3
-    skint_0 = 0#3826103921638#2**30-1
+    om_en_om = om_en_om << 2
+    skint_0 = inv_gray(om_en_om)#3826103921638#2**30-1
     skint_1 = 0#19283461627361826#2**30-1
     skint_2 = 0#473829102637452916#2**30-1
     skst_0 = 2
     skst_1 = 3
     skst_2 = 5
-    dense_size = 128
+    dense_size = 1000
     #skippy parameters
 
     #assembling parameters
