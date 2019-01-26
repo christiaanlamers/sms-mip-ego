@@ -104,10 +104,10 @@ objective = obj_func('./all-cnn_bi_skippy.py')
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-filters = OrdinalSpace([10, 100], 'filters') * 10#CHRIS TODO 100 should be 600
-kernel_size = OrdinalSpace([1, 6], 'k') * 10
+filters = OrdinalSpace([10, 600], 'filters') * 10#CHRIS TODO 100 should be 600
+kernel_size = OrdinalSpace([1, 7], 'k') * 10
 strides = OrdinalSpace([1, 5], 's') * 5
-stack_sizes = OrdinalSpace([1, 5], 'stack') * 5
+stack_sizes = OrdinalSpace([1, 12], 'stack') * 5
 #TODO_CHRIS these changes are just for cigar test function
 #filters = OrdinalSpace([0, 5], 'filters') * 7
 #kernel_size = OrdinalSpace([0, 5], 'k') * 7
@@ -121,10 +121,10 @@ step = NominalSpace([True, False], "step")  # step
 global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
 
 #skippy parameters
-skints = OrdinalSpace([0, 2**30], 'skint') * 3
+skints = OrdinalSpace([0, 2**60], 'skint') * 3
 skst = OrdinalSpace([2, 10], 'skst') * 3
 dense_size = OrdinalSpace([1, 2000], 'dense_size')
-no_pooling = NominalSpace([True, False], "no_pooling")
+no_pooling = NominalSpace([False], "no_pooling")#CHRIS TODO add True
 #skippy parameters
 
 drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
@@ -174,7 +174,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name='data_skippy_mnist',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
+                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
 
 #ref_time=3000.0,ref_loss=3.0
 
