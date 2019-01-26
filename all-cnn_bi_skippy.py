@@ -384,10 +384,10 @@ def test_skippy():
     #test parameters
     #original parameters
     stack_0 = 1
-    stack_1 = 3
-    stack_2 = 4
-    stack_3 = 6
-    stack_4 = 3
+    stack_1 = 6
+    stack_2 = 8
+    stack_3 = 12
+    stack_4 = 6
     s_0=2
     s_1=1
     s_2=1
@@ -421,9 +421,9 @@ def test_skippy():
     dropout_3=0.001
     dropout_4=0.001
     dropout_5=0.001
-    lr=0.01
+    lr=0.1
     l2=0.0001
-    step=False
+    step=True
     global_pooling=True
 
     #skippy parameters
