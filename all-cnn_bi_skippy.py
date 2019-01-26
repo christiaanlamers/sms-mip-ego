@@ -452,7 +452,7 @@ def test_skippy():
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
     print(X)
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
