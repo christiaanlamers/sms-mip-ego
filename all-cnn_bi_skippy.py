@@ -368,10 +368,10 @@ def test_skippy():
     #test parameters
     #original parameters
     stack_0 = 1
-    stack_1 = 6
-    stack_2 = 8
-    stack_3 = 12
-    stack_4 = 6
+    stack_1 = 3
+    stack_2 = 4
+    stack_3 = 6
+    stack_4 = 3
     s_0=2
     s_1=1
     s_2=1
