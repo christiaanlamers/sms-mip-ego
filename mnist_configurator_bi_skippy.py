@@ -124,6 +124,7 @@ global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
 skints = OrdinalSpace([0, 2**30], 'skint') * 3
 skst = OrdinalSpace([2, 10], 'skst') * 3
 dense_size = OrdinalSpace([1, 2000], 'dense_size')
+no_pooling = NominalSpace([True, False], "no_pooling")
 #skippy parameters
 
 drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
@@ -135,7 +136,7 @@ l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 #l2_regularizer = ContinuousSpace([0.0, 1e-2], 'l2')# l2_regularizer
 #TODO_CHRIS these changes are just for cigar test function
 
-search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size
+search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
 
 
 print('starting program...')    
