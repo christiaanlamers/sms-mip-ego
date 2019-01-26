@@ -368,19 +368,19 @@ def test_skippy():
     #test parameters
     #original parameters
     stack_0 = 1
-    stack_1 = 0
+    stack_1 = 1
     stack_2 = 0
     stack_3 = 0
     stack_4 = 0
-    s_0=2
+    s_0=1
     s_1=1
     s_2=1
     s_3=1
     s_4=1
-    filters_0=20
-    filters_1=15
-    filters_2=128
-    filters_3=128
+    filters_0=100
+    filters_1=50
+    filters_2=20
+    filters_3=20
     filters_4=256
     filters_5=256
     filters_6=512
@@ -399,12 +399,12 @@ def test_skippy():
     k_9=3
     activation='relu'
     activ_dense='softmax'
-    dropout_0=0.0
-    dropout_1=0.0
-    dropout_2=0.0
-    dropout_3=0.0
-    dropout_4=0.0
-    dropout_5=0.0
+    dropout_0=0.1
+    dropout_1=0.1
+    dropout_2=0.1
+    dropout_3=0.1
+    dropout_4=0.1
+    dropout_5=0.1
     lr=0.01
     l2=0.01
     step=False
