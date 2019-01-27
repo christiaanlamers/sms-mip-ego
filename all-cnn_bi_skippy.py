@@ -244,7 +244,7 @@ def CNN_conf(cfg,epochs=1,test=False):
     model.compile(loss='categorical_crossentropy',
                   optimizer=opt,
                   metrics=['accuracy'])
-    if model.count_params() * 4 * 2 / 1024/1024/1024 > 11:
+    if model.count_params() * 4 * 2 / 1024/1024/1024 > 6:
         print('network too large for memory')
         return 1000000000.0, 5.0
 
