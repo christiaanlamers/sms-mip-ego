@@ -36,12 +36,11 @@ class obj_func(object):
         
     def __call__(self, cfg, gpu_no):
         print("calling program with gpu "+str(gpu_no))
-        cmd = ['TF_CPP_MIN_LOG_LEVEL=2 python3', self.program, '--cfg', str(cfg), str(gpu_no)]#CHRIS added TF_CPP_MIN_LOG_LEVEL=2 to shut up warnings that mess up the output
-        outs = ""
+        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no)]
         #outputval = 0
         outputval = ""
         try:
-            outs = str(check_output(cmd,stderr=STDOUT, timeout=40000))
+            outs = str(check_output(cmd,stderr=None, timeout=40000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
             if os.path.isfile(logfile): 
                 with open(logfile,'a') as f_handle:
                     f_handle.write(outs)
