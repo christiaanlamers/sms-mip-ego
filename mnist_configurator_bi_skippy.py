@@ -36,7 +36,7 @@ class obj_func(object):
         
     def __call__(self, cfg, gpu_no):
         print("calling program with gpu "+str(gpu_no))
-        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no)]
+        cmd = ['TF_CPP_MIN_LOG_LEVEL=2 python3', self.program, '--cfg', str(cfg), str(gpu_no)]#CHRIS added TF_CPP_MIN_LOG_LEVEL=2 to shut up warnings that mess up the output
         outs = ""
         #outputval = 0
         outputval = ""

@@ -103,7 +103,7 @@ class Skip_manager(object):
 
 def CNN_conf(cfg,epochs=1,test=False):
     verbose = 1 #CHRIS TODO set this to 0
-    batch_size = 1 #CHRIS change 1 to 100
+    batch_size = 100 #CHRIS change 1 to 100
     num_classes = 10
     #epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
