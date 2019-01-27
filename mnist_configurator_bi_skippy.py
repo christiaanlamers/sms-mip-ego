@@ -92,11 +92,10 @@ class obj_func(object):
                 i += 1
         except:
             print("error in receiving answer from gpu " + str(gpu_no))
-            success = False
-        try:
-            tuple = (float(tuple_str1),float(tuple_str2),success)
-        except:
-            tuple = (0.0,0.0,False)
+            success = True #CHRIS simply give large penalty in case of failure instead of setting success to False
+            tuple_str1 = '1000000000'
+            tuple_str2 = '5'
+        tuple = (float(tuple_str1),float(tuple_str2),success)
         #return outputval
         return tuple
 
