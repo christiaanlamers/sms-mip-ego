@@ -57,10 +57,10 @@ class obj_func(object):
                 #if re.match("^\d+?\.\d+?$", outs[-i]) is None:
                 #CHRIS changed outs[-i] to outs[i]
                 print(outs[i])
-                if re.match("[\s\S]*ResourceExhaustedError[\s\S]*", outs[i]) is not None:
-                    print('GPU resource exhausted, penalty returned')
-                    return 1000000000.0, 5.0, True
-                elif re.match("^\(\-?\d+\.?\d*\e?\+?\-?\d*\,\s\-?\d+\.?\d*\e?\+?\-?\d*\)$", outs[i]) is None:
+                #if re.match("[\s\S]*ResourceExhaustedError[\s\S]*", outs[i]) is not None:
+                    #print('GPU resource exhausted, penalty returned')
+                    #return 1000000000.0, 5.0, True
+                if re.match("^\(\-?\d+\.?\d*\e?\+?\-?\d*\,\s\-?\d+\.?\d*\e?\+?\-?\d*\)$", outs[i]) is None:
                     #do nothing
                     a=1
                 else:
@@ -107,10 +107,10 @@ objective = obj_func('./all-cnn_bi_skippy.py')
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-filters = OrdinalSpace([10, 600], 'filters') * 10#CHRIS TODO 100 should be 600
-kernel_size = OrdinalSpace([1, 7], 'k') * 10
-strides = OrdinalSpace([1, 5], 's') * 5
-stack_sizes = OrdinalSpace([1, 12], 'stack') * 5
+filters = OrdinalSpace([10, 100], 'filters') * 10#CHRIS TODO 100 should be 600
+kernel_size = OrdinalSpace([1, 5], 'k') * 10#CHRIS 5 should be 7
+strides = OrdinalSpace([1, 2], 's') * 5#CHRIS 2 should be 5
+stack_sizes = OrdinalSpace([1, 3], 'stack') * 5 #CHRIS 3 should be 12
 #TODO_CHRIS these changes are just for cigar test function
 #filters = OrdinalSpace([0, 5], 'filters') * 7
 #kernel_size = OrdinalSpace([0, 5], 'k') * 7
@@ -124,10 +124,10 @@ step = NominalSpace([True, False], "step")  # step
 global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
 
 #skippy parameters
-skints = OrdinalSpace([0, 2**60], 'skint') * 3
+skints = OrdinalSpace([0, 2**16-1], 'skint') * 3
 skst = OrdinalSpace([2, 10], 'skst') * 3
-dense_size = OrdinalSpace([1, 2000], 'dense_size')
-no_pooling = NominalSpace([False], "no_pooling")#CHRIS TODO add True
+dense_size = OrdinalSpace([1, 1000], 'dense_size')
+no_pooling = NominalSpace([True, False], "no_pooling")
 #skippy parameters
 
 drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
