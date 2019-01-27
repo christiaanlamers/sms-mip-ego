@@ -57,7 +57,7 @@ class obj_func(object):
                 #if re.match("^\d+?\.\d+?$", outs[-i]) is None:
                 #CHRIS changed outs[-i] to outs[i]
                 print(outs[i])
-                if re.match("ResourceExhaustedError", outs[i]) is not None:
+                if re.match("\R\e\s\o\u\r\c\e\E\x\h\a\u\s\t\e\d\E\r\r\o\r", outs[i]) is not None:
                     print('GPU resource exhausted, penalty returned')
                     return 1000000000.0, 5.0, True
                 elif re.match("^\(\-?\d+\.?\d*\e?\+?\-?\d*\,\s\-?\d+\.?\d*\e?\+?\-?\d*\)$", outs[i]) is None:
