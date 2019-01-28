@@ -105,7 +105,7 @@ def CNN_conf(cfg,epochs=1,test=False):
     verbose = 1 #CHRIS TODO set this to 0
     batch_size = 10 #CHRIS change 10 to 100
     num_classes = 10
-    #epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
+    epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
@@ -244,13 +244,14 @@ def CNN_conf(cfg,epochs=1,test=False):
     model.compile(loss='categorical_crossentropy',
                   optimizer=opt,
                   metrics=['accuracy'])
+
+    if test:
+        return model #TODO remove this, just for testing
+
     max_size = 6689341440
     if model.count_params() * 4  > max_size:
         print('network too large for memory')
         return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
-
-    if test:
-        return model #TODO remove this, just for testing
 
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
@@ -387,36 +388,37 @@ def test_skippy():
 
     #test parameters
     #original parameters
-    stack_0 = 12
-    stack_1 = 12
-    stack_2 = 12
-    stack_3 = 12
-    stack_4 = 12
-    s_0=1
-    s_1=1
+    #RESnet-18-like
+    stack_0 = 1
+    stack_1 = 4
+    stack_2 = 4
+    stack_3 = 4
+    stack_4 = 4
+    s_0=2
+    s_1=2
     s_2=1
     s_3=1
     s_4=1
-    filters_0=600
-    filters_1=600
-    filters_2=600
-    filters_3=600
-    filters_4=600
-    filters_5=600
-    filters_6=600
-    filters_7=600
-    filters_8=600
-    filters_9=600
+    filters_0=64
+    filters_1=64
+    filters_2=64
+    filters_3=64
+    filters_4=128
+    filters_5=128
+    filters_6=256
+    filters_7=256
+    filters_8=512
+    filters_9=512
     k_0=7
-    k_1=7
-    k_2=7
-    k_3=7
-    k_4=7
-    k_5=7
-    k_6=7
-    k_7=7
-    k_8=7
-    k_9=7
+    k_1=3
+    k_2=3
+    k_3=3
+    k_4=3
+    k_5=3
+    k_6=3
+    k_7=3
+    k_8=3
+    k_9=3
     activation='relu'
     activ_dense='softmax'
     dropout_0=0.001
@@ -428,7 +430,7 @@ def test_skippy():
     lr=0.1
     l2=0.0001
     step=True
-    global_pooling=False
+    global_pooling=True
 
     #skippy parameters
     om_en_om = 1
@@ -436,13 +438,13 @@ def test_skippy():
         om_en_om = om_en_om << 2
         om_en_om += 1
     om_en_om = om_en_om << 2
-    skint_0 = inv_gray(2**61-1)#3826103921638#2**30-1
-    skint_1 = inv_gray(2**61-1)#19283461627361826#2**30-1
-    skint_2 = inv_gray(2**61-1)#473829102637452916#2**30-1
+    skint_0 = inv_gray(om_en_om)#3826103921638#2**30-1
+    skint_1 = 0#19283461627361826#2**30-1
+    skint_2 = 0#473829102637452916#2**30-1
     skst_0 = 2
-    skst_1 = 3
-    skst_2 = 4
-    dense_size = 2000
+    skst_1 = 0
+    skst_2 = 0
+    dense_size = 1000
     no_pooling = True
     #skippy parameters
 
@@ -468,4 +470,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-#test_skippy()
+test_skippy()
