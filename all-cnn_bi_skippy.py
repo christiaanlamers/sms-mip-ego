@@ -249,7 +249,7 @@ def CNN_conf(cfg,epochs=1,test=False):
         return model #TODO remove this, just for testing
 
     max_size = 6689341440
-    if model.count_params() * 4  > max_size:
+    if model.count_params() > max_size:
         print('network too large for memory')
         return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
 
@@ -456,11 +456,13 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
+    vla = {'s_3': 2, 'k_1': 3, 'stack_2': 2, 'l2': 0.0003690273624663179, 'stack_3': 2, 'no_pooling': True, 'filters_6': 283, 'skint_0': 471276356218145485, 'k_5': 6, 'stack_1': 7, 's_2': 2, 'k_7': 1, 'lr': 0.5490255513966976, 'dropout_2': 0.3267970319632431, 'k_3': 2, 'k_6': 2, 'filters_1': 237, 'dropout_5': 0.45635092296785834, 'filters_4': 191, 'activation': 'tanh', 'skint_2': 1483144280128703022, 'filters_8': 42, 's_4': 3, 'global_pooling': False, 'activ_dense': 'softmax', 'k_0': 1, 'skst_2': 2, 'dense_size': 195, 's_1': 4, 'skst_1': 7, 'k_4': 1, 'skst_0': 4, 'filters_0': 193, 'filters_7': 463, 'k_9': 2, 's_0': 2, 'k_8': 1, 'step': True, 'dropout_1': 0.5521296900438722, 'filters_3': 318, 'filters_9': 11, 'dropout_0': 0.14943922173144178, 'filters_2': 87, 'filters_5': 516, 'dropout_4': 0.15197709746785076, 'stack_4': 8, 'stack_0': 8, 'skint_1': 381319562468364730, 'k_2': 6, 'dropout_3': 0.8074687350047474}
     print(X)
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = False
     if test:
-        model = CNN_conf(X[0].to_dict(),test=test)
+        #model = CNN_conf(X[0].to_dict(),test=test)
+        model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
@@ -470,4 +472,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-test_skippy()
+#test_skippy()
