@@ -332,6 +332,8 @@ if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
         os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
     print(CNN_conf(cfg))
     K.clear_session()
+else:
+    print('switching to to test mode')
 
 #CHRIS testcode
 def test_skippy():
