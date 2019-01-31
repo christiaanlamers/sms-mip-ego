@@ -21,7 +21,7 @@ from keras.callbacks import LearningRateScheduler
 from keras.regularizers import l2
 
 import time #CHRIS added to measure runtime of training
-from pynvml import * #CHRIS needed to test gpu memory capacity
+#from pynvml import * #CHRIS needed to test gpu memory capacity
 #from fractions import gcd #CHRIS needed for proper upscaling
 
 def inv_gray(num):#TODO only for testing
@@ -248,19 +248,26 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
 
     if test:
         return model #TODO remove this, just for testing
-
+    
+    print("amount of parameters:")
+    print(model.count_params())
     #CHRIS test if gpu has enough memory
-    nvmlInit()
-    handle = nvmlDeviceGetHandleByIndex(gpu_no)
-    meminfo = nvmlDeviceGetMemoryInfo(handle)
-    max_size = meminfo.total #6689341440
-    if meminfo.free/1024.**2 < 1.0:
-        print('gpu is allready in use')
-    nvmlShutdown()
+    #nvmlInit()
+    #handle = nvmlDeviceGetHandleByIndex(gpu_no)
+    #meminfo = nvmlDeviceGetMemoryInfo(handle)
+    #max_size = meminfo.total #6689341440
+    #if meminfo.free/1024.**2 < 1.0:
+        #print('gpu is allready in use')
+    #nvmlShutdown()
     if model.count_params()*4*2 >= max_size:#CHRIS *4*2: 4 byte per parameter times 2 for backpropagation
         print('network too large for memory')
         return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)
 
+    #max_size = 32828802 * 2 #CHRIS twice as large as RESnet-34-like implementation
+    max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation
+    if model.count_params() > max_size:
+        print('network too large for memory')
+        return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
     x_train /= 255.
@@ -338,7 +345,7 @@ if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
         
         os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
         os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-    print(CNN_conf(cfg))
+    print(CNN_conf(cfg,gpu_no=gpu))
     K.clear_session()
 else:
     print('switching to to test mode')
@@ -409,16 +416,16 @@ def test_skippy():
     s_2=1
     s_3=1
     s_4=1
-    filters_0=64
-    filters_1=64
-    filters_2=64
-    filters_3=64
-    filters_4=128
-    filters_5=128
-    filters_6=256
-    filters_7=256
-    filters_8=512
-    filters_9=512
+    filters_0=64*2
+    filters_1=64*2
+    filters_2=64*2
+    filters_3=64*2
+    filters_4=128*2
+    filters_5=128*2
+    filters_6=256*2
+    filters_7=256*2
+    filters_8=512*2
+    filters_9=512*2
     k_0=7
     k_1=3
     k_2=3
@@ -482,4 +489,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-#test_skippy()
+test_skippy()
