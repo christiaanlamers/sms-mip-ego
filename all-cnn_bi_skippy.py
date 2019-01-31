@@ -103,7 +103,7 @@ class Skip_manager(object):
 
 
 def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
-    verbose = 1 #CHRIS TODO set this to 0
+    verbose = 0 #CHRIS TODO set this to 0
     batch_size = 10 #CHRIS change 10 to 100
     num_classes = 10
     epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
@@ -249,8 +249,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     if test:
         return model #TODO remove this, just for testing
     
-    print("amount of parameters:")
-    print(model.count_params())
+    #print("amount of parameters:")
+    #print(model.count_params())
     #CHRIS test if gpu has enough memory
     #nvmlInit()
     #handle = nvmlDeviceGetHandleByIndex(gpu_no)
@@ -264,7 +264,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
         #return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)
 
     #max_size = 32828802 * 2 #CHRIS twice as large as RESnet-34-like implementation
-    max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation
+    max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation, one network of this size was able to be ran on tritanium gpu
     if model.count_params() > max_size:
         print('network too large for implementation')
         return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
@@ -489,4 +489,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-test_skippy()
+#test_skippy()
