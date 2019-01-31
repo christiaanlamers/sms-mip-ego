@@ -259,14 +259,14 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     #if meminfo.free/1024.**2 < 1.0:
         #print('gpu is allready in use')
     #nvmlShutdown()
-    if model.count_params()*4*2 >= max_size:#CHRIS *4*2: 4 byte per parameter times 2 for backpropagation
-        print('network too large for memory')
-        return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)
+    #if model.count_params()*4*2 >= max_size:#CHRIS *4*2: 4 byte per parameter times 2 for backpropagation
+        #print('network too large for memory')
+        #return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)
 
     #max_size = 32828802 * 2 #CHRIS twice as large as RESnet-34-like implementation
     max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation
     if model.count_params() > max_size:
-        print('network too large for memory')
+        print('network too large for implementation')
         return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
