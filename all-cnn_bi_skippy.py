@@ -380,7 +380,7 @@ if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
         
         os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
         os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-    print(CNN_conf(cfg,gpu_no=gpu)
+    print(CNN_conf(cfg,gpu_no=gpu))
     K.clear_session()
 else:
     print('switching to to test mode')
