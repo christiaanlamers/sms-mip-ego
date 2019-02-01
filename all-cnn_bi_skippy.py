@@ -103,8 +103,8 @@ class Skip_manager(object):
 
 
 def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
-    verbose = 0 #CHRIS TODO set this to 0
-    batch_size = 10 #CHRIS change 10 to 100
+    verbose = 1 #CHRIS TODO set this to 0
+    batch_size = 100 #CHRIS change 10 to 100
     num_classes = 10
     epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
@@ -125,6 +125,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     y_train = keras.utils.to_categorical(y_train.flatten(), num_classes)
     y_test = keras.utils.to_categorical(y_test.flatten(), num_classes)
     
+    print('skip steps:')
+    print([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     #(skip_ints,skip_ints_count) passed to Skip_manager constructor TODO get from cfg vector
     skip_manager = Skip_manager([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     
@@ -208,6 +210,34 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
         layer = Dropout(cfg['dropout_5'])(layer)
         layer = skip_manager.connect_skip(layer)
 
+    #stack 5
+    for i in range(cfg['stack_5']):
+        layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+    if (cfg['stack_5']>0):
+        if (cfg['no_pooling']):
+            layer = Conv2D(cfg['filters_11'], (cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        else:
+            layer = MaxPooling2D(pool_size=(cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same')(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = Dropout(cfg['dropout_6'])(layer)
+        layer = skip_manager.connect_skip(layer)
+
+    #stack 6
+    for i in range(cfg['stack_6']):
+        layer = Conv2D(cfg['filters_12'], (cfg['k_12'], cfg['k_12']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = skip_manager.connect_skip(layer)
+    if (cfg['stack_6']>0):
+        if (cfg['no_pooling']):
+            layer = Conv2D(cfg['filters_13'], (cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        else:
+            layer = MaxPooling2D(pool_size=(cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same')(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = Dropout(cfg['dropout_7'])(layer)
+        layer = skip_manager.connect_skip(layer)
+
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
@@ -217,9 +247,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     
     
     #head
-    layer = Dense(cfg['dense_size'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
-    layer = Activation(cfg['activ_dense'])(layer)
-    layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)#TODO add more dense layers, or add option in cfg vector
+    if cfg['dense_size_0'] > 0:
+        layer = Dense(cfg['dense_size_0'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activ_dense'])(layer)
+    if cfg['dense_size_1'] > 0:
+        layer = Dense(cfg['dense_size_1'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activ_dense'])(layer)
+    layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     layer = Activation(cfg['activ_dense'])(layer)
     
     cfg['decay'] = cfg['lr'] / float(epochs)
@@ -360,10 +394,10 @@ def test_skippy():
     activation_fun = ["softmax"]
     activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-    filters = OrdinalSpace([10, 600], 'filters') * 10
-    kernel_size = OrdinalSpace([1, 7], 'k') * 10
-    strides = OrdinalSpace([1, 5], 's') * 5
-    stack_sizes = OrdinalSpace([0, 12], 'stack') * 5
+    filters = OrdinalSpace([10, 600], 'filters') * 14
+    kernel_size = OrdinalSpace([1, 7], 'k') * 14
+    strides = OrdinalSpace([1, 5], 's') * 7
+    stack_sizes = OrdinalSpace([0, 6], 'stack') * 7
     #TODO_CHRIS these changes are just for cigar test function
     #filters = OrdinalSpace([0, 5], 'filters') * 7
     #kernel_size = OrdinalSpace([0, 5], 'k') * 7
@@ -377,13 +411,13 @@ def test_skippy():
     global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
     
     #skippy parameters
-    skints = OrdinalSpace([0, 2**61-1], 'skint') * 3
+    skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
     skst = OrdinalSpace([2, 10], 'skst') * 3
-    dense_size = OrdinalSpace([1, 2000], 'dense_size')
+    dense_size = OrdinalSpace([0, 1200], 'dense_size')*2
     no_pooling = NominalSpace([True, False], "no_pooling")
     #skippy parameters
 
-    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
+    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
     l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
     #TODO_CHRIS these changes are just for cigar test function
@@ -408,24 +442,32 @@ def test_skippy():
     #RESnet-34-like
     stack_0 = 1
     stack_1 = 6
-    stack_2 = 8
-    stack_3 = 12
+    stack_2 = 4
+    stack_3 = 4
     stack_4 = 6
+    stack_5 = 6
+    stack_6 = 6
     s_0=2
     s_1=2
     s_2=1
-    s_3=1
+    s_3=2
     s_4=1
-    filters_0=64*2
-    filters_1=64*2
-    filters_2=64*2
-    filters_3=64*2
-    filters_4=128*2
-    filters_5=128*2
-    filters_6=256*2
-    filters_7=256*2
-    filters_8=512*2
-    filters_9=512*2
+    s_5=2
+    s_6=1
+    filters_0=64
+    filters_1=64
+    filters_2=64
+    filters_3=64
+    filters_4=128
+    filters_5=128
+    filters_6=128
+    filters_7=128
+    filters_8=256
+    filters_9=256
+    filters_10=256
+    filters_11=256
+    filters_12=512
+    filters_13=512
     k_0=7
     k_1=3
     k_2=3
@@ -436,6 +478,10 @@ def test_skippy():
     k_7=3
     k_8=3
     k_9=3
+    k_10=3
+    k_11=3
+    k_12=3
+    k_13=3
     activation='relu'
     activ_dense='softmax'
     dropout_0=0.001
@@ -444,6 +490,8 @@ def test_skippy():
     dropout_3=0.001
     dropout_4=0.001
     dropout_5=0.001
+    dropout_6=0.001
+    dropout_7=0.001
     lr=0.1
     l2=0.0001
     step=True
@@ -451,35 +499,42 @@ def test_skippy():
 
     #skippy parameters
     om_en_om = 1
-    for w in range((stack_0+stack_1+stack_2+stack_3+stack_4+1)//2):#TODO testcode: remove
-        om_en_om = om_en_om << 2
-        om_en_om += 1
-    om_en_om = om_en_om << 2
+    ranges = [stack_6,stack_5,stack_4,stack_3,stack_2,stack_1,stack_0]
+    for w in range(len(ranges)):#TODO testcode: remove
+        om_en_om = om_en_om << 1
+        for z in range(ranges[w]//2):
+            om_en_om = om_en_om << 2
+            om_en_om += 1
+    om_en_om = om_en_om << 1
     skint_0 = inv_gray(om_en_om)#3826103921638#2**30-1
     skint_1 = 0#19283461627361826#2**30-1
     skint_2 = 0#473829102637452916#2**30-1
     skst_0 = 2
     skst_1 = 0
     skst_2 = 0
-    dense_size = 1000
+    dense_size_0 = 1000
+    dense_size_1 = 0
     no_pooling = False
     #skippy parameters
 
     #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, s_0, s_1, s_2, s_3, s_4, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, dense_size, no_pooling]]
+    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, dense_size_0, dense_size_1, no_pooling]]
     
     #var_names
     #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'s_3': 2, 'k_1': 3, 'stack_2': 2, 'l2': 0.0003690273624663179, 'stack_3': 2, 'no_pooling': True, 'filters_6': 283, 'skint_0': 471276356218145485, 'k_5': 6, 'stack_1': 7, 's_2': 2, 'k_7': 1, 'lr': 0.5490255513966976, 'dropout_2': 0.3267970319632431, 'k_3': 2, 'k_6': 2, 'filters_1': 237, 'dropout_5': 0.45635092296785834, 'filters_4': 191, 'activation': 'tanh', 'skint_2': 1483144280128703022, 'filters_8': 42, 's_4': 3, 'global_pooling': False, 'activ_dense': 'softmax', 'k_0': 1, 'skst_2': 2, 'dense_size': 195, 's_1': 4, 'skst_1': 7, 'k_4': 1, 'skst_0': 4, 'filters_0': 193, 'filters_7': 463, 'k_9': 2, 's_0': 2, 'k_8': 1, 'step': True, 'dropout_1': 0.5521296900438722, 'filters_3': 318, 'filters_9': 11, 'dropout_0': 0.14943922173144178, 'filters_2': 87, 'filters_5': 516, 'dropout_4': 0.15197709746785076, 'stack_4': 8, 'stack_0': 8, 'skint_1': 381319562468364730, 'k_2': 6, 'dropout_3': 0.8074687350047474}
+    #vla = {'s_3': 2, 'k_1': 3, 'stack_2': 2, 'l2': 0.0003690273624663179, 'stack_3': 2, 'no_pooling': True, 'filters_6': 283, 'skint_0': 471276356218145485, 'k_5': 6, 'stack_1': 7, 's_2': 2, 'k_7': 1, 'lr': 0.5490255513966976, 'dropout_2': 0.3267970319632431, 'k_3': 2, 'k_6': 2, 'filters_1': 237, 'dropout_5': 0.45635092296785834, 'filters_4': 191, 'activation': 'tanh', 'skint_2': 1483144280128703022, 'filters_8': 42, 's_4': 3, 'global_pooling': False, 'activ_dense': 'softmax', 'k_0': 1, 'skst_2': 2, 'dense_size': 195, 's_1': 4, 'skst_1': 7, 'k_4': 1, 'skst_0': 4, 'filters_0': 193, 'filters_7': 463, 'k_9': 2, 's_0': 2, 'k_8': 1, 'step': True, 'dropout_1': 0.5521296900438722, 'filters_3': 318, 'filters_9': 11, 'dropout_0': 0.14943922173144178, 'filters_2': 87, 'filters_5': 516, 'dropout_4': 0.15197709746785076, 'stack_4': 8, 'stack_0': 8, 'skint_1': 381319562468364730, 'k_2': 6, 'dropout_3': 0.8074687350047474}
+    #vla = {'s_3': 3, 'skint_0': 486682206047329544, 'stack_0': 11, 'activ_dense': 'softmax', 's_4': 3, 'k_2': 6, 'dropout_4': 0.019841423916150795, 'filters_1': 546, 'stack_2': 4, 'no_pooling': False, 'lr': 0.14528199323337182, 'filters_0': 456, 'dropout_1': 0.8523329186049733, 'dropout_0': 0.277835782048442, 'dense_size': 1406, 'filters_7': 530, 'k_6': 5, 'stack_1': 3, 'l2': 3.878370413948978e-05, 'filters_2': 556, 's_0': 2, 's_2': 1, 'step': False, 'global_pooling': True, 'filters_3': 471, 'skst_0': 6, 'k_8': 4, 'k_0': 6, 'k_5': 5, 's_1': 1, 'dropout_2': 0.8706208864476698, 'skint_2': 1225374391770774810, 'filters_6': 170, 'k_1': 4, 'k_3': 2, 'skst_2': 8, 'dropout_5': 0.6480100356164051, 'stack_4': 7, 'k_7': 4, 'k_9': 2, 'filters_5': 319, 'dropout_3': 0.1647220696568121, 'k_4': 3, 'filters_8': 31, 'skint_1': 395472008051048653, 'skst_1': 6, 'filters_4': 60, 'activation': 'sigmoid', 'stack_3': 11, 'filters_9': 401}
+    #vla = {'s_0': 3, 'skst_0': 5, 'activ_dense': 'softmax', 'filters_4': 105, 'lr': 0.21119135991901955, 'global_pooling': True, 'activation': 'elu', 'dropout_2': 0.12687225517331716, 'k_8': 6, 'k_5': 5, 'k_6': 2, 'skst_2': 5, 'stack_3': 4, 'step': False, 's_1': 4, 'dropout_1': 0.3857732059679585, 'dropout_0': 0.7622283860924229, 'skst_1': 9, 'filters_7': 546, 's_3': 2, 'k_9': 3, 'stack_2': 3, 'dropout_3': 0.5977724811757306, 's_4': 1, 'k_7': 1, 'filters_6': 435, 'skint_0': 1472916917684925938, 'skint_2': 1024535950204742200, 'dropout_4': 0.19448924696224493, 'stack_0': 7, 'k_3': 4, 's_2': 3, 'filters_1': 221, 'dense_size': 1608, 'k_1': 1, 'filters_3': 416, 'skint_1': 2297429747271169909, 'k_4': 6, 'k_0': 3, 'stack_4': 2, 'no_pooling': True, 'filters_0': 175, 'filters_8': 219, 'filters_5': 415, 'dropout_5': 0.08781528359026737, 'filters_9': 562, 'filters_2': 329, 'l2': 0.005525172952887245, 'stack_1': 3, 'k_2': 2}
     print(X)
+    print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = False
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
-        model = CNN_conf(vla,test=test)
+        model = CNN_conf(X[0].to_dict(),test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
@@ -489,4 +544,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-#test_skippy()
+test_skippy()
