@@ -396,7 +396,7 @@ def test_skippy():
     activation_fun = ["softmax"]
     activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-    filters = OrdinalSpace([10, 600], 'filters') * 14
+    filters = OrdinalSpace([10, 300], 'filters') * 14 #TODO [0,300] should be [0,600]
     kernel_size = OrdinalSpace([1, 8], 'k') * 14
     strides = OrdinalSpace([1, 5], 's') * 7
     stack_sizes = OrdinalSpace([0, 7], 'stack') * 7 #TODO [0,4] should be [0,7]
