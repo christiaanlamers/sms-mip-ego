@@ -301,9 +301,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     #max_size = 32828802 * 2 #CHRIS twice as large as RESnet-34-like implementation
     #max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=10, one network of this size was able to be ran on tritanium gpu
     max_size = 130374394 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=100, one network of this size was able to be ran on tritanium gpu
-    if model.count_params() > max_size:
-        print('network too large for implementation')
-        return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
+    #if model.count_params() > max_size:
+        #print('network too large for implementation')
+        #return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
     x_train /= 255.
