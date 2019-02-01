@@ -298,7 +298,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
         #return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)
 
     #max_size = 32828802 * 2 #CHRIS twice as large as RESnet-34-like implementation
-    max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation, one network of this size was able to be ran on tritanium gpu
+    #max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=10, one network of this size was able to be ran on tritanium gpu
+    max_size = 128315394 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=100, one network of this size was able to be ran on tritanium gpu
     if model.count_params() > max_size:
         print('network too large for implementation')
         return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
@@ -454,20 +455,20 @@ def test_skippy():
     s_4=1
     s_5=2
     s_6=1
-    filters_0=64
-    filters_1=64
-    filters_2=64
-    filters_3=64
-    filters_4=128
-    filters_5=128
-    filters_6=128
-    filters_7=128
-    filters_8=256
-    filters_9=256
-    filters_10=256
-    filters_11=256
-    filters_12=512
-    filters_13=512
+    filters_0=64*2
+    filters_1=64*2
+    filters_2=64*2
+    filters_3=64*2
+    filters_4=128*2
+    filters_5=128*2
+    filters_6=128*2
+    filters_7=128*2
+    filters_8=256*2
+    filters_9=256*2
+    filters_10=256*2
+    filters_11=256*2
+    filters_12=512*2
+    filters_13=512*2
     k_0=7
     k_1=3
     k_2=3
@@ -531,7 +532,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
         model = CNN_conf(X[0].to_dict(),test=test)
