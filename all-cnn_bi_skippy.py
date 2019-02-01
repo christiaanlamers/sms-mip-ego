@@ -21,7 +21,7 @@ from keras.callbacks import LearningRateScheduler
 from keras.regularizers import l2
 
 import time #CHRIS added to measure runtime of training
-#from pynvml import * #CHRIS needed to test gpu memory capacity
+from pynvml import * #CHRIS needed to test gpu memory capacity
 #from fractions import gcd #CHRIS needed for proper upscaling
 
 def inv_gray(num):#TODO only for testing
@@ -286,13 +286,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     #print("amount of parameters:")
     #print(model.count_params())
     #CHRIS test if gpu has enough memory
-    #nvmlInit()
-    #handle = nvmlDeviceGetHandleByIndex(gpu_no)
-    #meminfo = nvmlDeviceGetMemoryInfo(handle)
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(gpu_no)
+    meminfo = nvmlDeviceGetMemoryInfo(handle)
     #max_size = meminfo.total #6689341440
-    #if meminfo.free/1024.**2 < 1.0:
-        #print('gpu is allready in use')
-    #nvmlShutdown()
+    if meminfo.free/1024.**2 < 1.0:
+        print('gpu is allready in use')
+    nvmlShutdown()
     #if model.count_params()*4*2 >= max_size:#CHRIS *4*2: 4 byte per parameter times 2 for backpropagation
         #print('network too large for memory')
         #return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)

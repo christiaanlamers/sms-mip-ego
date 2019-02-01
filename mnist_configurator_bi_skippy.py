@@ -41,7 +41,7 @@ class obj_func(object):
         outputval = ""
         outs = ""
         try:
-            outs = str(check_output(cmd,stderr=None, timeout=40000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
+            outs = str(check_output(cmd,stderr=STDOUT, timeout=40000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
             if os.path.isfile(logfile): 
                 with open(logfile,'a') as f_handle:
                     f_handle.write(outs)
