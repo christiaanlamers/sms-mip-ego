@@ -102,20 +102,14 @@ class obj_func(object):
 
 
 #define the search space.
-objective = obj_func('./all-cnn_bi_skippy.py')
+#objective = obj_func('./all-cnn_bi.py')
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
-filters = OrdinalSpace([10, 600], 'filters') * 10#CHRIS TODO 100 should be 600
-kernel_size = OrdinalSpace([1, 7], 'k') * 10#CHRIS 5 should be 7
-strides = OrdinalSpace([1, 5], 's') * 5#CHRIS 2 should be 5
-stack_sizes = OrdinalSpace([1, 12], 'stack') * 5 #CHRIS 3 should be 12
-#TODO_CHRIS these changes are just for cigar test function
-#filters = OrdinalSpace([0, 5], 'filters') * 7
-#kernel_size = OrdinalSpace([0, 5], 'k') * 7
-#strides = OrdinalSpace([0, 5], 's') * 3
-#stack_sizes = OrdinalSpace([0, 5], 'stack') * 3
-#TODO_CHRIS these changes are just for cigar test function
+filters = OrdinalSpace([10, 600], 'filters') * 14
+kernel_size = OrdinalSpace([1, 7], 'k') * 14
+strides = OrdinalSpace([1, 5], 's') * 7
+stack_sizes = OrdinalSpace([0, 6], 'stack') * 7
 
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function
 activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
@@ -123,20 +117,16 @@ step = NominalSpace([True, False], "step")  # step
 global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
 
 #skippy parameters
-skints = OrdinalSpace([0, 2**61-1], 'skint') * 3
+skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
 skst = OrdinalSpace([2, 10], 'skst') * 3
-dense_size = OrdinalSpace([1, 2000], 'dense_size')
+dense_size = OrdinalSpace([0, 1200], 'dense_size')*2
 no_pooling = NominalSpace([True, False], "no_pooling")
 #skippy parameters
 
-drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 6        # drop_out rate
+drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
 lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
-#TODO_CHRIS these changes are just for cigar test function
-#drop_out = ContinuousSpace([0.0, .9], 'dropout') * 4        # drop_out rate
-#lr_rate = ContinuousSpace([0.0, 1.0e-0], 'lr')        # learning rate
-#l2_regularizer = ContinuousSpace([0.0, 1e-2], 'l2')# l2_regularizer
-#TODO_CHRIS these changes are just for cigar test function
+
 
 search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
 

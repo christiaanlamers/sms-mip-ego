@@ -103,10 +103,10 @@ class Skip_manager(object):
 
 
 def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
-    verbose = 1 #CHRIS TODO set this to 0
-    batch_size = 100 #CHRIS change 10 to 100
+    verbose = 0 #CHRIS TODO set this to 0
+    batch_size = 100
     num_classes = 10
-    epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
+    epochs = 1 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
@@ -399,12 +399,6 @@ def test_skippy():
     kernel_size = OrdinalSpace([1, 7], 'k') * 14
     strides = OrdinalSpace([1, 5], 's') * 7
     stack_sizes = OrdinalSpace([0, 6], 'stack') * 7
-    #TODO_CHRIS these changes are just for cigar test function
-    #filters = OrdinalSpace([0, 5], 'filters') * 7
-    #kernel_size = OrdinalSpace([0, 5], 'k') * 7
-    #strides = OrdinalSpace([0, 5], 's') * 3
-    #stack_sizes = OrdinalSpace([0, 5], 'stack') * 3
-    #TODO_CHRIS these changes are just for cigar test function
 
     activation = NominalSpace(activation_fun_conv, "activation")  # activation function
     activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
@@ -421,11 +415,6 @@ def test_skippy():
     drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
     l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
-    #TODO_CHRIS these changes are just for cigar test function
-    #drop_out = ContinuousSpace([0.0, .9], 'dropout') * 4        # drop_out rate
-    #lr_rate = ContinuousSpace([0.0, 1.0e-0], 'lr')        # learning rate
-    #l2_regularizer = ContinuousSpace([0.0, 1e-2], 'l2')# l2_regularizer
-    #TODO_CHRIS these changes are just for cigar test function
 
     search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
     
@@ -545,4 +534,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-test_skippy()
+#test_skippy()
