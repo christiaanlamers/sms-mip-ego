@@ -287,7 +287,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     #print(model.count_params())
     #CHRIS test if gpu has enough memory
     nvmlInit()
-    handle = nvmlDeviceGetHandleByIndex(gpu_no)
+    handle = nvmlDeviceGetHandleByIndex(int(gpu_no))
     meminfo = nvmlDeviceGetMemoryInfo(handle)
     #max_size = meminfo.total #6689341440
     if meminfo.free/1024.**2 < 1.0:
@@ -380,7 +380,7 @@ if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
         
         os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
         os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-    print(CNN_conf(cfg,gpu_no=int(gpu)))
+    print(CNN_conf(cfg,gpu_no=gpu)
     K.clear_session()
 else:
     print('switching to to test mode')
