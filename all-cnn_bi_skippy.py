@@ -125,8 +125,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     y_train = keras.utils.to_categorical(y_train.flatten(), num_classes)
     y_test = keras.utils.to_categorical(y_test.flatten(), num_classes)
     
-    print('skip steps:')
-    print([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
+    #print('skip steps:')
+    #print([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     #(skip_ints,skip_ints_count) passed to Skip_manager constructor TODO get from cfg vector
     skip_manager = Skip_manager([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     
@@ -345,18 +345,18 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
         stop = time.time()
 
     timer = stop-start
-    print('run-time:')
-    print(timer)
+    #print('run-time:')
+    #print(timer)
 
     if savemodel:
         model.save('best_model_mnist.h5')
     maxval = max(hist.history['val_acc'])
     #loss = -1 * math.log( 1.0 - max(hist.history['val_acc']) ) #np.amin(hist.history['val_loss'])
     loss = -1 * math.log(max(hist.history['val_acc']) ) #CHRIS minimizing this will maximize accuracy
-    print('max val_acc:')
-    print(max(hist.history['val_acc']))
-    print('loss:')
-    print(loss)
+    #print('max val_acc:')
+    #print(max(hist.history['val_acc']))
+    #print('loss:')
+    #print(loss)
     #perf5 = max(hist.history['val_top_5_categorical_accuracy'])
 
     if logfile is not None:
