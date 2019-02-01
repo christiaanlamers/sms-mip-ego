@@ -61,6 +61,7 @@ class Skip_manager(object):
                 #print(prev_skip,self.skip_connections[j][2])
                 if prev_skip != self.skip_connections[j][2]:#this removes skip connection duplicates (works because same skip connections are next to eachother) TODO maybe better to make more robust
                     if K.int_shape(self.skip_connections[j][0])[1] != K.int_shape(layer)[1] or K.int_shape(self.skip_connections[j][0])[2] != K.int_shape(layer)[2]:
+                        #CHRIS TODO add pooling, because this becomes too complex to train
                         pad_tpl1 = (int(np.floor(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(self.skip_connections[j][0])[1]-K.int_shape(layer)[1])/2)))
                         pad_tpl2 = (int(np.floor(np.abs(K.int_shape(self.skip_connections[j][0])[2]-K.int_shape(layer)[2])/2)),int(np.ceil(np.abs(K.int_shape(self.skip_connections[j][0])[2]-K.int_shape(layer)[2])/2)))
                         #print(pad_tpl)

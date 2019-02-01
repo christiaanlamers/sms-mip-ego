@@ -116,7 +116,7 @@ stack_sizes = OrdinalSpace([0, 7], 'stack') * 7
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function
 activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
 step = NominalSpace([True, False], "step")  # step
-global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
+global_pooling = NominalSpace([True], "global_pooling")  # global_pooling#CHRIS TODO removed False
 
 #skippy parameters
 skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
