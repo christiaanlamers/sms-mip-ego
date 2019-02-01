@@ -399,7 +399,7 @@ def test_skippy():
     filters = OrdinalSpace([10, 100], 'filters') * 14 #TODO [0,100] should be [0,600]
     kernel_size = OrdinalSpace([1, 8], 'k') * 14
     strides = OrdinalSpace([1, 5], 's') * 7
-    stack_sizes = OrdinalSpace([0, 7], 'stack') * 7 #TODO [0,4] should be [0,7]
+    stack_sizes = OrdinalSpace([0, 4], 'stack') * 7 #TODO [0,4] should be [0,7]
 
     activation = NominalSpace(activation_fun_conv, "activation")  # activation function
     activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
@@ -516,16 +516,14 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    #vla = {'s_3': 2, 'k_1': 3, 'stack_2': 2, 'l2': 0.0003690273624663179, 'stack_3': 2, 'no_pooling': True, 'filters_6': 283, 'skint_0': 471276356218145485, 'k_5': 6, 'stack_1': 7, 's_2': 2, 'k_7': 1, 'lr': 0.5490255513966976, 'dropout_2': 0.3267970319632431, 'k_3': 2, 'k_6': 2, 'filters_1': 237, 'dropout_5': 0.45635092296785834, 'filters_4': 191, 'activation': 'tanh', 'skint_2': 1483144280128703022, 'filters_8': 42, 's_4': 3, 'global_pooling': False, 'activ_dense': 'softmax', 'k_0': 1, 'skst_2': 2, 'dense_size': 195, 's_1': 4, 'skst_1': 7, 'k_4': 1, 'skst_0': 4, 'filters_0': 193, 'filters_7': 463, 'k_9': 2, 's_0': 2, 'k_8': 1, 'step': True, 'dropout_1': 0.5521296900438722, 'filters_3': 318, 'filters_9': 11, 'dropout_0': 0.14943922173144178, 'filters_2': 87, 'filters_5': 516, 'dropout_4': 0.15197709746785076, 'stack_4': 8, 'stack_0': 8, 'skint_1': 381319562468364730, 'k_2': 6, 'dropout_3': 0.8074687350047474}
-    #vla = {'s_3': 3, 'skint_0': 486682206047329544, 'stack_0': 11, 'activ_dense': 'softmax', 's_4': 3, 'k_2': 6, 'dropout_4': 0.019841423916150795, 'filters_1': 546, 'stack_2': 4, 'no_pooling': False, 'lr': 0.14528199323337182, 'filters_0': 456, 'dropout_1': 0.8523329186049733, 'dropout_0': 0.277835782048442, 'dense_size': 1406, 'filters_7': 530, 'k_6': 5, 'stack_1': 3, 'l2': 3.878370413948978e-05, 'filters_2': 556, 's_0': 2, 's_2': 1, 'step': False, 'global_pooling': True, 'filters_3': 471, 'skst_0': 6, 'k_8': 4, 'k_0': 6, 'k_5': 5, 's_1': 1, 'dropout_2': 0.8706208864476698, 'skint_2': 1225374391770774810, 'filters_6': 170, 'k_1': 4, 'k_3': 2, 'skst_2': 8, 'dropout_5': 0.6480100356164051, 'stack_4': 7, 'k_7': 4, 'k_9': 2, 'filters_5': 319, 'dropout_3': 0.1647220696568121, 'k_4': 3, 'filters_8': 31, 'skint_1': 395472008051048653, 'skst_1': 6, 'filters_4': 60, 'activation': 'sigmoid', 'stack_3': 11, 'filters_9': 401}
-    #vla = {'s_0': 3, 'skst_0': 5, 'activ_dense': 'softmax', 'filters_4': 105, 'lr': 0.21119135991901955, 'global_pooling': True, 'activation': 'elu', 'dropout_2': 0.12687225517331716, 'k_8': 6, 'k_5': 5, 'k_6': 2, 'skst_2': 5, 'stack_3': 4, 'step': False, 's_1': 4, 'dropout_1': 0.3857732059679585, 'dropout_0': 0.7622283860924229, 'skst_1': 9, 'filters_7': 546, 's_3': 2, 'k_9': 3, 'stack_2': 3, 'dropout_3': 0.5977724811757306, 's_4': 1, 'k_7': 1, 'filters_6': 435, 'skint_0': 1472916917684925938, 'skint_2': 1024535950204742200, 'dropout_4': 0.19448924696224493, 'stack_0': 7, 'k_3': 4, 's_2': 3, 'filters_1': 221, 'dense_size': 1608, 'k_1': 1, 'filters_3': 416, 'skint_1': 2297429747271169909, 'k_4': 6, 'k_0': 3, 'stack_4': 2, 'no_pooling': True, 'filters_0': 175, 'filters_8': 219, 'filters_5': 415, 'dropout_5': 0.08781528359026737, 'filters_9': 562, 'filters_2': 329, 'l2': 0.005525172952887245, 'stack_1': 3, 'k_2': 2}
+    vla = {'s_0': 1, 'dropout_1': 0.2558538408938358, 'skint_0': 190072819062097, 'dropout_2': 0.12045418841609383, 'k_13': 6, 's_6': 3, 'no_pooling': False, 'dropout_3': 0.566605631625594, 'filters_12': 330, 'stack_6': 0, 's_4': 2, 'dense_size_0': 115, 'filters_1': 298, 'skst_0': 9, 'k_8': 3, 'stack_1': 1, 'dropout_6': 0.28583493986705244, 'filters_8': 524, 'k_10': 6, 'skst_1': 5, 'filters_13': 466, 'filters_6': 435, 'stack_4': 5, 'filters_4': 383, 'dropout_4': 0.04890828802026522, 'k_5': 1, 'dropout_0': 0.44703091358192376, 'stack_2': 4, 'k_7': 3, 'filters_9': 585, 's_5': 1, 'activ_dense': 'softmax', 'filters_7': 501, 'stack_5': 1, 'skint_1': 195578011651968, 'filters_3': 368, 'k_1': 2, 'k_6': 6, 'k_0': 7, 'lr': 0.005412944320779112, 'filters_5': 71, 'filters_0': 583, 'k_9': 4, 'k_3': 3, 'step': True, 's_1': 2, 'dense_size_1': 931, 'k_4': 6, 'k_11': 3, 's_2': 4, 's_3': 1, 'filters_11': 161, 'stack_0': 6, 'activation': 'selu', 'filters_10': 463, 'stack_3': 4, 'skst_2': 8, 'dropout_5': 0.6737832242612387, 'global_pooling': True, 'k_2': 4, 'filters_2': 336, 'l2': 0.009976306691047545, 'skint_2': 1101431413070283, 'dropout_7': 0.00013122235710674322, 'k_12': 3}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = False
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
-        model = CNN_conf(X[0].to_dict(),test=test)
+        model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
