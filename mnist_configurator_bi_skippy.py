@@ -102,7 +102,7 @@ class obj_func(object):
 
 
 #define the search space.
-#objective = obj_func('./all-cnn_bi.py')
+objective = obj_func('./all-cnn_bi_skippy.py')
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
