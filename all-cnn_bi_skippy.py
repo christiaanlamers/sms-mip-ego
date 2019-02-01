@@ -299,7 +299,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
 
     #max_size = 32828802 * 2 #CHRIS twice as large as RESnet-34-like implementation
     #max_size = 129200130 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=10, one network of this size was able to be ran on tritanium gpu
-    max_size = 128315394 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=100, one network of this size was able to be ran on tritanium gpu
+    max_size = 130374394 #CHRIS twice as wide as RESnet-34-like implementation with batchsize=100, one network of this size was able to be ran on tritanium gpu
     if model.count_params() > max_size:
         print('network too large for implementation')
         return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
@@ -513,7 +513,7 @@ def test_skippy():
     skst_0 = 2
     skst_1 = 0
     skst_2 = 0
-    dense_size_0 = 1000
+    dense_size_0 = 1000*2
     dense_size_1 = 0
     no_pooling = False
     #skippy parameters
@@ -532,7 +532,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
         model = CNN_conf(X[0].to_dict(),test=test)
