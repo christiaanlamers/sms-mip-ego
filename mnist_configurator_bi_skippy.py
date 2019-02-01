@@ -107,9 +107,9 @@ activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
 filters = OrdinalSpace([10, 600], 'filters') * 14
-kernel_size = OrdinalSpace([1, 7], 'k') * 14
+kernel_size = OrdinalSpace([1, 8], 'k') * 14
 strides = OrdinalSpace([1, 5], 's') * 7
-stack_sizes = OrdinalSpace([0, 6], 'stack') * 7
+stack_sizes = OrdinalSpace([0, 7], 'stack') * 7
 
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function
 activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
