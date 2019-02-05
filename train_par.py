@@ -271,17 +271,26 @@ for i in range(len(par)):
 
 hist_save = []
 for x in par:
-    available_gpus = gp.getAvailable(limit=5)
-
-    if len(sys.argv) > 2:
-        for i in range(3,int(len(sys.argv))):
-            print(int(sys.argv[i]))
-            try:
-                available_gpus.remove(int(sys.argv[i]))
-            except:
-                pass
+    available_gpus = []
+    while True:
+        available_gpus = gp.getAvailable(limit=5)
+        
+        if len(sys.argv) > 2:
+            for i in range(2,int(len(sys.argv))):
+                print(int(sys.argv[i]))
+                try:
+                    available_gpus.remove(int(sys.argv[i]))
+                except:
+                    pass
+        if len(available_gpus) <= 0:
+            print('no gpus available')
+        else:
+            break
+    print('available gpus:')
     print(available_gpus)
-    #gpu = available_gpus[0]
+    gpu = available_gpus[0]
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
     CNN_conf(x.tolist(),hist_save)
     with open('train_par_out.json', 'w') as outfile:
             json.dump(hist_save,outfile)

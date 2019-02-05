@@ -1,9 +1,18 @@
 from __future__ import print_function
 
 import numpy as np
-#np.random.seed(43)
+np.random.seed(44)
 import tensorflow as tf
-tf.set_random_seed(43)
+tf.set_random_seed(44)
+
+import json
+
+import sys
+
+import gputil as gp
+
+from mipego.mipego import Solution
+from mipego.Bi_Objective import *
 
 import keras
 #from keras.datasets import mnist
@@ -24,6 +33,16 @@ from keras.regularizers import l2
 import time #CHRIS added to measure runtime of training
 from pynvml import * #CHRIS needed to test gpu memory capacity
 #from fractions import gcd #CHRIS needed for proper upscaling
+
+class TimedAccHistory(keras.callbacks.Callback):
+    def on_train_begin(self, logs={}):
+        self.accuracy_log = []
+        self.timed = []
+        self.start_time = time.time()
+    
+    def on_epoch_end(self, batch, logs={}):
+        self.accuracy_log.append(logs.get('val_acc'))
+        self.timed.append(time.time() - self.start_time)
 
 def inv_gray(num):#TODO only for testing
     n = 0
@@ -104,11 +123,11 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
+def CNN_conf(cfg,hist_save,epochs=1,test=False,gpu_no=0):
     verbose = 0 #CHRIS TODO set this to 0
     batch_size = 100
     num_classes = 10
-    epochs = 1 #CHRIS increased from 1 to 5 to make results less random and noisy
+    epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
@@ -310,6 +329,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     x_train /= 255.
     x_test /= 255.
 
+    hist_func = TimedAccHistory()
+    
     if not data_augmentation:
         print('Not using data augmentation.')
         start = time.time()
@@ -317,7 +338,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
                   batch_size=batch_size,
                   epochs=epochs,
                   validation_data=(x_test, y_test),
-                         callbacks=callbacks,
+                         callbacks=[hist_func],
                          verbose=verbose,
                   shuffle=True)
         stop = time.time()
@@ -349,6 +370,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     timer = stop-start
     #print('run-time:')
     #print(timer)
+    hist_save.append([hist.history['val_acc'], hist_func.timed])
 
     if savemodel:
         model.save('best_model_mnist.h5')
@@ -372,166 +394,94 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
             cfg_df.to_csv(log_file, mode='w', header=True, index=False)
     return timer,loss
 
+if len(sys.argv) < 2:
+    print("usage: python3 load_data.py 'data_file_name.json' (optional: to be removed gpu's)")
+    exit(0)
+file_name = str(sys.argv[1])
+with open(file_name) as f:
+    for line in f:
+        data = json.loads(line)
+
+ref_time = None
+ref_loss = None
+
+conf_array = data[0]
+fit_array = data[1]
+time_array = data[2]
+loss_array = data[3]
+n_eval_array = data[4]
+index_array = data[5]
+name_array = data[6]
+
+all_time_r2 = None
+all_loss_r2 = None
+if len(data) > 7:
+    all_time_r2 = data[7]
+    all_loss_r2 = data[8]
 
 
-#system arguments (configuration)
-if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
-    cfg = eval(sys.argv[2])
-    if len(sys.argv) > 3:
-        gpu = sys.argv[3]
-        
-        os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-        os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-    print(CNN_conf(cfg,gpu_no=gpu))
-    K.clear_session()
-else:
-    print('switching to to test mode')
+#print(data)
+solutions = []
+for i in range(len(conf_array)):
+    solutions.append(Solution(x=conf_array[i],fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
 
-#CHRIS testcode
-def test_skippy():
-    from mipego.mipego import Solution #TODO remove this, only for testing
-    from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
-    from keras.utils import plot_model
-    #define the search space.
-    #objective = obj_func('./all-cnn_bi.py')
-    activation_fun = ["softmax"]
-    activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
+print("len(solutions): " + str(len(solutions)))
 
-    filters = OrdinalSpace([10, 100], 'filters') * 14 #TODO [0,100] should be [0,600]
-    kernel_size = OrdinalSpace([1, 8], 'k') * 14
-    strides = OrdinalSpace([1, 5], 's') * 7
-    stack_sizes = OrdinalSpace([0, 4], 'stack') * 7 #TODO [0,4] should be [0,7]
+pauser = 0.008
 
-    activation = NominalSpace(activation_fun_conv, "activation")  # activation function
-    activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
-    step = NominalSpace([True, False], "step")  # step
-    global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
+_time = [x.time for x in solutions]
+_loss = [x.loss for x in solutions]
+
+#print('time:')
+#print(time)
+#print('loss:')
+#print(loss)
+x_bound = min(0.0,min(_time)),max(_time)
+y_bound = min(0.0,min(_loss)),max(_loss)
+
+par = pareto(solutions)
+quicksort_par(par,0,len(par)-1)
+par_time = [x.time for x in par]
+par_loss = [x.loss for x in par]
+HV = hyper_vol(par, solutions, ref_time, ref_loss)
+print("Hyper Volume:")
+print(HV)
+print("len pareto front:")
+print(len(par))
+print("paretofront:")
+if all_time_r2 is not None and all_loss_r2 is not None:
+    print("all_time_r2 average:")
+    print(np.average(np.array(all_time_r2)))
+    print("all_loss_r2 average:")
+    print(np.average(np.array(all_loss_r2)))
+for i in range(len(par)):
+    print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
+
+
+hist_save = []
+for x in par:
+    available_gpus = []
+    while True:
+        available_gpus = gp.getAvailable(limit=5)
     
-    #skippy parameters
-    skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
-    skst = OrdinalSpace([2, 10], 'skst') * 3
-    dense_size = OrdinalSpace([0, 1200], 'dense_size')*2
-    no_pooling = NominalSpace([True, False], "no_pooling")
-    #skippy parameters
-
-    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
-    lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
-    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
-
-    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
-    
-    n_init_sample = 1
-    samples = search_space.sampling(n_init_sample)
-    print(samples)
-    var_names = search_space.var_name.tolist()
-    print(var_names)
-    
-    #a sample
-    #samples = [[1, 1, 1, 1, 2, 3, 10, 10, 5, 10, 10, 10, 10, 3, 4, 2, 1, 3, 1, 3, 'relu', 'softmax', 0.7105013348601977, 0.24225495530708516, 0.5278997344637044, 0.7264822991098491, 0.0072338759099408985, 0.00010867041652507452, False, True]]
-
-    #test parameters
-    #original parameters
-    #RESnet-34-like
-    stack_0 = 1
-    stack_1 = 6
-    stack_2 = 4
-    stack_3 = 4
-    stack_4 = 6
-    stack_5 = 6
-    stack_6 = 6
-    s_0=2
-    s_1=2
-    s_2=1
-    s_3=2
-    s_4=1
-    s_5=2
-    s_6=1
-    filters_0=64*2
-    filters_1=64*2
-    filters_2=64*2
-    filters_3=64*2
-    filters_4=128*2
-    filters_5=128*2
-    filters_6=128*2
-    filters_7=128*2
-    filters_8=256*2
-    filters_9=256*2
-    filters_10=256*2
-    filters_11=256*2
-    filters_12=512*2
-    filters_13=512*2
-    k_0=7
-    k_1=3
-    k_2=3
-    k_3=3
-    k_4=3
-    k_5=3
-    k_6=3
-    k_7=3
-    k_8=3
-    k_9=3
-    k_10=3
-    k_11=3
-    k_12=3
-    k_13=3
-    activation='relu'
-    activ_dense='softmax'
-    dropout_0=0.001
-    dropout_1=0.001
-    dropout_2=0.001
-    dropout_3=0.001
-    dropout_4=0.001
-    dropout_5=0.001
-    dropout_6=0.001
-    dropout_7=0.001
-    lr=0.1
-    l2=0.0001
-    step=True
-    global_pooling=True
-
-    #skippy parameters
-    om_en_om = 1
-    ranges = [stack_6,stack_5,stack_4,stack_3,stack_2,stack_1,stack_0]
-    for w in range(len(ranges)):#TODO testcode: remove
-        om_en_om = om_en_om << 1
-        for z in range(ranges[w]//2):
-            om_en_om = om_en_om << 2
-            om_en_om += 1
-    om_en_om = om_en_om << 1
-    skint_0 = inv_gray(om_en_om)#3826103921638#2**30-1
-    skint_1 = 0#19283461627361826#2**30-1
-    skint_2 = 0#473829102637452916#2**30-1
-    skst_0 = 2
-    skst_1 = 0
-    skst_2 = 0
-    dense_size_0 = 1000*2
-    dense_size_1 = 0
-    no_pooling = False
-    #skippy parameters
-
-    #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, dense_size_0, dense_size_1, no_pooling]]
-    
-    #var_names
-    #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
-
-    
-    X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'s_0': 3, 'l2': 4.4274387289657325e-05, 'filters_7': 423, 'dense_size_1': 992, 'filters_12': 295, 'stack_0': 0, 'filters_2': 53, 'global_pooling': True, 'dropout_6': 0.5606577615096975, 'filters_13': 115, 'filters_4': 396, 'stack_4': 0, 'k_9': 6, 'activation': 'tanh', 'dropout_1': 0.07267176147234225, 'filters_5': 405, 'filters_1': 250, 'k_7': 7, 'filters_3': 408, 'stack_2': 0, 'no_pooling': False, 'dropout_7': 0.12689965102483852, 's_2': 4, 'filters_8': 455, 'dropout_4': 0.8991002969243431, 'k_11': 5, 'skst_0': 7, 'k_4': 3, 'dropout_3': 0.5966691482903116, 'step': False, 'dense_size_0': 583, 'stack_1': 1, 'k_0': 3, 'skint_1': 505527202345094, 'k_1': 5, 'k_8': 1, 'stack_6': 0, 'lr': 0.6919959357016345, 'activ_dense': 'softmax', 'filters_6': 305, 's_1': 3, 'filters_9': 226, 's_4': 2, 'stack_3': 1, 'skst_1': 5, 'skst_2': 6, 'dropout_2': 0.039087410518674766, 'k_12': 4, 'k_3': 6, 'dropout_5': 0.46057411289276423, 'skint_0': 957176709324259, 'k_5': 4, 'k_2': 3, 's_3': 1, 'filters_0': 195, 'k_6': 1, 'k_13': 2, 'skint_2': 1098454353499063, 'filters_11': 107, 'filters_10': 257, 'k_10': 4, 'stack_5': 0, 's_6': 1, 's_5': 2, 'dropout_0': 0.6293343140822664}
-    print(X)
-    print(X[0].to_dict())
-    #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
-    if test:
-        #model = CNN_conf(X[0].to_dict(),test=test)
-        model = CNN_conf(vla,test=test)
-        plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
-        model.summary()
-        print(model.count_params())
-        print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
-    else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test)
-        print('timer, loss:')
-        print(timer, loss)
-#CHRIS uncomment following to test the code
-test_skippy()
+        if len(sys.argv) > 2:
+            for i in range(2,int(len(sys.argv))):
+                print(int(sys.argv[i]))
+                try:
+                    available_gpus.remove(int(sys.argv[i]))
+                except:
+                    pass
+        if len(available_gpus) <= 0:
+            print('no gpus available')
+        else:
+            break
+    print('available gpus:')
+    print(available_gpus)
+    gpu = available_gpus[0]
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
+    CNN_conf(x.tolist(),hist_save,gpu_no=gpu)
+    with open('train_par_skippy_out.json', 'w') as outfile:
+            json.dump(hist_save,outfile)
+#for each in par build network and train
+#save accuracy, time, iterations
