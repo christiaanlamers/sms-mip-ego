@@ -24,13 +24,13 @@ with open(file_name) as f:
 
 max_acc = 0
 max_time = 0
-max_acc_clamped = 0 #max in under 10 minutes
+max_acc_clamped = 0 #max in under 1 minutes
 minute_ten_it = 0
 all_max_data = []
 for i in range(len(data)):
     clamp = 0
     for j in range(len(data[i][1])):
-        if data[i][1][j] > 600:
+        if data[i][1][j] > 36000:
             break
         else:
             clamp = j
@@ -83,9 +83,9 @@ print("at time (minutes):")
 print(max_time/60)
 print("at time (hours):")
 print(max_time/(60*60))
-print("max accuracy in under 10 minutes:")
+print("max accuracy in under 10 hours:")
 print(max_acc_clamped)
-print("10 minutes was enough time for iteration number:")
+print("10 hours was enough time for iteration number:")
 print(minute_ten_it)
 #plt.legend(bbox_to_anchor=(1.03, 1), loc=2, borderaxespad=0.)
 #if display_time:

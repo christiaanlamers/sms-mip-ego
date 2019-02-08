@@ -127,7 +127,7 @@ def CNN_conf(cfg,hist_save,epochs=1,test=False,gpu_no=0):
     verbose = 0 #CHRIS TODO set this to 0
     batch_size = 100
     num_classes = 10
-    epochs = 100 #CHRIS increased from 1 to 5 to make results less random and noisy
+    epochs = 2000 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
@@ -482,7 +482,8 @@ for x in par:
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
     os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
     CNN_conf(x.to_dict(),hist_save,gpu_no=gpu)
-    with open('train_par_skippy_out.json', 'w') as outfile:
+    with open('train_par_skippy_fastest.json', 'w') as outfile:
             json.dump(hist_save,outfile)
+    break
 #for each in par build network and train
 #save accuracy, time, iterations
