@@ -124,7 +124,7 @@ class Skip_manager(object):
 
 
 def CNN_conf(cfg,hist_save,epochs=1,test=False,gpu_no=0):
-    verbose = 0 #CHRIS TODO set this to 0
+    verbose = 1 #CHRIS TODO set this to 0
     batch_size = 100
     num_classes = 10
     epochs = 2000 #CHRIS increased from 1 to 5 to make results less random and noisy
@@ -460,6 +460,7 @@ for i in range(len(par)):
 
 
 hist_save = []
+i = 0
 for x in par:
     available_gpus = []
     while True:
@@ -481,9 +482,11 @@ for x in par:
     gpu = available_gpus[0]
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
     os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
+    print("iteration number: " + str(i))
     CNN_conf(x.to_dict(),hist_save,gpu_no=gpu)
     with open('train_par_skippy_fastest.json', 'w') as outfile:
             json.dump(hist_save,outfile)
+    i +=1
     break
 #for each in par build network and train
 #save accuracy, time, iterations
