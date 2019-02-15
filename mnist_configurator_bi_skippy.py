@@ -135,7 +135,8 @@ search_space =  stack_sizes * strides * filters *  kernel_size * activation * ac
 
 print('starting program...')    
 #available_gpus = gp.getAvailable(limit=2)
-available_gpus = gp.getAvailable(limit=5)
+gpu_limit = 16
+available_gpus = gp.getAvailable(limit=gpu_limit)
 
 ignore_gpu = []
 if len(sys.argv) > 1:
@@ -156,7 +157,7 @@ if len(sys.argv) > 1:
 #pass
 print(available_gpus)
 
-n_job = max(min(5,len(available_gpus)),1)
+n_job = max(min(gpu_limit,len(available_gpus)),1)
 
 
 # use random forest as the surrogate model
