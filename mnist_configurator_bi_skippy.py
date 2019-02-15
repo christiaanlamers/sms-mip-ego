@@ -111,7 +111,7 @@ activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 filters = OrdinalSpace([10, 600], 'filters') * 14
 kernel_size = OrdinalSpace([1, 8], 'k') * 14
 strides = OrdinalSpace([1, 5], 's') * 7
-stack_sizes = OrdinalSpace([0, 4], 'stack') * 7#CHRIS TODO [0,4] should be [0,7]
+stack_sizes = OrdinalSpace([0, 7], 'stack') * 7#CHRIS TODO [0,4] should be [0,7]
 
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function
 activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
@@ -168,7 +168,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_large_sp',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
+                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_large_sp_34',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
 
 #ref_time=3000.0,ref_loss=3.0
 
