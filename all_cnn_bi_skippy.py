@@ -534,4 +534,4 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 #CHRIS uncomment following to test the code
-test_skippy()
+#test_skippy()
