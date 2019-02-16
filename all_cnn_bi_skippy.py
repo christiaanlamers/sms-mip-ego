@@ -6,8 +6,8 @@ import tensorflow as tf
 tf.set_random_seed(43)
 
 import keras
-#from keras.datasets import mnist
-from keras.datasets import cifar10
+from keras.datasets import mnist
+#from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
