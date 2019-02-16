@@ -125,9 +125,15 @@ if all_time_r2 is not None and all_loss_r2 is not None:
 #print(par[0].var_name)
 print(par)
 for i in range(len(par)):
-    print(par[i].tolist())
+    print(par[i].to_dict())
     model = CNN_conf(par[i].to_dict(),test=True)
     plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
+
+#sorter = np.argsort([x.time for x in solutions])
+#for i in range(len(sorter)):
+#    print(solutions[sorter[i]].to_dict())
+#    model = CNN_conf(solutions[sorter[i]].to_dict(),test=True)
+#    plot_model(model, to_file='conf_solution_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
 #if all_time_r2 is not None and all_loss_r2 is not None:
 #    print("all_time_r2:")
 #    print(all_time_r2)

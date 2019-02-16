@@ -624,8 +624,9 @@ class mipego(object):
             print('len(perf):') #CHRIS
             print(len(perf))
             print('best perf:')
-            #CHRIS TODO fitness is now a to be maximized parameter, so self_best() might not work correctly
-            print(self._best(perf))#CHRIS TODO this gave an error once, because self._best received a None value
+            #CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
+            #print(self._best(perf))#CHRIS TODO this gave an error once, because self._best received a None value, might be fixed now
+            print(max(perf))
             self.incumbent_id = np.nonzero(perf == self._best(perf))[0][0]
             self.incumbent = self.data[self.incumbent_id]
 

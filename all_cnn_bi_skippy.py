@@ -115,11 +115,12 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     savemodel = False
 
     # The data, shuffled and split between train and test sets:
-    (x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    #(x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
     
     #CHRIS reshape only needed for mnist
-    #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
-    #x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
+    x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
+    x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
     
     cfg_df = pd.DataFrame(cfg, index=[0])
 
@@ -372,21 +373,6 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
             cfg_df.to_csv(log_file, mode='w', header=True, index=False)
     return timer,loss
 
-
-
-#system arguments (configuration)
-if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
-    cfg = eval(sys.argv[2])
-    if len(sys.argv) > 3:
-        gpu = sys.argv[3]
-        
-        os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-        os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-    print(CNN_conf(cfg,gpu_no=gpu))
-    K.clear_session()
-else:
-    print('switching to to test mode')
-
 #CHRIS testcode
 def test_skippy():
     from mipego.mipego import Solution #TODO remove this, only for testing
@@ -533,5 +519,18 @@ def test_skippy():
         timer, loss = CNN_conf(X[0].to_dict(),test=test)
         print('timer, loss:')
         print(timer, loss)
-#CHRIS uncomment following to test the code
-#test_skippy()
+
+if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
+    #system arguments (configuration)
+    if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
+        cfg = eval(sys.argv[2])
+        if len(sys.argv) > 3:
+            gpu = sys.argv[3]
+        
+            os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+            os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
+        print(CNN_conf(cfg,gpu_no=gpu))
+        K.clear_session()
+    else:
+        print('switching to test mode')
+        test_skippy()

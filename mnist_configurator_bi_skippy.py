@@ -96,8 +96,8 @@ class obj_func(object):
         except:
             print("error in receiving answer from gpu " + str(gpu_no))
             success = True #CHRIS simply give large penalty in case of failure instead of setting success to False
-            tuple_str1 = '1000000000'
-            tuple_str2 = '5'
+            tuple_str1 = '80000'#CHRIS 2 times timeout value
+            tuple_str2 = str(-1 * math.log(0.05) ))#CHRIS half the accuracy of random guessing
         tuple = (float(tuple_str1),float(tuple_str2),success)
         #return outputval
         return tuple
@@ -169,7 +169,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_large_sp_34',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
+                 available_gpus=available_gpus, bi=True, save_name='data_skippy_mnist_large_sp_34',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
 
 #ref_time=3000.0,ref_loss=3.0
 
