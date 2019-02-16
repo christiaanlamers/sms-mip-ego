@@ -20,6 +20,7 @@ from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 import re
 import traceback
 import time
+import math
 
 np.random.seed(42)
 
