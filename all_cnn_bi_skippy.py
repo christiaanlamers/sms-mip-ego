@@ -277,8 +277,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     model = keras.models.Model(inputs=input1, outputs=out)
 
     # Let's train the model using RMSprop
-    model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['accuracy'])
-    #model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+    #model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['accuracy'])
+    model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
 
     if test:
         return model #TODO remove this, just for testing
