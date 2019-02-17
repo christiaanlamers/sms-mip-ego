@@ -277,7 +277,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     model = keras.models.Model(inputs=input1, outputs=out)
 
     # Let's train the model using RMSprop
-    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])#TODO 'adam' moet zijn: opt
+    model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['accuracy'])#TODO 'adam' moet zijn: opt
     #model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
 
     if test:
@@ -399,7 +399,7 @@ def test_skippy():
 
     drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
-    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer#CHRIS this should always be 0!!!
+    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
     search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
     
@@ -468,7 +468,7 @@ def test_skippy():
     dropout_6=0.001
     dropout_7=0.001
     lr=0.01
-    l2=0.0001#0.0#0.0001
+    l2=0.0001
     step=False#True
     global_pooling=False#True
 
