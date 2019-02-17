@@ -415,7 +415,7 @@ def test_skippy():
     #test parameters
     #original parameters
     #RESnet-34-like
-    stack_0 = 0#1
+    stack_0 = 4#1
     stack_1 = 0#6
     stack_2 = 0#4
     stack_3 = 0#4
