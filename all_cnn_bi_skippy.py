@@ -6,8 +6,8 @@ import tensorflow as tf
 tf.set_random_seed(43)
 
 import keras
-from keras.datasets import mnist
-#from keras.datasets import cifar10
+#from keras.datasets import mnist
+from keras.datasets import cifar10
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
@@ -113,12 +113,12 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     savemodel = False
 
     # The data, shuffled and split between train and test sets:
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    #(x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
+    #(x_train, y_train), (x_test, y_test) = mnist.load_data()
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
     
     #CHRIS reshape only needed for mnist
-    x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
-    x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
+    #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
+    #x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
     
     cfg_df = pd.DataFrame(cfg, index=[0])
 
@@ -517,7 +517,7 @@ if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
         
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
             os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-        print(CNN_conf(cfg,gpu_no=gpu,epochs=10))
+        print(CNN_conf(cfg,gpu_no=gpu,epochs=1))
         K.clear_session()
     else:
         print('switching to test mode')
