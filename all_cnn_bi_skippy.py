@@ -104,11 +104,9 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
-    verbose = 0 #CHRIS TODO set this to 0
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     batch_size = 100
     num_classes = 10
-    epochs = 1 #CHRIS increased from 1 to 5 to make results less random and noisy
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
@@ -257,7 +255,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
         layer = Dense(cfg['dense_size_1'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activ_dense'])(layer)
     layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
-    layer = Activation(cfg['activ_dense'])(layer)
+    out = Activation(cfg['activ_dense'])(layer)
     
     cfg['decay'] = cfg['lr'] / float(epochs)
     def step_decay(epoch):
@@ -276,7 +274,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     #opt = keras.optimizers.rmsprop(lr= cfg['lr'], decay=cfg['decay'])
     opt = keras.optimizers.SGD(lr=cfg['lr'], momentum=0.9, decay=cfg['decay'], nesterov=False)
 
-    model = keras.models.Model(inputs=input1, outputs=layer)
+    model = keras.models.Model(inputs=input1, outputs=out)
 
     # Let's train the model using RMSprop
     model.compile(loss='categorical_crossentropy',
@@ -289,13 +287,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0):
     #print("amount of parameters:")
     #print(model.count_params())
     #CHRIS test if gpu has enough memory
-    nvmlInit()
-    handle = nvmlDeviceGetHandleByIndex(int(gpu_no))
-    meminfo = nvmlDeviceGetMemoryInfo(handle)
+    #nvmlInit()
+    #handle = nvmlDeviceGetHandleByIndex(int(gpu_no))
+    #meminfo = nvmlDeviceGetMemoryInfo(handle)
     #max_size = meminfo.total #6689341440
-    if meminfo.free/1024.**2 < 1.0:
-        print('gpu is allready in use')
-    nvmlShutdown()
+    #if meminfo.free/1024.**2 < 1.0:
+    #    print('gpu is allready in use')
+    #nvmlShutdown()
     #if model.count_params()*4*2 >= max_size:#CHRIS *4*2: 4 byte per parameter times 2 for backpropagation
         #print('network too large for memory')
         #return 1000000000.0*(model.count_params()*4*2/max_size), 5.0*(model.count_params()*4*2/max_size)
@@ -419,34 +417,34 @@ def test_skippy():
     #original parameters
     #RESnet-34-like
     stack_0 = 1
-    stack_1 = 6
-    stack_2 = 4
-    stack_3 = 4
-    stack_4 = 6
-    stack_5 = 6
-    stack_6 = 6
-    s_0=2
-    s_1=2
+    stack_1 = 0#6
+    stack_2 = 1#4
+    stack_3 = 0#4
+    stack_4 = 0#6
+    stack_5 = 0#6
+    stack_6 = 1#6
+    s_0=1#2
+    s_1=1#2
     s_2=1
-    s_3=2
+    s_3=1#2
     s_4=1
-    s_5=2
+    s_5=1#2
     s_6=1
-    filters_0=64*2
-    filters_1=64*2
-    filters_2=64*2
-    filters_3=64*2
-    filters_4=128*2
-    filters_5=128*2
-    filters_6=128*2
-    filters_7=128*2
-    filters_8=256*2
-    filters_9=256*2
-    filters_10=256*2
-    filters_11=256*2
-    filters_12=512*2
-    filters_13=512*2
-    k_0=7
+    filters_0=20#64*2
+    filters_1=20#64*2
+    filters_2=20#64*2
+    filters_3=20#64*2
+    filters_4=15#128*2
+    filters_5=15#128*2
+    filters_6=15#128*2
+    filters_7=15#128*2
+    filters_8=15#256*2
+    filters_9=15#256*2
+    filters_10=15#256*2
+    filters_11=15#256*2
+    filters_12=10#512*2
+    filters_13=10#512*2
+    k_0=3#7
     k_1=3
     k_2=3
     k_3=3
@@ -473,7 +471,7 @@ def test_skippy():
     lr=0.1
     l2=0.0001
     step=True
-    global_pooling=True
+    global_pooling=False#True
 
     #skippy parameters
     om_en_om = 1
@@ -487,12 +485,12 @@ def test_skippy():
     skint_0 = inv_gray(om_en_om)#3826103921638#2**30-1
     skint_1 = 0#19283461627361826#2**30-1
     skint_2 = 0#473829102637452916#2**30-1
-    skst_0 = 2
+    skst_0 = 1#2
     skst_1 = 0
     skst_2 = 0
-    dense_size_0 = 1000*2
+    dense_size_0 = 1000#1000*2
     dense_size_1 = 0
-    no_pooling = False
+    no_pooling = True#False
     #skippy parameters
 
     #assembling parameters
@@ -507,16 +505,16 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
-        #model = CNN_conf(X[0].to_dict(),test=test)
-        model = CNN_conf(vla,test=test)
+        model = CNN_conf(X[0].to_dict(),test=test)
+        #model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test)
+        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)
 
