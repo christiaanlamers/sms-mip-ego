@@ -526,7 +526,7 @@ if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
         
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
             os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-        print(CNN_conf(cfg,gpu_no=gpu))
+        print(CNN_conf(cfg,gpu_no=gpu,epochs=10))
         K.clear_session()
     else:
         print('switching to test mode')
