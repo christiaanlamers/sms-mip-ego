@@ -249,7 +249,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     
     #head
     if cfg['dense_size'] > 0:
-        layer = Dense(cfg['dense_size_0'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Dense(cfg['dense_size'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activ_dense'])(layer)
     #if cfg['dense_size_1'] > 0:#CHRIS two hidden layers did not work
     #    layer = Dense(cfg['dense_size_1'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
