@@ -239,6 +239,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
         layer = Dropout(cfg['dropout_7'])(layer)
         layer = skip_manager.connect_skip(layer)
 
+    layer = input1#TODO remove this
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
@@ -246,7 +247,6 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
         layer = Flatten()(layer)
     
     
-    layer = input1#TODO remove this
     #head
     if cfg['dense_size_0'] > 0:
         layer = Dense(cfg['dense_size_0'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
