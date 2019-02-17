@@ -149,9 +149,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
         #maxpooling as cnn
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_1'])(layer)
         layer = skip_manager.connect_skip(layer)
     
@@ -163,9 +163,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     if (cfg['stack_1']>0):
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_2'])(layer)
         layer = skip_manager.connect_skip(layer)
 
@@ -177,9 +177,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     if (cfg['stack_2']>0):
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_3'])(layer)
         layer = skip_manager.connect_skip(layer)
 
@@ -191,9 +191,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     if (cfg['stack_3']>0):
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_4'])(layer)
         layer = skip_manager.connect_skip(layer)
 
@@ -205,9 +205,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     if (cfg['stack_4']>0):
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_5'])(layer)
         layer = skip_manager.connect_skip(layer)
 
@@ -219,9 +219,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     if (cfg['stack_5']>0):
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_11'], (cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_6'])(layer)
         layer = skip_manager.connect_skip(layer)
 
@@ -233,9 +233,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     if (cfg['stack_6']>0):
         if (cfg['no_pooling']):
             layer = Conv2D(cfg['filters_13'], (cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+            layer = Activation(cfg['activation'])(layer)
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same')(layer)
-        layer = Activation(cfg['activation'])(layer)
         layer = Dropout(cfg['dropout_7'])(layer)
         layer = skip_manager.connect_skip(layer)
 
@@ -418,11 +418,11 @@ def test_skippy():
     #RESnet-34-like
     stack_0 = 1
     stack_1 = 0#6
-    stack_2 = 1#4
+    stack_2 = 0#4
     stack_3 = 0#4
     stack_4 = 0#6
     stack_5 = 0#6
-    stack_6 = 1#6
+    stack_6 = 0#6
     s_0=1#2
     s_1=1#2
     s_2=1
@@ -430,8 +430,8 @@ def test_skippy():
     s_4=1
     s_5=1#2
     s_6=1
-    filters_0=20#64*2
-    filters_1=20#64*2
+    filters_0=120#64*2
+    filters_1=120#64*2
     filters_2=20#64*2
     filters_3=20#64*2
     filters_4=15#128*2
