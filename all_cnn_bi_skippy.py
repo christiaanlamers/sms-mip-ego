@@ -131,7 +131,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     #(skip_ints,skip_ints_count) passed to Skip_manager constructor TODO get from cfg vector
     skip_manager = Skip_manager([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     
-     layer= keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))(input1)
+    layer= keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))(input1)
     
     layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(layer)
     layer = skip_manager.connect_skip(layer)
