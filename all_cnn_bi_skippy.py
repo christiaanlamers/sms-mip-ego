@@ -487,7 +487,7 @@ def test_skippy():
     skst_0 = 2
     skst_1 = 0
     skst_2 = 0
-    dense_size = 128#1000*2
+    dense_size = 0#128#1000*2
     #dense_size_1 = 0#0
     no_pooling = False#False
     #skippy parameters
