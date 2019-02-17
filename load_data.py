@@ -13,6 +13,7 @@ import sys
 
 from mipego.mipego import Solution
 from mipego.Bi_Objective import *
+import math
 
 if len(sys.argv) != 4 and len(sys.argv) != 6:
     print("usage: python3 load_data.py 'data_file_name.json' init_solution_number zoom(0,1) (optional: ref_time ref_loss)")
@@ -60,7 +61,7 @@ disfunctional = 0
 total = 0
 for i in range(len(solutions)):
     total +=1
-    if solutions[i].time >= 1000000000.0 - 1.0 or solutions[i].loss >= 5.0 - 0.1:
+    if solutions[i].time >= 80000.0 - 1.0 or solutions[i].loss >= -1 * math.log(0.05) - 0.1:
         disfunctional +=1
 
 print("Percentage disfunctional networks: " + str(disfunctional * 100 / total) + "%")

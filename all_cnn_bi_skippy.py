@@ -51,7 +51,7 @@ class Skip_manager(object):
     def connect_skip(self,layer):
         #start skip connections
         for j in range(len(self.skip_ints)):
-            if self.startpoint(self.gray,self.skip_ints[j]):
+            if self.skip_ints_count[j] > 1 and self.startpoint(self.gray,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
                 self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
     
         #end skip connections
