@@ -134,7 +134,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
     #layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)#CHRIS TODO reengage this line!
-    layer = skip_manager.connect_skip(layer)
+    layer = skip_manager.connect_skip(input1)#TODO and replace input1 with layer
     #CHRIS removed following:
     #layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     #layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
