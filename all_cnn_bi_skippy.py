@@ -133,7 +133,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
-    layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)
+    layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)#CHRIS TODO reengage this line!
     layer = skip_manager.connect_skip(layer)
     #CHRIS removed following:
     #layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
@@ -238,7 +238,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
             layer = MaxPooling2D(pool_size=(cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same')(layer)
         layer = Dropout(cfg['dropout_7'])(layer)
         layer = skip_manager.connect_skip(layer)
-    
+
     layer = input1#TODO remove this
     #global averaging
     if (cfg['global_pooling']):
@@ -277,7 +277,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     model = keras.models.Model(inputs=input1, outputs=out)
 
     # Let's train the model using RMSprop
-    model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])#TODO 'adam' moet zijn: opt
     #model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
 
     if test:
@@ -399,7 +399,7 @@ def test_skippy():
 
     drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
-    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer#CHRIS this should always be 0!!!
+    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
     search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
     
@@ -517,7 +517,7 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 
-if __name__ == '__main__':
+if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
     #system arguments (configuration)
     if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
         cfg = eval(sys.argv[2])
