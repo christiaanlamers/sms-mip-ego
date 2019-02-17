@@ -248,12 +248,12 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     
     
     #head
-    if cfg['dense_size_0'] > 0:
+    if cfg['dense_size'] > 0:
         layer = Dense(cfg['dense_size_0'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activ_dense'])(layer)
-    if cfg['dense_size_1'] > 0:
-        layer = Dense(cfg['dense_size_1'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
-        layer = Activation(cfg['activ_dense'])(layer)
+    #if cfg['dense_size_1'] > 0:#CHRIS two hidden layers did not work
+    #    layer = Dense(cfg['dense_size_1'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+    #    layer = Activation(cfg['activ_dense'])(layer)
     layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     out = Activation(cfg['activ_dense'])(layer)
     
@@ -393,7 +393,7 @@ def test_skippy():
     #skippy parameters
     skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
     skst = OrdinalSpace([2, 10], 'skst') * 3
-    dense_size = OrdinalSpace([0, 1200], 'dense_size')*2
+    dense_size = OrdinalSpace([0, 1200], 'dense_size')#CHRIS this used to be 2 possible layers, but this did not work
     no_pooling = NominalSpace([True, False], "no_pooling")
     #skippy parameters
 
@@ -487,13 +487,13 @@ def test_skippy():
     skst_0 = 2
     skst_1 = 0
     skst_2 = 0
-    dense_size_0 = 128#1000*2
-    dense_size_1 = 0#0
+    dense_size = 128#1000*2
+    #dense_size_1 = 0#0
     no_pooling = False#False
     #skippy parameters
 
     #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, dense_size_0, dense_size_1, no_pooling]]
+    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, dense_size, no_pooling]]
     
     #var_names
     #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
