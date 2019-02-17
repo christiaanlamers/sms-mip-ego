@@ -238,7 +238,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
             layer = MaxPooling2D(pool_size=(cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same')(layer)
         layer = Dropout(cfg['dropout_7'])(layer)
         layer = skip_manager.connect_skip(layer)
-
+    
+    layer = input1#TODO remove this
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
