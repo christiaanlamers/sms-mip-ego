@@ -239,7 +239,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
         layer = Dropout(cfg['dropout_7'])(layer)
         layer = skip_manager.connect_skip(layer)
 
-    layer = input1#TODO remove this
+    #layer = input1#TODO remove this
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
@@ -399,7 +399,7 @@ def test_skippy():
 
     drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
-    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
+    l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer#CHRIS this should always be 0!!!
 
     search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
     
