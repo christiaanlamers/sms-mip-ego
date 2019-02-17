@@ -341,8 +341,8 @@ class mipego(object):
         #TODO_CHRIS make this work when runs != 1
         #ans = [self.obj_func(x.to_dict()) for i in range(runs)]
         ans = self.obj_func(x.to_dict(), gpu_no=gpu)
-        print('_eval_one():')
-        print(ans)
+        #print('_eval_one():')
+        #print(ans)#CHRIS this sometimes gave an error, so it is commented
         time_ans,loss_ans,success = ans[0],ans[1],ans[2]
         
         time = np.sum(time_ans)
@@ -625,7 +625,7 @@ class mipego(object):
             print(len(perf))
             print('best perf:')
             #CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
-            #print(self._best(perf))#CHRIS TODO this gave an error once, because self._best received a None value, might be fixed now
+            #print(self._best(perf))
             print(max(perf))
             self.incumbent_id = np.nonzero(perf == self._best(perf))[0][0]
             self.incumbent = self.data[self.incumbent_id]
@@ -839,7 +839,7 @@ class mipego(object):
             elif self.infill == 'MC':
                 acquisition_func = MONTECARLO(model=time_surrogate, plugin=plugin, minimize=self.minimize)
             else:
-                print("Error, only HVI infill criterium works for this implementation")
+                print("Error, only HVI and MC infill criterium work for this implementation")
         else:
             print("Error, n_point should be 1 for this implementation")
                 
