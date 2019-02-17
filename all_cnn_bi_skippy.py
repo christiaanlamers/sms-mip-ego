@@ -415,7 +415,7 @@ def test_skippy():
     #test parameters
     #original parameters
     #RESnet-34-like
-    stack_0 = 4#1
+    stack_0 = 8#1
     stack_1 = 0#6
     stack_2 = 0#4
     stack_3 = 0#4
@@ -484,7 +484,7 @@ def test_skippy():
     skint_0 = inv_gray(om_en_om)#3826103921638#2**30-1
     skint_1 = 0#19283461627361826#2**30-1
     skint_2 = 0#473829102637452916#2**30-1
-    skst_0 = 1#2
+    skst_0 = 2
     skst_1 = 0
     skst_2 = 0
     dense_size_0 = 128#1000*2
