@@ -122,7 +122,6 @@ global_pooling = NominalSpace([True,False], "global_pooling")  # global_pooling#
 #skippy parameters
 skints = OrdinalSpace([0, 2**14-1], 'skint') * 3#CHRIS TODO tweak this
 skst = OrdinalSpace([1, 2], 'skst') * 3#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
-dense_size = OrdinalSpace([0, 1200], 'dense_size')*2
 no_pooling = NominalSpace([True, False], "no_pooling")
 #skippy parameters
 
@@ -131,7 +130,7 @@ lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
 
-search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * dense_size * no_pooling
+search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * no_pooling
 
 
 print('starting program...')    
