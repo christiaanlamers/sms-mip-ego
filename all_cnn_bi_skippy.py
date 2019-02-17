@@ -415,24 +415,24 @@ def test_skippy():
     #test parameters
     #original parameters
     #RESnet-34-like
-    stack_0 = 0#1
-    stack_1 = 0#6
+    stack_0 = 1#1
+    stack_1 = 1#6
     stack_2 = 0#4
     stack_3 = 0#4
     stack_4 = 0#6
     stack_5 = 0#6
     stack_6 = 0#6
     s_0=1#2
-    s_1=1#2
+    s_1=2#2
     s_2=1
     s_3=1#2
     s_4=1
     s_5=1#2
     s_6=1
-    filters_0=120#64*2
-    filters_1=120#64*2
-    filters_2=20#64*2
-    filters_3=20#64*2
+    filters_0=32#64*2
+    filters_1=32#64*2
+    filters_2=64#64*2
+    filters_3=64#64*2
     filters_4=15#128*2
     filters_5=15#128*2
     filters_6=15#128*2
@@ -488,7 +488,7 @@ def test_skippy():
     skst_1 = 0
     skst_2 = 0
     dense_size_0 = 128#1000*2
-    dense_size_1 = 128#0
+    dense_size_1 = 0
     no_pooling = False#False
     #skippy parameters
 
