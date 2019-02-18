@@ -74,18 +74,21 @@ class Skip_manager(object):
             return Concatenate()([layer, incoming_layer])
 
     def pool_pad_connect(self, layer, incoming_layer):
-        if K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
-            pass
-        elif K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] >= K.int_shape(layer)[2]:
-            print('error, not implemented yet')
-            pass
-        elif K.int_shape(incoming_layer)[1] >= K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
-            print('error, not implemented yet')
-            pass
-        else: #K.int_shape(incoming_layer)[1] > K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] > K.int_shape(layer)[2]
-            scalar_1 =  K.int_shape(incoming_layer)[1] // K.int_shape(layer)[1]
-            scalar_2 =  K.int_shape(incoming_layer)[2] // K.int_shape(layer)[2]
-            incoming_layer = MaxPooling2D(pool_size=(scalar_1, scalar_2), strides=(scalar_1, scalar_2), padding='same')(incoming_layer)
+        if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
+            if K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
+                pass
+            elif K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] >= K.int_shape(layer)[2]:
+                scalar = K.int_shape(incoming_layer)[2] // K.int_shape(layer)[2]
+                incoming_layer = MaxPooling2D(pool_size=(1, scalar), strides=(1, scalar), padding='same')(incoming_layer)
+                print('warning: code used that is not tested, see: all_cnn_bi_skippy.py --> pool_pad_connect()')
+            elif K.int_shape(incoming_layer)[1] >= K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
+                scalar = K.int_shape(incoming_layer)[1] // K.int_shape(layer)[1]
+                incoming_layer = MaxPooling2D(pool_size=(scalar, 1), strides=(scalar, 1), padding='same')(incoming_layer)
+                print('warning: code used that is not tested, see: all_cnn_bi_skippy.py --> pool_pad_connect()')
+            else: #K.int_shape(incoming_layer)[1] > K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] > K.int_shape(layer)[2]
+                scalar_1 =  K.int_shape(incoming_layer)[1] // K.int_shape(layer)[1]
+                scalar_2 =  K.int_shape(incoming_layer)[2] // K.int_shape(layer)[2]
+                incoming_layer = MaxPooling2D(pool_size=(scalar_1, scalar_2), strides=(scalar_1, scalar_2), padding='same')(incoming_layer)
         return self.pad_and_connect(layer, incoming_layer)
 
     def connect_skip(self,layer):
@@ -514,7 +517,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         #model = CNN_conf(vla,test=test)
