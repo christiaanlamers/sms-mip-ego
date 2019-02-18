@@ -122,7 +122,7 @@ global_pooling = NominalSpace([True], "global_pooling")  # global_pooling#CHRIS 
 #skippy parameters
 skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
 skst = OrdinalSpace([1, 10], 'skst') * 3#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
-no_pooling = NominalSpace([True, False], "no_pooling")
+max_pooling = NominalSpace([True, False], "max_pooling")
 #skippy parameters
 
 drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
