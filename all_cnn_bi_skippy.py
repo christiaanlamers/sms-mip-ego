@@ -75,6 +75,10 @@ class Skip_manager(object):
 
     def pool_pad_connect(self, layer, incoming_layer):
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
+            #print('layer dimensions:')
+            #print(K.int_shape(layer)[1], K.int_shape(layer)[2])
+            #print('incoming_layer dimensions:')
+            #print(K.int_shape(incoming_layer)[1],  K.int_shape(incoming_layer)[2])
             if K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
                 pass
             elif K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] >= K.int_shape(layer)[2]:
@@ -89,6 +93,7 @@ class Skip_manager(object):
                 scalar_1 =  K.int_shape(incoming_layer)[1] // K.int_shape(layer)[1]
                 scalar_2 =  K.int_shape(incoming_layer)[2] // K.int_shape(layer)[2]
                 incoming_layer = MaxPooling2D(pool_size=(scalar_1, scalar_2), strides=(scalar_1, scalar_2), padding='same')(incoming_layer)
+                #print('Did a max pool')
         return self.pad_and_connect(layer, incoming_layer)
 
     def connect_skip(self,layer):
@@ -513,14 +518,14 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'s_0': 3, 'l2': 4.4274387289657325e-05, 'filters_7': 423, 'dense_size_1': 992, 'filters_12': 295, 'stack_0': 0, 'filters_2': 53, 'global_pooling': True, 'dropout_6': 0.5606577615096975, 'filters_13': 115, 'filters_4': 396, 'stack_4': 0, 'k_9': 6, 'activation': 'tanh', 'dropout_1': 0.07267176147234225, 'filters_5': 405, 'filters_1': 250, 'k_7': 7, 'filters_3': 408, 'stack_2': 0, 'max_pooling': True, 'dropout_7': 0.12689965102483852, 's_2': 4, 'filters_8': 455, 'dropout_4': 0.8991002969243431, 'k_11': 5, 'skst_0': 7, 'k_4': 3, 'dropout_3': 0.5966691482903116, 'step': False, 'dense_size_0': 583, 'stack_1': 1, 'k_0': 3, 'skint_1': 505527202345094, 'k_1': 5, 'k_8': 1, 'stack_6': 0, 'lr': 0.6919959357016345, 'activ_dense': 'softmax', 'filters_6': 305, 's_1': 3, 'filters_9': 226, 's_4': 2, 'stack_3': 1, 'skst_1': 5, 'skst_2': 6, 'dropout_2': 0.039087410518674766, 'k_12': 4, 'k_3': 6, 'dropout_5': 0.46057411289276423, 'skint_0': 957176709324259, 'k_5': 4, 'k_2': 3, 's_3': 1, 'filters_0': 195, 'k_6': 1, 'k_13': 2, 'skint_2': 1098454353499063, 'filters_11': 107, 'filters_10': 257, 'k_10': 4, 'stack_5': 0, 's_6': 1, 's_5': 2, 'dropout_0': 0.6293343140822664}
+    vla = {'filters_2': 397, 'k_7': 1, 'skint_2': 33069054886327, 'max_pooling': False, 'stack_3': 0, 'dropout_1': 0.022915559205997516, 'filters_7': 41, 'skst_2': 5, 'k_12': 4, 'skint_0': 455239198160183, 'dropout_3': 0.7371042953976968, 'k_5': 6, 'filters_11': 417, 'skst_0': 3, 'lr': 0.021463264117410258, 'k_0': 2, 'activ_dense': 'softmax', 'filters_3': 402, 'stack_5': 3, 'filters_8': 321, 'k_3': 5, 's_3': 1, 'filters_4': 152, 'global_pooling': True, 's_6': 1, 'stack_4': 5, 's_0': 5, 'k_9': 8, 'filters_10': 386, 'dropout_0': 0.011456141371615032, 'stack_2': 0, 'k_2': 2, 'k_13': 5, 'k_4': 5, 'stack_6': 6, 'k_1': 2, 'stack_1': 0, 's_5': 2, 'filters_5': 585, 'dropout_2': 0.27291805039865163, 'k_11': 4, 'filters_0': 310, 'dropout_5': 0.6828405428200441, 'filters_6': 114, 'filters_9': 445, 'dropout_7': 0.0971239887501218, 'activation': 'elu', 'l2': 0.0014216286515343342, 'stack_0': 6, 'skst_1': 3, 'step': True, 'k_8': 5, 'filters_12': 338, 'dropout_6': 0.85394233543879, 'skint_1': 330448161584156, 'filters_1': 364, 's_4': 2, 'k_10': 5, 'dropout_4': 0.6251230324139138, 's_2': 3, 's_1': 2, 'k_6': 1, 'filters_13': 81}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = False
     if test:
-        model = CNN_conf(X[0].to_dict(),test=test)
-        #model = CNN_conf(vla,test=test)
+        #model = CNN_conf(X[0].to_dict(),test=test)
+        model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())

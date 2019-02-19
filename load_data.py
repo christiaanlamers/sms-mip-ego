@@ -125,10 +125,10 @@ if all_time_r2 is not None and all_loss_r2 is not None:
     print(np.average(np.array(all_loss_r2)))
 #print(par[0].var_name)
 print(par)
-#for i in range(len(par)):
-#    print(par[i].to_dict())
-#    model = CNN_conf(par[i].to_dict(),test=True)
-#    plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
+for i in range(len(par)):
+    print(par[i].to_dict())
+    model = CNN_conf(par[i].to_dict(),test=True)
+    plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
 
 #sorter = np.argsort([x.time for x in solutions])
 #for i in range(len(sorter)):
