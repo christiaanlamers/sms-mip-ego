@@ -41,11 +41,15 @@ n_eval_array = data[4]
 index_array = data[5]
 name_array = data[6]
 
-all_time_r2 = None
-all_loss_r2 = None
+all_time_r2 = []
+all_loss_r2 = []
 if len(data) > 7:
     all_time_r2 = data[7]
     all_loss_r2 = data[8]
+
+surr_time_hist = []
+if len(data) > 9:
+    surr_time_hist = data[9]
 
 
 #print(data)
@@ -66,6 +70,12 @@ for i in range(len(solutions)):
 
 print("Percentage disfunctional networks: " + str(disfunctional * 100 / total) + "%")
 pauser = 0.008
+
+if len(surr_time_hist)> 0:
+    print("Surrogate fitting time history:")
+    print(surr_time_hist)
+else:
+    print("No Surrogate fitting time history.")
 
 time = [x.time for x in solutions]
 loss = [x.loss for x in solutions]
@@ -118,7 +128,7 @@ print(len(all_time_r2))
 print("paretofront:")
 for i in range(len(par)):
     print("time: " + str(par[i].time) + ", loss: " + str(par[i].loss) + ", acc: " + str(np.exp(-par[i].loss)))
-if all_time_r2 is not None and all_loss_r2 is not None:
+if len(all_time_r2) > 0 and len(all_loss_r2) > 0:
     print("all_time_r2 average:")
     print(np.average(np.array(all_time_r2)))
     print("all_loss_r2 average:")

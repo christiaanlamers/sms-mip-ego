@@ -133,6 +133,7 @@ class mipego(object):
         self.dim = len(self._space)
         self._best = min if self.minimize else max
         self.ignore_gpu = ignore_gpu
+        self.surr_time_hist = []
         
         self.bi = bi #CHRIS False: only loss, True: time and loss
         self.hvi_alpha = hvi_alpha #CHRIS allows variable lower confidence interval
@@ -406,6 +407,8 @@ class mipego(object):
                 #_time_min, _time_max = np.min(time_fitness), np.max(time_fitness)
                 #time_fitness_scaled = (time_fitness - _time_min) / (_time_max - _time_min) #Xin Guo improvement
                 
+                start_timer = time.time()
+                
                 if len(time_fitness) == 1: # for the case n_init_sample=1 #Xin Guo improvement
                     time_fitness_scaled = time_fitness
                 else:
@@ -414,7 +417,7 @@ class mipego(object):
                         time_fitness_scaled = (time_fitness - time_min) / (time_max - time_min)
                     else:
                         time_fitness_scaled = time_fitness
-
+            
                 # fit the time surrogate model
                 if (time_surrogate is None):
                     self.time_surrogate.fit(X, time_fitness)
@@ -441,7 +444,7 @@ class mipego(object):
                         loss_fitness_scaled = (loss_fitness - loss_min) / (loss_max - loss_min)
                     else:
                         loss_fitness_scaled = loss_fitness
-                
+            
                 # fit the loss surrogate model
                 if (loss_surrogate is None):
                     self.loss_surrogate.fit(X, loss_fitness)
@@ -451,6 +454,10 @@ class mipego(object):
                     loss_surrogate.fit(X, loss_fitness)
                     self.loss_is_update = True
                     loss_fitness_hat = loss_surrogate.predict(X)
+                stop_timer = time.time()
+                
+                self.surr_time_hist.append(stop_timer - start_timer)
+                print('Time to fit surrogate models: ' + str(stop_timer - start_timer) + ' seconds')
                 
                 #TODO_CHRIS use s-metric to calculate fitness? this is just for logging, optimization (searching for candidate) takes place before this step, so what does surrogate.predict do? the fitting part is useful though
                 #fitness_hat = surrogate.predict(X)
@@ -688,7 +695,7 @@ class mipego(object):
             n_eval_array.append(self.data[i].n_eval)
             index_array.append(self.data[i].index)
             name_array.append(self.data[i].var_name)
-        data_array = [conf_array,fit_array,time_array,loss_array,n_eval_array,index_array,name_array,self.all_time_r2,self.all_loss_r2]
+        data_array = [conf_array,fit_array,time_array,loss_array,n_eval_array,index_array,name_array,self.all_time_r2,self.all_loss_r2,self.surr_time_hist]
         
         with open(filename + '.json', 'w') as outfile:
             json.dump(data_array,outfile)
