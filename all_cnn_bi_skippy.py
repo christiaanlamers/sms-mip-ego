@@ -29,6 +29,16 @@ import setproctitle
 
 setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
 
+class TimedAccHistory(keras.callbacks.Callback):
+    def on_train_begin(self, logs={}):
+        self.accuracy_log = []
+        self.timed = []
+        self.start_time = time.time()
+    
+    def on_epoch_end(self, batch, logs={}):
+        self.accuracy_log.append(logs.get('val_acc'))
+        self.timed.append(time.time() - self.start_time)
+
 def inv_gray(num):#TODO only for testing
     n = 0
     while num != 0:
@@ -298,9 +308,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         lrate = initial_lrate * math.pow(drop,  
                                          math.floor((1+epoch)/epochs_drop))
         return lrate
-    callbacks = []
+
+    hist_func = TimedAccHistory()
+    callbacks = [hist_func]
     if (cfg['step'] == True):
-        callbacks = [LearningRateScheduler(step_decay)]
+        callbacks = [LearningRateScheduler(step_decay),hist_func]
         cfg['decay'] = 0.
 
     # initiate RMSprop optimizer
@@ -380,9 +392,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     timer = stop-start
     #print('run-time:')
     #print(timer)
-    
+
     #CHRIS append network training history to file
-    eval_training_hist = []#TODO CHRIS make this actually contain the training history through callback function
+    eval_training_hist = [time.time(),hist.history['val_acc'], hist_func.timed]
     with open(filename + '_eval_train_hist.json', 'w') as outfile:
         other_data = json.load(outfile)
         other_data.append(eval_training_hist)
