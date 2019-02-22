@@ -127,7 +127,7 @@ max_pooling = NominalSpace([True, False], "max_pooling")
 dense_size = OrdinalSpace([0,2000],'dense_size')*2
 #skippy parameters
 
-drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 9        # drop_out rate
+drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 10        # drop_out rate
 lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
