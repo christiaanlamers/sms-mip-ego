@@ -121,8 +121,8 @@ step = NominalSpace([True, False], "step")  # step
 global_pooling = NominalSpace([True], "global_pooling")  # global_pooling#CHRIS TODO removed False
 
 #skippy parameters
-skstart = OrdinalSpace([0, 50], 'skint') * 3
-skstep = OrdinalSpace([1, 10], 'skst') * 3#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
+skstart = OrdinalSpace([0, 50], 'skstart') * 3
+skstep = OrdinalSpace([1, 10], 'skstep') * 3#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
 max_pooling = NominalSpace([True, False], "max_pooling")
 dense_size = OrdinalSpace([0,2000],'dense_size')*2
 #skippy parameters
