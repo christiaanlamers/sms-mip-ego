@@ -113,7 +113,7 @@ class Skip_manager(object):
     def connect_skip(self,layer):
         #start skip connections
         for j in range(len(self.skip_ints)):
-            if self.skip_ints_count[j] > 1 and self.startpoint(self.gray,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
+            if self.skip_ints_count[j] > 1 and self.startpoint(self.identity,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
                 self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
     
         #end skip connections
@@ -170,7 +170,41 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #print('skip steps:')
     #print([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
     #(skip_ints,skip_ints_count) passed to Skip_manager constructor TODO get from cfg vector
-    skip_manager = Skip_manager([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
+    skint_0 = 0
+    skint_1 = 0
+    skint_2 = 0
+    
+    if cfg['skstep_0'] > 1:
+        cnt = 0
+        skint_0 = 1
+        while cnt <= 50:
+            skint_0 = skint_0 << cfg['skstep_0']
+            skint_0 += 1
+            cnt += cfg['skstep_0']
+        skint_0 = skint_0 << cfg['skstart_0']
+        print('skint_0:')
+        for vla in range(0,50):
+            print(skint_0>>vla & 1)
+
+    if cfg['skstep_1'] > 1:
+        cnt = 0
+        skint_1 = 1
+        while cnt <= 50:
+            skint_1 = skint_1 << cfg['skstep_1']
+            skint_1 += 1
+            cnt += cfg['skstep_1']
+        skint_1 = skint_1 << cfg['skstart_1']
+
+    if cfg['skstep_2'] > 1:
+        cnt = 0
+        skint_2 = 1
+        while cnt <= 50:
+            skint_2 = skint_2 << cfg['skstep_2']
+            skint_2 += 1
+            cnt += cfg['skstep_2']
+        skint_2 = skint_2 << cfg['skstart_2']
+    
+    skip_manager = Skip_manager([skint_0,skint_1,skint_2],[cfg['skstep_0'],cfg['skstep_1'],cfg['skstep_2']])
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
@@ -395,7 +429,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #CHRIS append network training history to file
     eval_training_hist = [time.time(),hist.history['val_acc'], hist_func.timed]
-    with open(filename + '_eval_train_hist.json', 'w') as outfile:
+    with open(save_name + '_eval_train_hist.json', 'w') as outfile:
         other_data = json.load(outfile)
         other_data.append(eval_training_hist)
         json.dump(other_data,outfile)
@@ -443,8 +477,8 @@ def test_skippy():
     global_pooling = NominalSpace([True, False], "global_pooling")  # global_pooling
     
     #skippy parameters
-    skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
-    skst = OrdinalSpace([2, 10], 'skst') * 3
+    skints = OrdinalSpace([0, 50], 'skstart') * 3
+    skst = OrdinalSpace([2, 10], 'skstep') * 3
     max_pooling = NominalSpace([True, False], "max_pooling")
     dense_size = OrdinalSpace([0,2000],'dense_size')*2
     #skippy parameters
@@ -467,13 +501,13 @@ def test_skippy():
     #test parameters
     #original parameters
     #RESnet-34-like
-    stack_0 = 1#1
-    stack_1 = 1#6
-    stack_2 = 1#4
-    stack_3 = 1#4
-    stack_4 = 1#6
-    stack_5 = 1#6
-    stack_6 = 1#6
+    stack_0 = 1
+    stack_1 = 6
+    stack_2 = 4
+    stack_3 = 4
+    stack_4 = 6
+    stack_5 = 6
+    stack_6 = 6
     s_0=5#1#2
     s_1=3#1#2
     s_2=2#1
@@ -481,20 +515,20 @@ def test_skippy():
     s_4=1
     s_5=1#2
     s_6=1
-    filters_0=32#64*2
-    filters_1=32#64*2
-    filters_2=32#64*2
-    filters_3=32#64*2
-    filters_4=32#128*2
-    filters_5=32#128*2
-    filters_6=32#128*2
-    filters_7=32#128*2
-    filters_8=64#256*2
-    filters_9=64#256*2
-    filters_10=64#256*2
-    filters_11=64#256*2
-    filters_12=64#512*2
-    filters_13=64#512*2
+    filters_0=64
+    filters_1=64
+    filters_2=64
+    filters_3=64
+    filters_4=128
+    filters_5=128
+    filters_6=128
+    filters_7=128
+    filters_8=256
+    filters_9=256
+    filters_10=256
+    filters_11=256
+    filters_12=512
+    filters_13=512
     k_0=3#7
     k_1=3
     k_2=3
@@ -534,19 +568,19 @@ def test_skippy():
             om_en_om = om_en_om << 2
             om_en_om += 1
     om_en_om = om_en_om << 1
-    skint_0 = inv_gray(2**30-1)#inv_gray(om_en_om)#3826103921638#2**30-1
-    skint_1 = 0#19283461627361826#2**30-1
-    skint_2 = 0#473829102637452916#2**30-1
-    skst_0 = 2
-    skst_1 = 0
-    skst_2 = 0
+    skstart_0 = 2#inv_gray(om_en_om)#3826103921638#2**30-1
+    skstart_1 = 0#19283461627361826#2**30-1
+    skstart_2 = 0#473829102637452916#2**30-1
+    skstep_0 = 2
+    skstep_1 = 0
+    skstep_2 = 0
     max_pooling = True
     dense_size_0 = 2000
     dense_size_1 = 1000
     #skippy parameters
 
     #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, dropout_8, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, max_pooling, dense_size_0, dense_size_1]]
+    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, dropout_8, lr, l2, step, global_pooling, skstart_0, skstart_1, skstart_2, skstep_0, skstep_1, skstep_2, max_pooling, dense_size_0, dense_size_1]]
     
     #var_names
     #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
