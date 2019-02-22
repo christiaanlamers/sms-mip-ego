@@ -26,6 +26,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 #from fractions import gcd #CHRIS needed for proper upscaling
 
 import setproctitle
+import json
 
 setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
 
