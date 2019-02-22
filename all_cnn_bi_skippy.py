@@ -28,7 +28,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
-#setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
+setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -434,13 +434,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #CHRIS append network training history to file
     eval_training_hist = [time.time(),hist.history['val_acc'], hist_func.timed]
     other_data = []
-    with open(save_name + '_eval_train_hist.json', 'w') as outfile:
-        try:
-            other_data = json.load(outfile)
-        except:
-            pass
-        other_data.append(eval_training_hist)
-        json.dump(other_data,outfile)
+    #with open(save_name + '_eval_train_hist.json', 'w') as outfile:
+    #    try:
+    #        other_data = json.load(outfile)
+    #    except:
+    #        pass
+    #    other_data.append(eval_training_hist)
+    #    json.dump(other_data,outfile)
 
     if savemodel:
         model.save('best_model_mnist.h5')
