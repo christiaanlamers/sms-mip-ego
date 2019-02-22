@@ -28,6 +28,7 @@ np.random.seed(42)
 # TODO: implement parallel execution of model
 n_step = 110
 n_init_sample = 90
+eval_epochs = 1
 verbose = True
 save = False
 logfile = 'mnist.log'
@@ -35,9 +36,9 @@ class obj_func(object):
     def __init__(self, program):
         self.program = program
         
-    def __call__(self, cfg, gpu_no):
+    def __call__(self, cfg, gpu_no,eval_epochs,save_name):
         print("calling program with gpu "+str(gpu_no))
-        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no)]
+        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name)]
         #outputval = 0
         outputval = ""
         outs = ""
@@ -123,14 +124,15 @@ global_pooling = NominalSpace([True], "global_pooling")  # global_pooling#CHRIS 
 skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
 skst = OrdinalSpace([1, 10], 'skst') * 3#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
 max_pooling = NominalSpace([True, False], "max_pooling")
+dense_size = OrdinalSpace([0,2000],'dense_size')*2
 #skippy parameters
 
-drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
+drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 9        # drop_out rate
 lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
 
-search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * max_pooling
+search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * max_pooling * dense_size
 
 
 print('starting program...')    
@@ -169,7 +171,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_less_dim',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu)
+                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_lots_of_changes',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
 
 #ref_time=3000.0,ref_loss=3.0
 

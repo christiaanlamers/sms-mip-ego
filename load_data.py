@@ -47,9 +47,15 @@ if len(data) > 7:
     all_time_r2 = data[7]
     all_loss_r2 = data[8]
 
-surr_time_hist = []
+surr_time_fit_hist = []
+surr_time_mies_hist = []
+surr_loss_fit_hist = []
+surr_loss_mies_hist = []
 if len(data) > 9:
-    surr_time_hist = data[9]
+    surr_time_fit_hist = data[9]
+    surr_time_mies_hist = data[10]
+    surr_loss_fit_hist = data[11]
+    surr_loss_mies_hist = data[12]
 
 
 #print(data)
@@ -71,11 +77,26 @@ for i in range(len(solutions)):
 print("Percentage disfunctional networks: " + str(disfunctional * 100 / total) + "%")
 pauser = 0.008
 
-if len(surr_time_hist)> 0:
-    print("Surrogate fitting time history:")
-    print(surr_time_hist)
+if len(surr_time_fit_hist) > 0:
+    print('surr_time_fit_hist:')
+    print(surr_time_fit_hist)
 else:
-    print("No Surrogate fitting time history.")
+    print('No surr_time_fit_hist')
+if len(surr_time_mies_hist) > 0:
+    print('surr_time_mies_hist:')
+    print(surr_time_mies_hist)
+else:
+    print('No surr_time_mies_hist')
+if len(surr_loss_fit_hist) > 0:
+    print('surr_loss_fit_hist:')
+    print(surr_loss_fit_hist)
+else:
+    print('No surr_loss_fit_hist')
+if len(surr_loss_mies_hist) > 0:
+    print('surr_loss_fit_hist:')
+    print(surr_loss_fit_hist)
+else:
+    print('No surr_loss_fit_hist')
 
 time = [x.time for x in solutions]
 loss = [x.loss for x in solutions]

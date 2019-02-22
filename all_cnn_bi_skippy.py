@@ -25,6 +25,10 @@ import time #CHRIS added to measure runtime of training
 from pynvml import * #CHRIS needed to test gpu memory capacity
 #from fractions import gcd #CHRIS needed for proper upscaling
 
+import setproctitle
+
+setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
+
 def inv_gray(num):#TODO only for testing
     n = 0
     while num != 0:
@@ -131,7 +135,7 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist'):
     batch_size = 100
     num_classes = 10
     data_augmentation = False
@@ -275,6 +279,14 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     
     
     #head
+    if cfg['dense_size_0'] > 0:
+        layer = Dense(cfg['dense_size_0'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = Dropout(cfg['dropout_7'])(layer)
+    if cfg['dense_size_1'] > 0:
+        layer = Dense(cfg['dense_size_1'], kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
+        layer = Activation(cfg['activation'])(layer)
+        layer = Dropout(cfg['dropout_8'])(layer)
     layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     out = Activation(cfg['activ_dense'])(layer)
     
@@ -368,6 +380,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0):
     timer = stop-start
     #print('run-time:')
     #print(timer)
+    
+    #CHRIS append network training history to file
+    eval_training_hist = []#TODO CHRIS make this actually contain the training history through callback function
+    with open(filename + '_eval_train_hist.json', 'w') as outfile:
+        other_data = json.load(outfile)
+        other_data.append(eval_training_hist)
+        json.dump(other_data,outfile)
 
     if savemodel:
         model.save('best_model_mnist.h5')
@@ -415,13 +434,14 @@ def test_skippy():
     skints = OrdinalSpace([0, 2**50-1], 'skint') * 3#CHRIS TODO tweak this
     skst = OrdinalSpace([2, 10], 'skst') * 3
     max_pooling = NominalSpace([True, False], "max_pooling")
+    dense_size = OrdinalSpace([0,2000],'dense_size')*2
     #skippy parameters
 
-    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 8        # drop_out rate
+    drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 9        # drop_out rate
     lr_rate = ContinuousSpace([1e-4, 1.0e-0], 'lr')        # learning rate
     l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
-    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * max_pooling
+    search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skints * skst * max_pooling * dense_size
     
     n_init_sample = 1
     samples = search_space.sampling(n_init_sample)
@@ -487,6 +507,7 @@ def test_skippy():
     dropout_5=0.001
     dropout_6=0.001
     dropout_7=0.001
+    dropout_8=0.001
     lr=0.01
     l2=0.0001
     step=False#True
@@ -508,10 +529,12 @@ def test_skippy():
     skst_1 = 0
     skst_2 = 0
     max_pooling = True
+    dense_size_0 = 2000
+    dense_size_1 = 1000
     #skippy parameters
 
     #assembling parameters
-    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, max_pooling]]
+    samples = [[stack_0, stack_1, stack_2, stack_3, stack_4, stack_5, stack_6, s_0, s_1, s_2, s_3, s_4, s_5, s_6, filters_0, filters_1, filters_2, filters_3, filters_4, filters_5, filters_6, filters_7, filters_8, filters_9, filters_10, filters_11, filters_12, filters_13,k_0, k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8, k_9, k_10, k_11, k_12, k_13, activation, activ_dense, dropout_0, dropout_1, dropout_2, dropout_3, dropout_4, dropout_5, dropout_6, dropout_7, dropout_8, lr, l2, step, global_pooling, skint_0, skint_1, skint_2, skst_0, skst_1, skst_2, max_pooling, dense_size_0, dense_size_1]]
     
     #var_names
     #['stack_0', 'stack_1', 'stack_2', 's_0', 's_1', 's_2', 'filters_0', 'filters_1', 'filters_2', 'filters_3', 'filters_4', 'filters_5', 'filters_6', 'k_0', 'k_1', 'k_2', 'k_3', 'k_4', 'k_5', 'k_6', 'activation', 'activ_dense', 'dropout_0', 'dropout_1', 'dropout_2', 'dropout_3', 'lr', 'l2', 'step', 'global_pooling']
@@ -524,8 +547,8 @@ def test_skippy():
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = True
     if test:
-        #model = CNN_conf(X[0].to_dict(),test=test)
-        model = CNN_conf(vla,test=test)
+        model = CNN_conf(X[0].to_dict(),test=test)
+        #model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
@@ -542,10 +565,12 @@ if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
         cfg = eval(sys.argv[2])
         if len(sys.argv) > 3:
             gpu = sys.argv[3]
-        
+            epochs = int(sys.argv[4])
+            save_name = str(sys.argv[5])
+            
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
             os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-        print(CNN_conf(cfg,gpu_no=gpu,epochs=1))
+        print(CNN_conf(cfg,gpu_no=gpu,epochs=epochs,save_name=save_name))
         K.clear_session()
     else:
         print('switching to test mode')
