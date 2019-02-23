@@ -543,12 +543,12 @@ def test_skippy():
     #original parameters
     #RESnet-34-like
     stack_0 = 1
-    stack_1 = 6
-    stack_2 = 4
-    stack_3 = 4
-    stack_4 = 6
-    stack_5 = 6
-    stack_6 = 6
+    stack_1 = 1#6
+    stack_2 = 1#4
+    stack_3 = 1#4
+    stack_4 = 1#6
+    stack_5 = 1#6
+    stack_6 = 1#6
     s_0=2#1#2
     s_1=1#1#2
     s_2=1#1
