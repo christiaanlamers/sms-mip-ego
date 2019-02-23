@@ -225,7 +225,7 @@ class mipego(object):
         
         #CHRIS initialize evaluation training history file
         with open(self.save_name + '_eval_train_hist.json', 'w') as f:
-            json.dump([], f)
+            f.write('')
     
     def _get_logger(self, logfile):
         """

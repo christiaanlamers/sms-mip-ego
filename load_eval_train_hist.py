@@ -6,4 +6,5 @@ with open(file_name) as f:
     for line in f:
         eval_data.append(json.loads(line))
 
-print(data)
+for i in eval_data:
+    print(i)
