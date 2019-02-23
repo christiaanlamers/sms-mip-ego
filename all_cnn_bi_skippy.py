@@ -470,13 +470,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #CHRIS append network training history to file
     eval_training_hist = [time.time(),hist.history['val_acc'], hist_func.timed]
     other_data = []
-    #with open(save_name + '_eval_train_hist.json', 'w') as outfile:
-    #    try:
-    #        other_data = json.load(outfile)
-    #    except:
-    #        pass
-    #    other_data.append(eval_training_hist)
-    #    json.dump(other_data,outfile)
+    with open(save_name + '_eval_train_hist.json', 'w') as outfile:
+        try:
+            other_data = json.load(outfile)
+        except:
+            pass
+        other_data.append(eval_training_hist)
+        json.dump(other_data,outfile)
 
     if savemodel:
         model.save('best_model_mnist.h5')
@@ -649,7 +649,7 @@ def test_skippy():
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
+        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2,verbose=1)
         #timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)

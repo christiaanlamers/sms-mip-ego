@@ -137,6 +137,7 @@ class mipego(object):
         self.surr_time_mies_hist = []
         self.surr_loss_fit_hist = []
         self.surr_loss_mies_hist = []
+        self.time_between_gpu_hist = []#CHRIS time in gpuworker() that a network is not trained on a gpu
         self.eval_epochs = eval_epochs
         
         self.bi = bi #CHRIS False: only loss, True: time and loss
@@ -621,6 +622,7 @@ class mipego(object):
         self.async_time_surrogates[gpu_no] = copy.deepcopy(self.time_surrogate);
         self.async_loss_surrogates[gpu_no] = copy.deepcopy(self.loss_surrogate);
         while True:
+            start_timer_1 = time.time()
             self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
 
             confs_ = q.get()
@@ -629,7 +631,9 @@ class mipego(object):
 
             self.logger.info('Evaluating:')
             self.logger.info(confs_.to_dict())
+            stop_timer_1 = time.time()
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
+            start_timer_2 = time.time()
             self.n_left -= 1
             if self.n_left < 0:
                 self.n_left = 0
@@ -702,6 +706,8 @@ class mipego(object):
             else:
                 break
             self.save_data(self.save_name + '_intermediate')#CHRIS save data
+            stop_timer_2 = time.time()
+            self.time_between_gpu_hist.append((stop_timer_1 - start_timer_1)+(stop_timer_2-start_timer_2))
 
         print('Finished thread {}'.format(gpu_no))
 
@@ -722,7 +728,7 @@ class mipego(object):
             n_eval_array.append(self.data[i].n_eval)
             index_array.append(self.data[i].index)
             name_array.append(self.data[i].var_name)
-        data_array = [conf_array,fit_array,time_array,loss_array,n_eval_array,index_array,name_array,self.all_time_r2,self.all_loss_r2,self.surr_time_fit_hist, self.surr_time_mies_hist, self.surr_loss_fit_hist, self.surr_loss_mies_hist]
+        data_array = [conf_array,fit_array,time_array,loss_array,n_eval_array,index_array,name_array,self.all_time_r2,self.all_loss_r2,self.surr_time_fit_hist, self.surr_time_mies_hist, self.surr_loss_fit_hist, self.surr_loss_mies_hist,self.time_between_gpu_hist]
         
         with open(filename + '.json', 'w') as outfile:
             json.dump(data_array,outfile)

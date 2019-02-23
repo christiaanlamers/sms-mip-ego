@@ -56,6 +56,8 @@ if len(data) > 9:
     surr_time_mies_hist = data[10]
     surr_loss_fit_hist = data[11]
     surr_loss_mies_hist = data[12]
+if len(data) > 13:
+    time_between_gpu_hist = data[13]
 
 
 #print(data)
@@ -97,6 +99,12 @@ if len(surr_loss_mies_hist) > 0:
     print(surr_loss_mies_hist)
 else:
     print('No surr_loss_fit_hist')
+
+if len(time_between_gpu_hist) > 0:
+    print('time_between_gpu_hist:')
+    print(time_between_gpu_hist)
+else:
+    print('no time_between_gpu_hist')
 
 time = [x.time for x in solutions]
 loss = [x.loss for x in solutions]
