@@ -474,7 +474,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         #other_data = json.load(outfile)
         other_data.append(eval_training_hist)
         json.dump(other_data,outfile)
-        json.dump('\n',outfile)
+        outfile.write('\n')
 
     if savemodel:
         model.save('best_model_mnist.h5')
