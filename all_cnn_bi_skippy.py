@@ -469,11 +469,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #CHRIS append network training history to file
     eval_training_hist = [time.time(),hist.history['val_acc'], hist_func.timed]
-    other_data = []
     with open(save_name + '_eval_train_hist.json', 'a') as outfile:
-        #other_data = json.load(outfile)
-        other_data.append(eval_training_hist)
-        json.dump(other_data,outfile)
+        json.dump(eval_training_hist,outfile)
         outfile.write('\n')
 
     if savemodel:
