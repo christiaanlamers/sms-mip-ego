@@ -51,6 +51,7 @@ surr_time_fit_hist = []
 surr_time_mies_hist = []
 surr_loss_fit_hist = []
 surr_loss_mies_hist = []
+time_between_gpu_hist = []
 if len(data) > 9:
     surr_time_fit_hist = data[9]
     surr_time_mies_hist = data[10]
