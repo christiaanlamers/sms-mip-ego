@@ -118,11 +118,11 @@ stack_sizes = OrdinalSpace([0, 7], 'stack') * 7#[0,2] should be [0,7]
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function
 activation_dense = NominalSpace(activation_fun, "activ_dense") # activation function for dense layer
 step = NominalSpace([True, False], "step")  # step
-global_pooling = NominalSpace([True], "global_pooling")  # global_pooling#CHRIS TODO removed False
+global_pooling = NominalSpace([True,False], "global_pooling")  # global_pooling#CHRIS TODO removed False
 
 #skippy parameters
 skstart = OrdinalSpace([0, 50], 'skstart') * 5
-skstep = OrdinalSpace([1, 10], 'skstep') * 5#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
+skstep = OrdinalSpace([1, 50], 'skstep') * 5#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
 max_pooling = NominalSpace([True, False], "max_pooling")
 dense_size = OrdinalSpace([0,2000],'dense_size')*2
 #skippy parameters
