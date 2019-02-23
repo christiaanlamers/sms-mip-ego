@@ -26,8 +26,8 @@ np.random.seed(42)
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 110
-n_init_sample = 90
+n_step = 380
+n_init_sample = 20
 eval_epochs = 1
 verbose = True
 save = False
