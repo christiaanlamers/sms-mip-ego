@@ -38,7 +38,10 @@ from .Bi_Objective import * #CHRIS added the Bi_Objective code
 class Solution(np.ndarray):
     def __new__(cls, x, fitness=None, n_eval=0, index=None, var_name=None, loss=None,time=None):
         obj = np.asarray(x, dtype='object').view(cls)
-        obj.fitness = fitness
+        if fitness is None:
+            obj.fitness = 0
+        else:
+            obj.fitness = fitness
         obj.loss = loss#CHRIS added loss and time here
         obj.time = time
         obj.n_eval = n_eval
@@ -536,10 +539,11 @@ class mipego(object):
         # for noisy fitness: perform a proportional selection from the evaluated ones   
         if self.noisy:
             #CHRIS after evaluate run S-metric on all solutions to determine fitness
-            for i in range(len(self.data)):
-                other_solutions = copy.deepcopy(self.data)
-                del other_solutions[i]
-                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+            #CHRIS all fitness is set to 0 because of bottleneck
+            #for i in range(len(self.data)):
+            #    other_solutions = copy.deepcopy(self.data)
+            #    del other_solutions[i]
+            #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
             id_, fitness = zip([(i, d.fitness) for i, d in enumerate(self.data) if i != self.incumbent_id])
             __ = proportional_selection(fitness, self.mu, self.minimize, replacement=False)
             candidates_id.append(id_[__])
@@ -550,10 +554,11 @@ class mipego(object):
         print(self.n_left,self.max_iter)
         self.data += X
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
-        for i in range(len(self.data)):
-            other_solutions = copy.deepcopy(self.data)
-            del other_solutions[i]
-            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+        #CHRIS all fitness is set to 0 because of bottleneck
+        #for i in range(len(self.data)):
+        #    other_solutions = copy.deepcopy(self.data)
+        #    del other_solutions[i]
+        #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         return candidates_id
 
@@ -605,10 +610,11 @@ class mipego(object):
         self.evaluate(self.data, runs=self.init_n_eval)
         
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
-        for i in range(len(self.data)):
-            other_solutions = copy.deepcopy(self.data)
-            del other_solutions[i]
-            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+        #CHRIS all fitness is set to 0 because of bottleneck
+        #for i in range(len(self.data)):
+        #    other_solutions = copy.deepcopy(self.data)
+        #    del other_solutions[i]
+        #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         # set the initial incumbent
         fitness = np.array([s.fitness for s in self.data])
@@ -651,20 +657,21 @@ class mipego(object):
             #    for x in self.data:
             #        x.fitness = x.loss
             
-            for i in range(len(self.data)):
-                other_solutions = copy.deepcopy(self.data)
-                del other_solutions[i]
-                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+            #CHRIS this could have been a bottleneck, incumbent now makes not sense, but is not used
+            #for i in range(len(self.data)):
+                #other_solutions = copy.deepcopy(self.data)
+                #del other_solutions[i]
+                #self.data[i].fitness =s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
             
             perf = np.array([s.fitness for s in self.data])
             #self.data.perf = pd.to_numeric(self.data.perf)
             #self.eval_count += 1
             print('len(perf):') #CHRIS
             print(len(perf))
-            print('best perf:')
+            #print('best perf #CHRIS now will always be 0:')
             #CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
             #print(self._best(perf))
-            print(max(perf))
+            #print(max(perf))
             self.incumbent_id = np.nonzero(perf == self._best(perf))[0][0]
             self.incumbent = self.data[self.incumbent_id]
 

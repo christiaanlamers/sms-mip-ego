@@ -1,6 +1,6 @@
 import json
 
-file_name = 'skippy_test_train_hist_eval_train_hist.json'
+file_name = 'data_skippy_cifar10_big_one_test_run_eval_train_hist.json'
 eval_data = []
 with open(file_name) as f:
     for line in f:
