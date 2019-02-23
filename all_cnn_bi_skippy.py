@@ -471,10 +471,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     eval_training_hist = [time.time(),hist.history['val_acc'], hist_func.timed]
     other_data = []
     with open(save_name + '_eval_train_hist.json', 'w') as outfile:
-        try:
-            other_data = json.load(outfile)
-        except:
-            pass
+        other_data = json.load(outfile)
         other_data.append(eval_training_hist)
         json.dump(other_data,outfile)
 
