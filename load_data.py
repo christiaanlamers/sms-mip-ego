@@ -93,8 +93,8 @@ if len(surr_loss_fit_hist) > 0:
 else:
     print('No surr_loss_fit_hist')
 if len(surr_loss_mies_hist) > 0:
-    print('surr_loss_fit_hist:')
-    print(surr_loss_fit_hist)
+    print('surr_loss_mies_hist:')
+    print(surr_loss_mies_hist)
 else:
     print('No surr_loss_fit_hist')
 

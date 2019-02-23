@@ -138,15 +138,17 @@ class Skip_manager(object):
         return layer
 
     def connect_skip(self,layer):
+        for j in range(len(self.skip_connections)):
+            self.skip_connections[j][1] -= 1 #decrease skip connection counters
+        
+        #end skip connections
+        layer = self.end_skip(layer)
+        
         #start skip connections
         for j in range(len(self.skip_ints)):
             if self.skip_ints_count[j] > 1 and self.startpoint(self.identity,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
                 self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
-    
-        #end skip connections
-        layer = self.end_skip(layer)
-        for j in range(len(self.skip_connections)):
-            self.skip_connections[j][1] -= 1 #decrease skip connection counters
+        
         self.layer_num +=1 #increase layer number where currently building takes place
         return layer
 
@@ -596,11 +598,11 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'dropout_5': 0.6828405428200441, 'dropout_3': 0.7371042953976968, 'lr': 0.021463264117410258, 'dropout_1': 0.022915559205997516, 'dropout_4': 0.6251230324139138, 'filters_5': 585, 'stack_0': 6, 'l2': 0.0014216286515343342, 'stack_1': 0, 's_2': 3, 'dropout_2': 0.27291805039865163, 'filters_9': 445, 'k_12': 4, 'max_pooling': False, 'k_0': 2, 'filters_4': 152, 'filters_8': 321, 'filters_13': 81, 'filters_7': 41, 'skst_0': 3, 's_6': 1, 'filters_10': 386, 'filters_1': 364, 'dropout_0': 0.011456141371615032, 'stack_2': 0, 'skst_1': 3, 'filters_2': 397, 'k_8': 5, 's_0': 5, 'skint_1': 330448161584156, 'filters_0': 310, 'activ_dense': 'softmax', 'dropout_6': 0.85394233543879, 'activation': 'elu', 'dropout_7': 0.0971239887501218, 's_5': 2, 'k_11': 4, 's_4': 2, 'k_9': 8, 'step': True, 's_1': 2, 'skint_2': 33069054886327, 'k_4': 5, 'global_pooling': True, 'filters_11': 417, 'stack_4': 5, 'k_13': 5, 'k_1': 2, 'filters_6': 114, 'stack_5': 3, 'skst_2': 5, 's_3': 1, 'stack_3': 0, 'k_10': 5, 'k_2': 2, 'k_7': 1, 'stack_6': 6, 'filters_3': 402, 'filters_12': 338, 'skint_0': 455239198160183, 'k_6': 1, 'k_3': 5, 'k_5': 6}
+    vla = {'filters_11': 273, 's_6': 3, 'activation': 'selu', 'k_0': 1, 'skstart_3': 9, 'dropout_5': 0.7694780678651313, 'filters_13': 138, 'dense_size_1': 1628, 'skstep_1': 2, 'dropout_0': 0.4365903430349864, 'k_6': 5, 'k_5': 4, 'k_4': 5, 'stack_0': 3, 's_0': 4, 'stack_5': 2, 'filters_10': 592, 'activ_dense': 'softmax', 'k_3': 1, 'skstart_0': 14, 'skstart_1': 44, 's_5': 2, 'filters_12': 589, 'dropout_7': 0.41968411742859174, 'filters_4': 398, 'k_12': 5, 'global_pooling': True, 'stack_1': 5, 's_2': 2, 'lr': 0.7250335756914889, 'filters_9': 354, 'skstep_0': 9, 'k_2': 6, 'k_10': 3, 'stack_3': 0, 'filters_0': 154, 'dropout_8': 0.06813899758153562, 'max_pooling': False, 'k_8': 5, 'dropout_2': 0.7124044667502071, 'skstep_2': 9, 'k_11': 7, 'dense_size_0': 1248, 'dropout_1': 0.30027221996922077, 'k_9': 5, 's_1': 4, 'skstep_4': 8, 'l2': 0.002052439240918088, 'filters_1': 356, 'filters_7': 18, 's_3': 1, 'stack_4': 6, 'filters_3': 48, 'k_7': 5, 's_4': 2, 'step': False, 'dropout_3': 0.40617018878519917, 'k_1': 3, 'filters_5': 298, 'stack_2': 3, 'filters_2': 480, 'k_13': 7, 'skstep_3': 7, 'dropout_4': 0.16510614234112705, 'skstart_4': 28, 'filters_6': 166, 'skstart_2': 1, 'dropout_9': 0.349049602664339, 'stack_6': 1, 'dropout_6': 0.7943050634963448, 'filters_8': 139}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         #model = CNN_conf(vla,test=test)
