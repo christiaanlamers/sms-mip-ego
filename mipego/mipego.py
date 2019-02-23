@@ -544,7 +544,7 @@ class mipego(object):
             #    other_solutions = copy.deepcopy(self.data)
             #    del other_solutions[i]
             #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
-            id_, fitness = zip([(i, d.fitness) for i, d in enumerate(self.data) if i != self.incumbent_id])
+            id_, fitness = zip([(i, d.fitness) for i, d in enumerate(self.data) if i != self.incumbent_id])#TODO CHRIS this does not work anymore because fitness is now always 0
             __ = proportional_selection(fitness, self.mu, self.minimize, replacement=False)
             candidates_id.append(id_[__])
         
@@ -629,14 +629,15 @@ class mipego(object):
         self.async_loss_surrogates[gpu_no] = copy.deepcopy(self.loss_surrogate);
         while True:
             start_timer_1 = time.time()
-            self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
+            #CHRIS self.logger commented out, because of bottleneck
+            #self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
 
             confs_ = q.get()
 
             time.sleep(gpu_no)
 
-            self.logger.info('Evaluating:')
-            self.logger.info(confs_.to_dict())
+            #self.logger.info('Evaluating:')
+            #self.logger.info(confs_.to_dict())
             stop_timer_1 = time.time()
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
             start_timer_2 = time.time()
@@ -675,13 +676,13 @@ class mipego(object):
             self.incumbent_id = np.nonzero(perf == self._best(perf))[0][0]
             self.incumbent = self.data[self.incumbent_id]
 
-            self.logger.info("{} threads still running...".format(threading.active_count()))
+            #self.logger.info("{} threads still running...".format(threading.active_count()))
 
             # model re-training
             self.hist_f.append(self.incumbent.fitness)
 
-            self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
-            self.logger.info(self.incumbent.to_dict())
+            #self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
+            #self.logger.info(self.incumbent.to_dict())
 
             incumbent = self.incumbent
             #return self._get_var(incumbent)[0], incumbent.perf.values
@@ -690,7 +691,7 @@ class mipego(object):
 
             #print "GPU no. {} is waiting for task on thread {}".format(gpu_no, gpu_no)
             if not self.check_stop():
-                self.logger.info('Data size is {}'.format(len(self.data)))
+                #self.logger.info('Data size is {}'.format(len(self.data)))
                 if len(self.data) >= self.n_init_sample:
                     self.fit_and_assess(time_surrogate = self.async_time_surrogates[gpu_no], loss_surrogate = self.async_loss_surrogates[gpu_no])
                     while True:
