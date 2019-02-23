@@ -110,8 +110,16 @@ class Skip_manager(object):
                 incoming_layer = MaxPooling2D(pool_size=(scalar_1, scalar_2), strides=(scalar_1, scalar_2), padding='same')(incoming_layer)
                 #print('Did a max pool')
         return self.pad_and_connect(layer, incoming_layer)
+
+    def start_skip(self,layer):
+        for j in range(len(self.skip_ints)):
+            if self.skip_ints_count[j] > 1 and self.startpoint(self.identity,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
+                self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
+        return layer
     
     def end_skip(self,layer):
+        for j in range(len(self.skip_connections)):
+            self.skip_connections[j][1] -= 1 #decrease skip connection counters
         j = 0
         prev_skip = -1
         while j < len(self.skip_connections):
@@ -138,16 +146,12 @@ class Skip_manager(object):
         return layer
 
     def connect_skip(self,layer):
-        for j in range(len(self.skip_connections)):
-            self.skip_connections[j][1] -= 1 #decrease skip connection counters
         
         #end skip connections
         layer = self.end_skip(layer)
         
         #start skip connections
-        for j in range(len(self.skip_ints)):
-            if self.skip_ints_count[j] > 1 and self.startpoint(self.identity,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
-                self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
+        layer = self.start_skip(layer)
         
         self.layer_num +=1 #increase layer number where currently building takes place
         return layer
