@@ -63,32 +63,36 @@ class Skip_manager(object):
     def startpoint(self,func,num):
         return (func(num) >> self.layer_num) & 1
     
-    def pad_and_connect(self, layer, incoming_layer):
+    def pad_and_connect(self, layer, incoming_layer,filter,kernel,regulizer):
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             pad_tpl1 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)))
             pad_tpl2 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)))
             #print(pad_tpl)
             if K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
                 padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(incoming_layer)
-                return Concatenate()([layer, padded])
+                layer = Concatenate()([layer, padded])
             elif K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] >= K.int_shape(layer)[2]:
                 padded1 = ZeroPadding2D(padding=(pad_tpl1, 0))(incoming_layer)
                 padded2 = ZeroPadding2D(padding=(0, pad_tpl2))(layer)
-                return Concatenate()([padded1, padded2])
+                layer = Concatenate()([padded1, padded2])
             elif K.int_shape(incoming_layer)[1] >= K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
                 padded1 = ZeroPadding2D(padding=(0, pad_tpl2))(incoming_layer)
                 padded2 = ZeroPadding2D(padding=(pad_tpl1, 0))(layer)
-                return Concatenate()([padded1, padded2])
+                layer= Concatenate()([padded1, padded2])
             else:
                 #print(layer.shape)
                 padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(layer)
                 #print(padded.shape)
                 #print(incoming_layer.shape)
-                return Concatenate()([padded, incoming_layer])
+                layer= Concatenate()([padded, incoming_layer])
         else:
-            return Concatenate()([layer, incoming_layer])
+            layer= Concatenate()([layer, incoming_layer])
+        
+        #convolution as projection, to bound amount of features
+        layer = Conv2D(filter, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(layer)#CHRIS kernel value set to (1,1) in order to simply act as projection
+        return layer
 
-    def pool_pad_connect(self, layer, incoming_layer):
+    def pool_pad_connect(self, layer, incoming_layer,filter,kernel,regulizer):
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             #print('layer dimensions:')
             #print(K.int_shape(layer)[1], K.int_shape(layer)[2])
@@ -109,7 +113,7 @@ class Skip_manager(object):
                 scalar_2 =  int(np.ceil(K.int_shape(incoming_layer)[2] / K.int_shape(layer)[2]))
                 incoming_layer = MaxPooling2D(pool_size=(scalar_1, scalar_2), strides=(scalar_1, scalar_2), padding='same')(incoming_layer)
                 #print('Did a max pool')
-        return self.pad_and_connect(layer, incoming_layer)
+        return self.pad_and_connect(layer, incoming_layer,filter,kernel,regulizer)
 
     def start_skip(self,layer):
         for j in range(len(self.skip_ints)):
@@ -117,7 +121,7 @@ class Skip_manager(object):
                 self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
         return layer
     
-    def end_skip(self,layer):
+    def end_skip(self,layer,filter,kernel,regulizer):
         for j in range(len(self.skip_connections)):
             self.skip_connections[j][1] -= 1 #decrease skip connection counters
         j = 0
@@ -127,8 +131,8 @@ class Skip_manager(object):
                 #print(prev_skip,self.skip_connections[j][2])
                 if prev_skip != self.skip_connections[j][2]:#this removes skip connection duplicates (works because same skip connections are next to eachother) TODO maybe better to make more robust
                     #CHRIS TODO add pooling, because this becomes too complex to train
-                    #layer = self.pad_and_connect(layer, self.skip_connections[j][0])
-                    layer = self.pool_pad_connect(layer, self.skip_connections[j][0])
+                    #layer = self.pad_and_connect(layer, self.skip_connections[j][0],filter,kernel,regulizer)
+                    layer = self.pool_pad_connect(layer, self.skip_connections[j][0],filter,kernel,regulizer)
                 #if upscaling is desired: (can result in enormous tensors though)
                 #shape1 = K.int_shape(layer)
                 #shape2 = K.int_shape(self.skip_connections[j][0])
@@ -145,10 +149,10 @@ class Skip_manager(object):
                 j += 1
         return layer
 
-    def connect_skip(self,layer):
+    def connect_skip(self,layer,filter,kernel,regulizer):
         
         #end skip connections
-        layer = self.end_skip(layer)
+        layer = self.end_skip(layer,filter,kernel,regulizer)
         
         #start skip connections
         layer = self.start_skip(layer)
@@ -226,11 +230,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     
     #stack 0
     for i in range(cfg['stack_0']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_0'],cfg['k_0'],cfg['l2'])
         layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_0']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_0'],cfg['k_0'],cfg['l2'])
         #maxpooling as cnn
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
@@ -241,11 +245,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     
     #stack 1
     for i in range(cfg['stack_1']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_2'],cfg['k_2'],cfg['l2'])
         layer = Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_1']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_2'],cfg['k_2'],cfg['l2'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
@@ -255,11 +259,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 2
     for i in range(cfg['stack_2']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_4'],cfg['k_4'],cfg['l2'])
         layer = Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_2']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_4'],cfg['k_4'],cfg['l2'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
@@ -269,11 +273,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 3
     for i in range(cfg['stack_3']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_6'],cfg['k_6'],cfg['l2'])
         layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_3']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_6'],cfg['k_6'],cfg['l2'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
@@ -283,11 +287,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 4
     for i in range(cfg['stack_4']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_8'],cfg['k_8'],cfg['l2'])
         layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_4']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_8'],cfg['k_8'],cfg['l2'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
@@ -297,11 +301,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 5
     for i in range(cfg['stack_5']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_10'],cfg['k_10'],cfg['l2'])
         layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_5']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_10'],cfg['k_10'],cfg['l2'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_11'], (cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
@@ -311,11 +315,11 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 6
     for i in range(cfg['stack_6']):
-        layer = skip_manager.connect_skip(layer)
+        layer = skip_manager.connect_skip(layer,cfg['filters_12'],cfg['k_12'],cfg['l2'])
         layer = Conv2D(cfg['filters_12'], (cfg['k_12'], cfg['k_12']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_6']>0):
-        layer = skip_manager.end_skip(layer)
+        layer = skip_manager.end_skip(layer,cfg['filters_12'],cfg['k_12'],cfg['l2'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_13'], (cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
