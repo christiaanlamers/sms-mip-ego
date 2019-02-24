@@ -121,8 +121,8 @@ step = NominalSpace([True, False], "step")  # step
 global_pooling = NominalSpace([True,False], "global_pooling")  # global_pooling#CHRIS TODO removed False
 
 #skippy parameters
-skstart = OrdinalSpace([0, 50], 'skstart') * 5
-skstep = OrdinalSpace([1, 50], 'skstep') * 5#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
+skstart = OrdinalSpace([0, 7], 'skstart') * 5
+skstep = OrdinalSpace([1, 10], 'skstep') * 5#CHRIS a skip step of 1 means no skip connection#OrdinalSpace([1, 10], 'skst') * 3
 max_pooling = NominalSpace([True, False], "max_pooling")
 dense_size = OrdinalSpace([0,2000],'dense_size')*2
 #skippy parameters
@@ -171,7 +171,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_big_one_test_run',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
+                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_big_one_test_run_2',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
 
 #ref_time=3000.0,ref_loss=3.0
 
