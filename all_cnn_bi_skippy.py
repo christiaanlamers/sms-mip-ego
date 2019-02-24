@@ -644,8 +644,8 @@ def test_skippy():
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        #timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
+        #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
+        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)
 
