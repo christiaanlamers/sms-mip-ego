@@ -665,7 +665,7 @@ class mipego(object):
             #CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
             #print(self._best(perf))
             print(max(perf))
-            self.incumbent_id = np.nonzero(perf == self._best(perf))[0][0]
+            self.incumbent_id = np.nonzero(perf == max(perf))[0][0]#CHRIS used to be: self._best(perf))[0][0]
             self.incumbent = self.data[self.incumbent_id]
 
             self.logger.info("{} threads still running...".format(threading.active_count()))
