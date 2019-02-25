@@ -38,7 +38,10 @@ from .Bi_Objective import * #CHRIS added the Bi_Objective code
 class Solution(np.ndarray):
     def __new__(cls, x, fitness=None, n_eval=0, index=None, var_name=None, loss=None,time=None):
         obj = np.asarray(x, dtype='object').view(cls)
-        obj.fitness = fitness
+        if fitness is None:
+            obj.fitness = 0
+        else:
+            obj.fitness = fitness
         obj.loss = loss#CHRIS added loss and time here
         obj.time = time
         obj.n_eval = n_eval
@@ -505,8 +508,8 @@ class mipego(object):
                 time.sleep(15)
         # TODO: in case r2 is really poor, re-fit the model or transform the input? 
         # consider the performance metric transformation in SMAC
-        self.logger.info('Surrogate model time_r2: {}'.format(time_r2))
-        self.logger.info('Surrogate model loss_r2: {}'.format(loss_r2))
+        #self.logger.info('Surrogate model time_r2: {}'.format(time_r2))
+        #self.logger.info('Surrogate model loss_r2: {}'.format(loss_r2))
         return time_r2,loss_r2
 
     def select_candidate(self):
@@ -536,10 +539,10 @@ class mipego(object):
         # for noisy fitness: perform a proportional selection from the evaluated ones   
         if self.noisy:
             #CHRIS after evaluate run S-metric on all solutions to determine fitness
-            for i in range(len(self.data)):
-                other_solutions = copy.deepcopy(self.data)
-                del other_solutions[i]
-                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+            #for i in range(len(self.data)):
+            #    other_solutions = copy.deepcopy(self.data)
+            #    del other_solutions[i]
+            #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
             id_, fitness = zip([(i, d.fitness) for i, d in enumerate(self.data) if i != self.incumbent_id])
             __ = proportional_selection(fitness, self.mu, self.minimize, replacement=False)
             candidates_id.append(id_[__])
@@ -550,10 +553,10 @@ class mipego(object):
         print(self.n_left,self.max_iter)
         self.data += X
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
-        for i in range(len(self.data)):
-            other_solutions = copy.deepcopy(self.data)
-            del other_solutions[i]
-            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+        #for i in range(len(self.data)):
+        #    other_solutions = copy.deepcopy(self.data)
+        #    del other_solutions[i]
+        #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         return candidates_id
 
@@ -596,19 +599,19 @@ class mipego(object):
     def _initialize(self):
         """Generate the initial data set (DOE) and construct the surrogate model
         """
-        self.logger.info('selected time_surrogate model: {}'.format(self.time_surrogate.__class__))
-        self.logger.info('selected loss_surrogate model: {}'.format(self.loss_surrogate.__class__))
-        self.logger.info('building the initial design of experiemnts...')
+        #self.logger.info('selected time_surrogate model: {}'.format(self.time_surrogate.__class__))
+        #self.logger.info('selected loss_surrogate model: {}'.format(self.loss_surrogate.__class__))
+        #self.logger.info('building the initial design of experiemnts...')
 
         samples = self._space.sampling(self.n_init_sample)
         self.data = [Solution(s, index=k, var_name=self.var_names) for k, s in enumerate(samples)]
         self.evaluate(self.data, runs=self.init_n_eval)
         
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
-        for i in range(len(self.data)):
-            other_solutions = copy.deepcopy(self.data)
-            del other_solutions[i]
-            self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+        #for i in range(len(self.data)):
+        #    other_solutions = copy.deepcopy(self.data)
+        #    del other_solutions[i]
+        #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
         
         # set the initial incumbent
         fitness = np.array([s.fitness for s in self.data])
@@ -618,19 +621,20 @@ class mipego(object):
 
     def gpuworker(self, q, gpu_no):
         "GPU worker function "
-
+        start_timer_0 = time.time()
         self.async_time_surrogates[gpu_no] = copy.deepcopy(self.time_surrogate);
         self.async_loss_surrogates[gpu_no] = copy.deepcopy(self.loss_surrogate);
+        stop_timer_0 = time.time()
         while True:
             start_timer_1 = time.time()
-            self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
+            #self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
 
             confs_ = q.get()
 
             time.sleep(gpu_no)
 
-            self.logger.info('Evaluating:')
-            self.logger.info(confs_.to_dict())
+            #self.logger.info('Evaluating:')
+            #self.logger.info(confs_.to_dict())
             stop_timer_1 = time.time()
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
             start_timer_2 = time.time()
@@ -651,10 +655,10 @@ class mipego(object):
             #    for x in self.data:
             #        x.fitness = x.loss
             
-            for i in range(len(self.data)):
-                other_solutions = copy.deepcopy(self.data)
-                del other_solutions[i]
-                self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+            #for i in range(len(self.data)):
+            #    other_solutions = copy.deepcopy(self.data)
+            #    del other_solutions[i]
+            #    self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
             
             perf = np.array([s.fitness for s in self.data])
             #self.data.perf = pd.to_numeric(self.data.perf)
@@ -668,13 +672,13 @@ class mipego(object):
             self.incumbent_id = np.nonzero(perf == self._best(perf))[0][0]
             self.incumbent = self.data[self.incumbent_id]
 
-            self.logger.info("{} threads still running...".format(threading.active_count()))
+            #self.logger.info("{} threads still running...".format(threading.active_count()))
 
             # model re-training
             self.hist_f.append(self.incumbent.fitness)
 
-            self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
-            self.logger.info(self.incumbent.to_dict())
+            #self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
+            #self.logger.info(self.incumbent.to_dict())
 
             incumbent = self.incumbent
             #return self._get_var(incumbent)[0], incumbent.perf.values
@@ -683,7 +687,7 @@ class mipego(object):
 
             #print "GPU no. {} is waiting for task on thread {}".format(gpu_no, gpu_no)
             if not self.check_stop():
-                self.logger.info('Data size is {}'.format(len(self.data)))
+                #self.logger.info('Data size is {}'.format(len(self.data)))
                 if len(self.data) >= self.n_init_sample:
                     self.fit_and_assess(time_surrogate = self.async_time_surrogates[gpu_no], loss_surrogate = self.async_loss_surrogates[gpu_no])
                     while True:
@@ -707,7 +711,7 @@ class mipego(object):
                 break
             self.save_data(self.save_name + '_intermediate')#CHRIS save data
             stop_timer_2 = time.time()
-            self.time_between_gpu_hist.append((stop_timer_1 - start_timer_1)+(stop_timer_2-start_timer_2))
+            self.time_between_gpu_hist.append((stop_timer_0 - start_timer_0)+(stop_timer_1 - start_timer_1)+(stop_timer_2-start_timer_2))
 
         print('Finished thread {}'.format(gpu_no))
 
@@ -758,8 +762,8 @@ class mipego(object):
         self.iter_count += 1
         self.hist_f.append(self.incumbent.fitness)
 
-        self.logger.info('iteration {}, current incumbent is:'.format(self.iter_count))
-        self.logger.info(self.incumbent.to_dict())
+        #self.logger.info('iteration {}, current incumbent is:'.format(self.iter_count))
+        #self.logger.info(self.incumbent.to_dict())
         
         # save the iterative data configuration to csv
         # self.incumbent.to_csv(self.data_file, header=False, index=False, mode='a')
@@ -774,9 +778,9 @@ class mipego(object):
 
             #self.n_point = 1 #set n_point to 1 because we only do one evaluation at a time (async)#CHRIS n_point is set to 1 at initialisation
             # initialize
-            self.logger.info('selected time_surrogate model: {}'.format(self.time_surrogate.__class__))
-            self.logger.info('selected loss_surrogate model: {}'.format(self.loss_surrogate.__class__))
-            self.logger.info('building the initial design of experiments...')
+            #self.logger.info('selected time_surrogate model: {}'.format(self.time_surrogate.__class__))
+            #self.logger.info('selected loss_surrogate model: {}'.format(self.loss_surrogate.__class__))
+            #self.logger.info('building the initial design of experiments...')
 
             samples = self._space.sampling(self.n_init_sample)
             datasamples = [Solution(s, index=k, var_name=self.var_names) for k, s in enumerate(samples)]
