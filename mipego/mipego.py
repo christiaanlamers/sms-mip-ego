@@ -704,8 +704,8 @@ class mipego(object):
             #perf = np.array([s.fitness for s in self.data])
             ##self.data.perf = pd.to_numeric(self.data.perf)
             ##self.eval_count += 1
-            print('len(perf):') #CHRIS
-            print(len(perf))
+            #print('len(perf):') #CHRIS
+            #print(len(perf))
             #print('best perf:')
             ##CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
             ##print(self._best(perf))
