@@ -698,31 +698,35 @@ class mipego(object):
 
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu_no) + ': step 5\n')
-        
-            perf = np.array([s.fitness for s in self.data])
-            #self.data.perf = pd.to_numeric(self.data.perf)
-            #self.eval_count += 1
+            
+            #CHRIS somehow there was a bug between #block begin and #block end, so it was all commented out
+            #block begin
+            #perf = np.array([s.fitness for s in self.data])
+            ##self.data.perf = pd.to_numeric(self.data.perf)
+            ##self.eval_count += 1
             print('len(perf):') #CHRIS
             print(len(perf))
-            print('best perf:')
-            #CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
-            #print(self._best(perf))
-            print(max(perf))
-            self.incumbent_id = np.nonzero(perf == max(perf))[0][0]#CHRIS used to be: self._best(perf))[0][0]
-            self.incumbent = self.data[self.incumbent_id]
+            #print('best perf:')
+            ##CHRIS TODO fitness is now a to be maximized parameter, namely hypervolume improvement, so self_best() might not work correctly
+            ##print(self._best(perf))
+            #print(max(perf))
+            #self.incumbent_id = np.nonzero(perf == max(perf))[0][0]#CHRIS used to be: self._best(perf))[0][0]
+            #self.incumbent = self.data[self.incumbent_id]
 
-            self.logger.info("{} threads still running...".format(threading.active_count()))
+            #self.logger.info("{} threads still running...".format(threading.active_count()))
+            #block end
 
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu_no) + ': step 6\n')
-
-            # model re-training
-            self.hist_f.append(self.incumbent.fitness)
-
-            self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
-            self.logger.info(self.incumbent.to_dict())
-
-            incumbent = self.incumbent
+            
+            #CHRIS this now also has to be commented out
+            ## model re-training
+            #self.hist_f.append(self.incumbent.fitness)
+            #
+            #self.logger.info('iteration {} with current fitness {}, current incumbent is:'.format(self.iter_count, self.incumbent.fitness))
+            #self.logger.info(self.incumbent.to_dict())
+            
+            #incumbent = self.incumbent
             #return self._get_var(incumbent)[0], incumbent.perf.values
 
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
