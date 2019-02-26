@@ -37,7 +37,7 @@ class obj_func(object):
         self.program = program
         self.save_name = save_name
         
-    def __call__(self, cfg, gpu_no,eval_epochs):
+    def __call__(self, cfg, gpu_no,eval_epochs,save_name):
         with open(self.save_name + '_thread_log.json', 'a') as outfile:
             outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 1\n')
         print("calling program with gpu "+str(gpu_no))
