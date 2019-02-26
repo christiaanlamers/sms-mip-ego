@@ -37,13 +37,21 @@ class obj_func(object):
         self.program = program
         
     def __call__(self, cfg, gpu_no,eval_epochs,save_name):
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 1\n')
         print("calling program with gpu "+str(gpu_no))
         cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name)]
         #outputval = 0
         outputval = ""
         outs = ""
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 2\n')
         try:
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 3\n')
             outs = str(check_output(cmd,stderr=STDOUT, timeout=40000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 4\n')
             if os.path.isfile(logfile): 
                 with open(logfile,'a') as f_handle:
                     f_handle.write(outs)
@@ -53,7 +61,8 @@ class obj_func(object):
             outs = outs.split("\\n")
             #print('this is outs:')
             #print(outs)
-            
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 5\n')
             #TODO_CHRIS hacky solution
             #outputval = 0
             #for i in range(len(outs)-1,1,-1):
@@ -70,18 +79,26 @@ class obj_func(object):
                 else:
                     #outputval = -1 * float(outs[-i])
                     outputval = outs[i]
-            
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 6\n')
             #if np.isnan(outputval):
             #    outputval = 0
         except subprocess.CalledProcessError as e:
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 6a error\n')
             traceback.print_exc()
             print (e.output)
         except:
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 6b error\n')
             print ("Unexpected error:")
             traceback.print_exc()
             print (outs)
             
             #outputval = 0
+
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 7\n')
         #TODO_CHRIS hacky solution
         tuple_str1 = ''
         tuple_str2 = ''
@@ -95,13 +112,19 @@ class obj_func(object):
             while outputval[i] != ')':
                 tuple_str2 += outputval[i]
                 i += 1
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 8a\n')
         except:
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 8b error\n')
             print("error in receiving answer from gpu " + str(gpu_no))
             success = True #CHRIS simply give large penalty in case of failure instead of setting success to False
             tuple_str1 = '80000'#CHRIS 2 times timeout value
             tuple_str2 = str(-1 * math.log(0.05))#CHRIS half the accuracy of random guessing
         tuple = (float(tuple_str1),float(tuple_str2),success)
         #return outputval
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 9\n')
         return tuple
 
 
