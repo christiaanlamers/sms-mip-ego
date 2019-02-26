@@ -33,10 +33,11 @@ verbose = True
 save = False
 logfile = 'mnist.log'
 class obj_func(object):
-    def __init__(self, program):
+    def __init__(self, program, save_name='test'):
         self.program = program
+        self.save_name = save_name
         
-    def __call__(self, cfg, gpu_no,eval_epochs,save_name):
+    def __call__(self, cfg, gpu_no,eval_epochs):
         with open(self.save_name + '_thread_log.json', 'a') as outfile:
             outfile.write('thread ' + str(gpu) + ': step 3 gpu 3 obj_func 1\n')
         print("calling program with gpu "+str(gpu_no))
@@ -129,7 +130,8 @@ class obj_func(object):
 
 
 #define the search space.
-objective = obj_func('./all_cnn_bi_skippy.py')
+save_name = 'data_skippy_cifar10_big_one_test_run_3'
+objective = obj_func('./all_cnn_bi_skippy.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
@@ -194,7 +196,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=1, wait_iter=3, optimizer='MIES',
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_big_one_test_run_3',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
+                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
 
 #ref_time=3000.0,ref_loss=3.0
 
