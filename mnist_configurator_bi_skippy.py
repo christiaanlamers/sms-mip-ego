@@ -164,12 +164,12 @@ n_job = max(min(gpu_limit,len(available_gpus)),1)
 
 # use random forest as the surrogate model
 #CHRIS two surrogate models are needed
-time_model = RandomForest(levels=search_space.levels,n_estimators=100)
-loss_model = RandomForest(levels=search_space.levels,n_estimators=100)
+time_model = RandomForest(levels=search_space.levels,n_estimators=10)
+loss_model = RandomForest(levels=search_space.levels,n_estimators=10)
 opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  minimize=True, noisy=False, max_eval=None, max_iter=n_step, 
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
-                 n_restart=None, max_infill_eval=1, wait_iter=3, optimizer='MIES', 
+                 n_restart=None, max_infill_eval=1, wait_iter=3, optimizer='MIES',
                  log_file=None, data_file=None, verbose=False, random_seed=None,
                  available_gpus=available_gpus, bi=True, save_name='data_skippy_cifar10_big_one_test_run_3',ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
 
