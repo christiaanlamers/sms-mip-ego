@@ -280,39 +280,62 @@ class mipego(object):
         """
         evaluate one solution
         """
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 1\n')
         # TODO: sometimes the obj_func take a dictionary as input...
         time_,loss_, n_eval = x.time,x.loss, x.n_eval
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 2\n')
         # try:
             # ans = [self.obj_func(x.tolist()) for i in range(runs)]
         # except:
         #ans = [self.obj_func(x.to_dict(), gpu_no=gpu) for i in range(runs)]
         gpu_patch = gpu
         while True:
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3\n')
             ans = self.obj_func(x.to_dict(), gpu_no=gpu_patch,eval_epochs=self.eval_epochs,save_name=self.save_name)
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 3\n')
             print("n_left,max_iter:")
             print(self.n_left,self.max_iter)
             print('_eval_gpu():')
             print(ans)
             time_ans,loss_ans,success= ans[0],ans[1],ans[2]
+            with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu) + ': step 3 gpu 4\n')
             if success:
+                with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                    outfile.write('thread ' + str(gpu) + ': step 3 gpu 5a\n')
                 break
             else:
                 while True:
+                    with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu) + ': step 3 gpu 5b\n')
                     print('gpu ' + str(gpu_patch) + ' failed to give answer, searching for new gpu')
                     available_gpus_patch = gp.getAvailable(limit=5)
+                    with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu) + ': step 3 gpu 5b2\n')
                     for i in range(len(self.ignore_gpu)):
                         try:
                             available_gpus_patch.remove(self.ignore_gpu[i])
                         except:
                             pass
+                    with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu) + ': step 3 gpu 5b3\n')
                     if len(available_gpus_patch) > 0:
+                        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                            outfile.write('thread ' + str(gpu) + ': step 3 gpu 5b4a\n')
                         gpu_patch = available_gpus_patch[0]
                         break
                     else:
+                        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+                            outfile.write('thread ' + str(gpu) + ': step 3 gpu 5b4b\n')
                         print('no gpus available, waiting 60 seconds')
                         time.sleep(60)
 
-                
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 6\n')
         #TODO_CHRIS make this work when runs != 1
         #time_ans = []
         #loss_ans = []
@@ -335,6 +358,9 @@ class mipego(object):
         self.eval_hist_loss += [loss_ans] #CHRIS added time and loss history
         self.eval_hist_time += [time_ans]
         self.eval_hist_id += [x.index] * runs
+
+        with open(self.save_name + '_thread_log.json', 'a') as outfile:
+            outfile.write('thread ' + str(gpu) + ': step 3 gpu 7\n')
         
         return x, runs, time_loc, loss_loc, [x.index] * runs
 
