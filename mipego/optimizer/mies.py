@@ -16,6 +16,8 @@ from numpy.random import randint, rand, randn, geometric
 from ..utils import boundary_handling
 from ..SearchSpace import ContinuousSpace, OrdinalSpace, NominalSpace
 
+import time
+
 class Individual(list):
     """Make it possible to index Python list object using the enumerables
     """
@@ -280,6 +282,7 @@ class mies(object):
             return perf1 > perf2
 
     def optimize(self):
+        start_timer = time.time()
         while not self.stop():
             for i in range(self.lambda_):
                 p1, p2 = randint(0, self.mu_), randint(0, self.mu_)
@@ -303,6 +306,8 @@ class mies(object):
                 print(self.xopt, self.fopt)
 
         self.stop_dict['funcalls'] = self.eval_count
+        stop_timer = time.time()
+        print("MIES took " + str(stop_timer - start_timer) + " seconds")
         return self.xopt, self.fopt, self.stop_dict
 
 

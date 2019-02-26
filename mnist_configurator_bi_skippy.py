@@ -51,8 +51,8 @@ class obj_func(object):
                 with open(logfile,'w') as f_handle:
                     f_handle.write(outs)
             outs = outs.split("\\n")
-            print('this is outs:')
-            print(outs)
+            #print('this is outs:')
+            #print(outs)
             
             #TODO_CHRIS hacky solution
             #outputval = 0
