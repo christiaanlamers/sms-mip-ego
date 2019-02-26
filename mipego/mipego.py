@@ -226,6 +226,8 @@ class mipego(object):
         #CHRIS initialize evaluation training history file
         with open(self.save_name + '_eval_train_hist.json', 'w') as f:
             f.write('')
+        with open(self.save_name + '_thread_log.json', 'w') as f:
+            f.write('')
     
     def _get_logger(self, logfile):
         """
@@ -622,17 +624,29 @@ class mipego(object):
         self.async_time_surrogates[gpu_no] = copy.deepcopy(self.time_surrogate);
         self.async_loss_surrogates[gpu_no] = copy.deepcopy(self.loss_surrogate);
         while True:
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 1\n')
             start_timer_1 = time.time()
             self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
             print("Queue size before q.get()= " + str(q.qsize()))
             confs_ = q.get()
             print("Queue size after q.get()= " + str(q.qsize()))
             time.sleep(gpu_no)
+            
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 2\n')
 
             self.logger.info('Evaluating:')
             self.logger.info(confs_.to_dict())
             stop_timer_1 = time.time()
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 3\n')
+            
             confs_ = self._eval_gpu(confs_, gpu_no)[0] #will write the result to confs_
+            
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 4\n')
+            
             start_timer_2 = time.time()
             self.n_left -= 1
             if self.n_left < 0:
@@ -655,7 +669,10 @@ class mipego(object):
                 other_solutions = copy.deepcopy(self.data)
                 del other_solutions[i]
                 self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
-            
+
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 5\n')
+        
             perf = np.array([s.fitness for s in self.data])
             #self.data.perf = pd.to_numeric(self.data.perf)
             #self.eval_count += 1
@@ -670,6 +687,9 @@ class mipego(object):
 
             self.logger.info("{} threads still running...".format(threading.active_count()))
 
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 6\n')
+
             # model re-training
             self.hist_f.append(self.incumbent.fitness)
 
@@ -679,7 +699,13 @@ class mipego(object):
             incumbent = self.incumbent
             #return self._get_var(incumbent)[0], incumbent.perf.values
 
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 7\n')
+
             q.task_done()
+
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 8\n')
 
             #print "GPU no. {} is waiting for task on thread {}".format(gpu_no, gpu_no)
             if not self.check_stop():
@@ -688,23 +714,37 @@ class mipego(object):
                     self.fit_and_assess(time_surrogate = self.async_time_surrogates[gpu_no], loss_surrogate = self.async_loss_surrogates[gpu_no])
                     while True:
                         try:
+                            with open(save_name + '_thread_log.json', 'a') as outfile:
+                                outfile.write('thread ' + str(gpu_no) + ': step 9a\n')
                             X, infill_value = self.arg_max_acquisition(plugin=None, time_surrogate = self.async_time_surrogates[gpu_no], loss_surrogate=self.async_loss_surrogates[gpu_no],data=self.data ,n_left=self.n_left)#CHRIS two surrogates are needed
+                            with open(save_name + '_thread_log.json', 'a') as outfile:
+                                outfile.write('thread ' + str(gpu_no) + ': step 10a\n')
                             confs_ = Solution(X, index=len(self.data)+q.qsize(), var_name=self.var_names)
                             break
                         except Exception as e:
                             print(e)
                             print("Error selecting candidate, retrying in 60 seconds...")
                             time.sleep(60)
+                    with open(save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu_no) + ': step 11a\n')
                     q.put(confs_)
                 else:
+                    with open(save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu_no) + ': step 9b\n')
                     samples = self._space.sampling(1)
+                    with open(save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu_no) + ': step 10b\n')
                     confs_ = Solution(samples[0], index=len(self.data)+q.qsize(), var_name=self.var_names)
                     #confs_ = self._to_dataframe(self._space.sampling(1))
+                    with open(save_name + '_thread_log.json', 'a') as outfile:
+                        outfile.write('thread ' + str(gpu_no) + ': step 11b\n')
                     if (q.empty()):
                         q.put(confs_)
                 
             else:
                 break
+            with open(save_name + '_thread_log.json', 'a') as outfile:
+                outfile.write('thread ' + str(gpu_no) + ': step 12\n')
             self.save_data(self.save_name + '_intermediate')#CHRIS save data
             stop_timer_2 = time.time()
             self.time_between_gpu_hist.append((stop_timer_1 - start_timer_1)+(stop_timer_2-start_timer_2))
