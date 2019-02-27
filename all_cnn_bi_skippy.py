@@ -123,6 +123,7 @@ class Skip_manager(object):
             self.skip_connections[j][1] -= 1 #decrease skip connection counters
         j = 0
         prev_skip = -1
+        connected = False
         while j < len(self.skip_connections):
             if self.skip_connections[j][1] <= 0:
                 #print(prev_skip,self.skip_connections[j][2])
@@ -145,7 +146,7 @@ class Skip_manager(object):
                 del self.skip_connections[j]
             else:
                 j += 1
-        if K.int_shape(layer)[3] > filters:#CHRIS we only want to reduce dimensions if a skip connection is made
+        if connected and K.int_shape(layer)[3] > filters:#CHRIS we only want projection if a skip connection is made, hence: ''connected''
             #CHRIS convolution to bound amount of features
             #CHRIS can funcion as addition, or projection followed by addition
             layer = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(layer)#CHRIS kernel value set to (1,1) in order to simply act as projection
