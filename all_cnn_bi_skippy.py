@@ -130,6 +130,7 @@ class Skip_manager(object):
                     #CHRIS TODO add pooling, because this becomes too complex to train
                     #layer = self.pad_and_connect(layer, self.skip_connections[j][0])
                     layer = self.pool_pad_connect(layer, self.skip_connections[j][0])
+                    connected = True
                 #if upscaling is desired: (can result in enormous tensors though)
                 #shape1 = K.int_shape(layer)
                 #shape2 = K.int_shape(self.skip_connections[j][0])
@@ -144,7 +145,7 @@ class Skip_manager(object):
                 del self.skip_connections[j]
             else:
                 j += 1
-        if K.int_shape(layer)[3] > filters:
+        if K.int_shape(layer)[3] > filters:#CHRIS we only want to reduce dimensions if a skip connection is made
             #CHRIS convolution to bound amount of features
             #CHRIS can funcion as addition, or projection followed by addition
             layer = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(layer)#CHRIS kernel value set to (1,1) in order to simply act as projection
@@ -253,14 +254,18 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     #layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
     #layer = skip_manager.connect_skip(layer)
+
+    filter_amount = None
     
     #stack 0
     for i in range(cfg['stack_0']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_0'],cfg['k_0'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_0']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_0'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_0']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_0'],cfg['k_0'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_0'],cfg['l2'],cfg['activation'])
         #maxpooling as cnn
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_1'], (cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
@@ -271,84 +276,108 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     
     #stack 1
     for i in range(cfg['stack_1']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_2'],cfg['k_2'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_2']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_2'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
+        filter_amount = cfg['filters_2']
     if (cfg['stack_1']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_2'],cfg['k_2'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_2'],cfg['l2'],cfg['activation'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_3'], (cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
+            filter_amount = cfg['filters_3']
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same')(layer)
         layer = Dropout(cfg['dropout_2'])(layer)
 
     #stack 2
     for i in range(cfg['stack_2']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_4'],cfg['k_4'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_4']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_4'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
+        filter_amount = cfg['filters_4']
     if (cfg['stack_2']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_4'],cfg['k_4'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_4'],cfg['l2'],cfg['activation'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_5'], (cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
+            filter_amount = cfg['filters_5']
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same')(layer)
         layer = Dropout(cfg['dropout_3'])(layer)
 
     #stack 3
     for i in range(cfg['stack_3']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_6'],cfg['k_6'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_6']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_6'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
+        filter_amount = cfg['filters_6']
     if (cfg['stack_3']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_6'],cfg['k_6'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_6'],cfg['l2'],cfg['activation'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_7'], (cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
+            filter_amount = cfg['filters_7']
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same')(layer)
         layer = Dropout(cfg['dropout_4'])(layer)
 
     #stack 4
     for i in range(cfg['stack_4']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_8'],cfg['k_8'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_8']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_8'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
+        filter_amount = cfg['filters_8']
     if (cfg['stack_4']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_8'],cfg['k_8'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_8'],cfg['l2'],cfg['activation'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_9'], (cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
+            filter_amount = cfg['filters_9']
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same')(layer)
         layer = Dropout(cfg['dropout_5'])(layer)
 
     #stack 5
     for i in range(cfg['stack_5']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_10'],cfg['k_10'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_10']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_10'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
+        filter_amount = cfg['filters_10']
     if (cfg['stack_5']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_10'],cfg['k_10'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_10'],cfg['l2'],cfg['activation'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_11'], (cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
+            filter_amount = cfg['filters_11']
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same')(layer)
         layer = Dropout(cfg['dropout_6'])(layer)
 
     #stack 6
     for i in range(cfg['stack_6']):
-        layer = skip_manager.connect_skip(layer,cfg['filters_12'],cfg['k_12'],cfg['l2'],cfg['activation'])
+        if filter_amount is None:
+            filter_amount = cfg['filters_12']
+        layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_12'],cfg['l2'],cfg['activation'])
         layer = Conv2D(cfg['filters_12'], (cfg['k_12'], cfg['k_12']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
+        filter_amount = cfg['filters_12']
     if (cfg['stack_6']>0):
-        layer = skip_manager.end_skip(layer,cfg['filters_12'],cfg['k_12'],cfg['l2'],cfg['activation'])
+        layer = skip_manager.end_skip(layer,filter_amount,cfg['k_12'],cfg['l2'],cfg['activation'])
         if not (cfg['max_pooling']):
             layer = Conv2D(cfg['filters_13'], (cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
             layer = Activation(cfg['activation'])(layer)
+            filter_amount = cfg['filters_13']
         else:
             layer = MaxPooling2D(pool_size=(cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same')(layer)
         layer = Dropout(cfg['dropout_7'])(layer)
