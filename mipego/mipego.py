@@ -896,7 +896,7 @@ class mipego(object):
             self.stop_dict['n_eval'] = self.eval_count
             self.stop_dict['n_iter'] = self.iter_count
 
-            return self.incumbent, self.stop_dict
+            return #self.incumbent, self.stop_dict #CHRIS self.incumbent does not exist anymore
 
         else:
 
@@ -908,7 +908,7 @@ class mipego(object):
 
             self.stop_dict['n_eval'] = self.eval_count
             self.stop_dict['n_iter'] = self.iter_count
-            return self.incumbent, self.stop_dict
+            return #self.incumbent, self.stop_dict #CHRIS self.incumbent does not exist anymore
 
     def check_stop(self):
         # TODO: add more stop criteria
