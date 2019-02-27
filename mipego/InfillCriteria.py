@@ -72,6 +72,7 @@ class HVI(InfillCriteria):
         self.n_left = n_left
         self.max_iter = max_iter
         self.Solution = sol
+        self.par = pareto(self.solutions)
         self.ref_time = ref_time
         self.ref_loss = ref_loss
         # change maximization problem to minimization
@@ -113,7 +114,7 @@ class HVI(InfillCriteria):
         expected.time = exp_time
         expected.loss = exp_loss
         
-        hyp_vol_imp = s_metric(expected, self.solutions, self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
+        hyp_vol_imp = s_metric(expected, self.solutions, self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss,par=self.par)
         
         return hyp_vol_imp, time_sd, loss_sd
 

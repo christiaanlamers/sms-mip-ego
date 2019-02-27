@@ -1,13 +1,14 @@
 import numpy as np
-#import matplotlib
-#import matplotlib.pyplot as plt
 import copy
 
-def s_metric(expected, solutions,n_left,max_iter,ref_time=None,ref_loss=None):
-    par = pareto(solutions)#CHRIS pareto front of existing solutions
+def s_metric(expected, solutions,n_left,max_iter,ref_time=None,ref_loss=None,par=None):
     sol_and_exp = copy.deepcopy(solutions)
     sol_and_exp.append(expected)#CHRIS existing solutions and expected solution unified
-    par_and_exp = pareto(sol_and_exp)#CHRIS pareto front of existing solutions and expected solution unified
+    if par is None:
+        par = pareto(solutions)#CHRIS pareto front of existing solutions
+    par_and_exp = copy.deepcopy(par)
+    par_and_exp.append(expected)
+    par_and_exp = pareto(par_and_exp)
     
     #print("n_left, max_iter:")
     #print(n_left,max_iter)
@@ -154,12 +155,12 @@ def eps_penalty(solution,par):
         val += -1.0 + prod1 * prod2
     return val
 
-#def test_func_1(x):
-#    return x+np.random.rand()
-#
-#def test_func_2(x):
-#    return x**2 + np.random.rand()
-#
+def test_func_1(x):
+    return x+np.random.rand()
+
+def test_func_2(x):
+    return x**2 + np.random.rand()
+
 ##TODO_CHRIS Point just for test code
 #class Point:
 #    def __init__(self,x):
@@ -169,6 +170,10 @@ def eps_penalty(solution,par):
 #        self.fitness = 0.0
 #
 #def test(n_left):
+#    import matplotlib
+#    import matplotlib.pyplot as plt
+#    np.random.seed(42)
+#    max_iter = 200
 #    n = 100
 #    solutions = [0.0] * n
 #    for i in range(n):
@@ -176,18 +181,34 @@ def eps_penalty(solution,par):
 #    #solutions[0].time = 0.0
 #    #solutions[0].loss = 0.0
 #
+#    par = pareto(solutions)
 #
 #    for i in range(len(solutions)):
 #        other = copy.deepcopy(solutions)
 #        del other[i]
-#        solutions[i].fitness = s_metric(solutions[i],other,n_left)
+#        solutions[i].fitness = s_metric(solutions[i],other,n_left,max_iter)
+#    kip = []
+#    for sol in solutions:
+#        kip.append(sol.fitness)
+#    for i in range(len(solutions)):
+#        other = copy.deepcopy(solutions)
+#        del other[i]
+#        solutions[i].fitness = s_metric(solutions[i],other,n_left,max_iter,par=par)
+#        print(solutions[i].fitness)
+#    klaas = []
+#    for sol in solutions:
+#        klaas.append(sol.fitness)
 #
-#    tests = [0.0] * 10
-#    for i in range(len(tests)):
-#        tests[i] = Point(1-i/n)
-#        tests[i].time -= 80
-#        tests[i].loss -= 80
-#        tests[i].fitness = s_metric(tests[i],solutions,n_left)
+#    for i in range(len(kip)):
+#        print(kip[i] == klaas[i])
+#
+#
+#    #tests = [0.0] * 10
+#    #for i in range(len(tests)):
+#    #    tests[i] = Point(1-i/n)
+#    #    #tests[i].time -= 80
+#    #    #tests[i].loss -= 80
+#    #    tests[i].fitness = s_metric(tests[i],solutions,n_left,max_iter)
 #
 #    x = [0.0]*n
 #    y = [0.0]*n
@@ -197,25 +218,31 @@ def eps_penalty(solution,par):
 #        x[i] = solutions[i].time
 #        y[i] = solutions[i].loss
 #        z[i] = solutions[i].fitness
+#    a = [0.0] * len(par)
+#    b = [0.0] * len(par)
+#    for i in range(len(par)):
+#        a[i] = par[i].time
+#        b[i] = par[i].loss
 #
-#    a = [0.0] * len(tests)
-#    b = [0.0] * len(tests)
-#    c = [0.0] * len(tests)
-#    for i in range(len(tests)):
-#        a[i] = tests[i].time
-#        b[i] = tests[i].loss
-#        c[i] = tests[i].fitness
-#    for flip in a:
-#        x.append(flip)
-#    for flip in b:
-#        y.append(flip)
-#    for flip in c:
-#        z.append(flip)
+#    #a = [0.0] * len(tests)
+#    #b = [0.0] * len(tests)
+#    #c = [0.0] * len(tests)
+#    #for i in range(len(tests)):
+#    #    a[i] = tests[i].time
+#    #    b[i] = tests[i].loss
+#    #    c[i] = tests[i].fitness
+#    #for flip in a:
+#    #    x.append(flip)
+#    #for flip in b:
+#    #    y.append(flip)
+#    #for flip in c:
+#    #    z.append(flip)
 #
 #
 #    plt.scatter(x,y,c = z)
+#    plt.scatter(a,b,c = 'r')
 #    plt.xlabel('time')
 #    plt.ylabel('loss')
 #    plt.show()
 #
-#test()
+#test(100)
