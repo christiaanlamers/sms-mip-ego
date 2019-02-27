@@ -654,9 +654,9 @@ class mipego(object):
                 outfile.write('thread ' + str(gpu_no) + ': step 1\n')
             start_timer_1 = time.time()
             self.logger.info('GPU no. {} is waiting for task'.format(gpu_no))
-            print("Queue size before q.get()= " + str(q.qsize()))
+            #print("Queue size before q.get()= " + str(q.qsize()))
             confs_ = q.get()
-            print("Queue size after q.get()= " + str(q.qsize()))
+            #print("Queue size after q.get()= " + str(q.qsize()))
             time.sleep(gpu_no)
             
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
