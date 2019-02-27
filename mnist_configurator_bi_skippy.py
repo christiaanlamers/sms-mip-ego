@@ -200,7 +200,8 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
 
 #ref_time=3000.0,ref_loss=3.0
 
-incumbent, stop_dict = opt.run()
+#incumbent, stop_dict = opt.run() #CHRIS opt.run() does not return anything anymore
+opt.run()
 #print('incumbent #TODO_CHRIS makes no sense for now:')
 #for x in incumbent:
 #    try:
