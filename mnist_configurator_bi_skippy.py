@@ -130,7 +130,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = 'data_skippy_cifar10_big_one_test_run_4'
+save_name = 'data_skippy_cifar10_big_one_test_run_5'
 objective = obj_func('./all_cnn_bi_skippy.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
