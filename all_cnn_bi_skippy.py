@@ -611,19 +611,19 @@ def test_skippy():
     filters_12=512
     filters_13=512
     k_0=7
-    k_1=3
+    k_1=1
     k_2=3
-    k_3=3
+    k_3=1
     k_4=3
-    k_5=3
+    k_5=1
     k_6=3
-    k_7=3
+    k_7=1
     k_8=3
-    k_9=3
+    k_9=1
     k_10=3
-    k_11=3
+    k_11=1
     k_12=3
-    k_13=3
+    k_13=1
     activation='relu'
     activ_dense='softmax'
     dropout_0=0.001
@@ -677,7 +677,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         #model = CNN_conf(vla,test=test)
