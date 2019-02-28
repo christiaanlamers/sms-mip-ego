@@ -11791,3 +11791,19 @@ thread 12: step 5
 thread 12: step 6
 thread 12: step 7
 thread 12: step 8
+thread 10: step 3 gpu 3 obj_func 4
+thread 10: step 3 gpu 3 obj_func 5
+thread 10: step 3 gpu 3 obj_func 6
+thread 10: step 3 gpu 3 obj_func 7
+thread 10: step 3 gpu 3 obj_func 8a
+thread 10: step 3 gpu 3 obj_func 9
+thread 10: step 3 gpu 4
+thread 10: step 3 gpu 5
+thread 10: step 3 gpu 6a
+thread 10: step 3 gpu 7
+thread 10: step 3 gpu 7
+thread 10: step 4
+thread 10: step 5
+thread 10: step 6
+thread 10: step 7
+thread 10: step 8
