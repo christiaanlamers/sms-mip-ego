@@ -28,7 +28,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
-setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
+#setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -256,17 +256,18 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     skip_manager = Skip_manager([skint_0,skint_1,skint_2,skint_3,skint_4],[cfg['skstep_0'],cfg['skstep_1'],cfg['skstep_2'],cfg['skstep_3'],cfg['skstep_4']])
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
+    layer=input1
+
+    filter_amount = x_train.shape[3]#CHRIS the filter amount for the sake of skip connections lags a bit behind the stack it is in, so it must be assigned separately
+    layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_0'],cfg['l2'],cfg['activation'])
     
-    layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)#CHRIS TODO reengage this line!
+    layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(layer)#CHRIS TODO reengage this line!
     skip_manager.set_dropout(cfg['dropout_0'])
     #CHRIS removed following:
     #layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     #layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
     #layer = skip_manager.connect_skip(layer)
 
-    filter_amount = x_train.shape[3]#CHRIS the filter amount for the sake of skip connections lags a bit behind the stack it is in, so it must be assigned separately
-
-    layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_0'],cfg['l2'],cfg['activation'])
     
     #stack 0
     for i in range(cfg['stack_0']):
