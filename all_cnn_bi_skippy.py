@@ -28,7 +28,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
-setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
+#setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -63,6 +63,11 @@ class Skip_manager(object):
     def startpoint(self,func,num):
         return (func(num) >> self.layer_num) & 1
     
+    def set_dropout(self,dropout_val):
+        for i in range(len(self.skip_connections)):
+            self.skip_connections[i][3] = dropout_val
+        return
+    
     def pad_and_connect(self, layer, incoming_layer):
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             pad_tpl1 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)))
@@ -89,7 +94,7 @@ class Skip_manager(object):
             layer= Concatenate()([layer, incoming_layer])
         return layer
 
-    def pool_pad_connect(self, layer, incoming_layer):
+    def pool_pad_connect(self, layer, incoming_layer,dropout_val):
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             #print('layer dimensions:')
             #print(K.int_shape(layer)[1], K.int_shape(layer)[2])
@@ -110,12 +115,14 @@ class Skip_manager(object):
                 scalar_2 =  int(np.ceil(K.int_shape(incoming_layer)[2] / K.int_shape(layer)[2]))
                 incoming_layer = MaxPooling2D(pool_size=(scalar_1, scalar_2), strides=(scalar_1, scalar_2), padding='same')(incoming_layer)
                 #print('Did a max pool')
+        if dropout_val is not None:
+            incoming_layer = Dropout(dropout_val)(incoming_layer)
         return self.pad_and_connect(layer, incoming_layer)
 
     def start_skip(self,layer):
         for j in range(len(self.skip_ints)):
             if self.skip_ints_count[j] > 1 and self.startpoint(self.identity,self.skip_ints[j]):#CHRIS skip connections smaller than 2 are not made, thus mean no skip connection.
-                self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
+                self.skip_connections.append([layer,self.skip_ints_count[j],self.layer_num,None])#save layer output, skip counter, layer this skip connection starts (to remove duplicates)
         return layer
     
     def end_skip(self,layer,filters,kernel,regulizer,act):
@@ -129,8 +136,8 @@ class Skip_manager(object):
                 #print(prev_skip,self.skip_connections[j][2])
                 if prev_skip != self.skip_connections[j][2]:#this removes skip connection duplicates (works because same skip connections are next to eachother) TODO maybe better to make more robust
                     #CHRIS TODO add pooling, because this becomes too complex to train
-                    #layer = self.pad_and_connect(layer, self.skip_connections[j][0])
-                    layer = self.pool_pad_connect(layer, self.skip_connections[j][0])
+                    #layer = self.pad_and_connect(layer, self.skip_connections[j][0])#CHRIS warning! pad_and_connect does not do dropout!
+                    layer = self.pool_pad_connect(layer, self.skip_connections[j][0],self.skip_connections[j][3])
                     connected = True#CHRIS an end skip connection is made
                 #if upscaling is desired: (can result in enormous tensors though)
                 #shape1 = K.int_shape(layer)
@@ -251,6 +258,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
     layer = Dropout(cfg['dropout_0'],input_shape=x_train.shape[1:])(input1)#CHRIS TODO reengage this line!
+    skip_manager.set_dropout(cfg['dropout_0'])
     #CHRIS removed following:
     #layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same',kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     #layer = Activation(cfg['activation'])(layer)#kernel_initializer='random_uniform',
@@ -277,6 +285,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_0'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_1'], cfg['k_1']), strides=(cfg['s_0'], cfg['s_0']), padding='same')(layer)
         layer = Dropout(cfg['dropout_1'])(layer)
+        skip_manager.set_dropout(cfg['dropout_1'])
     
     #stack 1
     for i in range(cfg['stack_1']):
@@ -294,6 +303,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_2'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_3'], cfg['k_3']), strides=(cfg['s_1'], cfg['s_1']), padding='same')(layer)
         layer = Dropout(cfg['dropout_2'])(layer)
+        skip_manager.set_dropout(cfg['dropout_2'])
 
     #stack 2
     for i in range(cfg['stack_2']):
@@ -311,6 +321,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_4'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_5'], cfg['k_5']), strides=(cfg['s_2'], cfg['s_2']), padding='same')(layer)
         layer = Dropout(cfg['dropout_3'])(layer)
+        skip_manager.set_dropout(cfg['dropout_3'])
 
     #stack 3
     for i in range(cfg['stack_3']):
@@ -328,6 +339,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_6'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_7'], cfg['k_7']), strides=(cfg['s_3'], cfg['s_3']), padding='same')(layer)
         layer = Dropout(cfg['dropout_4'])(layer)
+        skip_manager.set_dropout(cfg['dropout_4'])
 
     #stack 4
     for i in range(cfg['stack_4']):
@@ -345,6 +357,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_8'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_9'], cfg['k_9']), strides=(cfg['s_4'], cfg['s_4']), padding='same')(layer)
         layer = Dropout(cfg['dropout_5'])(layer)
+        skip_manager.set_dropout(cfg['dropout_5'])
 
     #stack 5
     for i in range(cfg['stack_5']):
@@ -362,6 +375,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_10'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_11'], cfg['k_11']), strides=(cfg['s_5'], cfg['s_5']), padding='same')(layer)
         layer = Dropout(cfg['dropout_6'])(layer)
+        skip_manager.set_dropout(cfg['dropout_6'])
 
     #stack 6
     for i in range(cfg['stack_6']):
@@ -379,6 +393,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             #layer = skip_manager.end_skip(layer,filter_amount,cfg['k_12'],cfg['l2'],cfg['activation'])
             layer = MaxPooling2D(pool_size=(cfg['k_13'], cfg['k_13']), strides=(cfg['s_6'], cfg['s_6']), padding='same')(layer)
         layer = Dropout(cfg['dropout_7'])(layer)
+        skip_manager.set_dropout(cfg['dropout_7'])
 
     #layer = input1#TODO remove this
     #global averaging
@@ -575,11 +590,11 @@ def test_skippy():
     stack_5 = 6
     stack_6 = 6
     s_0=2#1#2
-    s_1=1#1#2
+    s_1=2
     s_2=1#1
-    s_3=1#2#2
+    s_3=2
     s_4=1
-    s_5=1#2
+    s_5=2
     s_6=1
     filters_0=64
     filters_1=64
@@ -662,7 +677,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         #model = CNN_conf(vla,test=test)
