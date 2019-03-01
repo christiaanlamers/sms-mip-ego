@@ -28,7 +28,7 @@ np.random.seed(42)
 # TODO: implement parallel execution of model
 n_step = 380
 n_init_sample = 20
-eval_epochs = 1
+eval_epochs = 10
 verbose = True
 save = False
 logfile = 'mnist.log'
@@ -130,7 +130,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = 'data_skippy_cifar10_big_one_test_run_5'
+save_name = 'data_skippy_cifar10_big_one'
 objective = obj_func('./all_cnn_bi_skippy.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
