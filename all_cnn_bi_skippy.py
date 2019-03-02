@@ -674,21 +674,21 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'k_13': 4, 'activation': 'elu', 'skstart_0': 0, 'stack_5': 3, 'filters_11': 312, 'filters_12': 310, 'dropout_9': 0.05752240821102609, 's_4': 3, 'k_4': 7, 'skstart_4': 5, 's_2': 1, 'dropout_3': 0.5032017187018349, 'stack_6': 2, 'filters_9': 508, 'dropout_7': 0.3234492695050706, 'lr': 0.03718065429918785, 'step': False, 'k_7': 5, 'activ_dense': 'softmax', 'k_0': 5, 'k_9': 4, 'filters_2': 220, 'dense_size_0': 519, 'filters_3': 271, 'skstart_1': 3, 'k_6': 3, 'max_pooling': True, 'filters_8': 40, 'stack_3': 0, 'filters_5': 189, 'filters_0': 261, 'filters_13': 194, 'filters_7': 436, 'stack_0': 1, 'k_3': 6, 'filters_4': 129, 'dense_size_1': 1865, 'k_5': 5, 'stack_2': 1, 'skstart_3': 4, 'skstart_2': 4, 'filters_6': 245, 'k_2': 3, 'dropout_2': 0.25052723522989806, 'stack_1': 5, 'global_pooling': False, 'dropout_5': 0.0491932695230263, 'dropout_6': 0.17882207925784563, 'l2': 0.004914743494516412, 'dropout_0': 0.04061180620527556, 'skstep_1': 1, 's_6': 2, 'k_8': 1, 'skstep_4': 7, 's_5': 1, 's_1': 2, 'k_1': 5, 'filters_10': 277, 's_3': 4, 'dropout_8': 0.5157048461240117, 'k_10': 3, 'skstep_0': 7, 'k_11': 4, 'k_12': 1, 's_0': 3, 'skstep_3': 1, 'filters_1': 47, 'skstep_2': 7, 'dropout_1': 0.49364364082240947, 'stack_4': 6, 'dropout_4': 0.7978694705658704}
+    vla = {'stack_4': 5, 'k_9': 7, 'filters_8': 271, 'lr': 0.004160465185980011, 'filters_11': 502, 'skstep_2': 7, 'filters_4': 137, 'dropout_6': 0.8661297289998243, 'dropout_1': 0.4391661461074476, 'k_13': 1, 'stack_5': 0, 'dense_size_0': 447, 'filters_5': 595, 'k_2': 2, 's_4': 3, 'dropout_0': 0.2844338183563386, 'filters_0': 80, 'filters_7': 573, 's_2': 3, 'dropout_3': 0.02013305610010194, 'k_3': 6, 'dropout_5': 0.5555388378722113, 'k_5': 4, 'skstart_2': 6, 'dropout_4': 0.43662540748596945, 'dropout_2': 0.11810545604797541, 'stack_3': 5, 'skstep_1': 1, 'dense_size_1': 1411, 'k_11': 6, 'filters_1': 583, 'dropout_9': 0.651891663204505, 'skstep_4': 2, 'dropout_7': 0.25151371341217515, 'skstep_0': 3, 'skstart_0': 6, 'k_8': 1, 's_5': 4, 'filters_3': 452, 'skstep_3': 3, 'max_pooling': False, 'filters_2': 11, 'global_pooling': False, 'l2': 0.00036819381287011194, 'dropout_8': 0.4454841154679102, 'skstart_3': 4, 'skstart_4': 6, 'stack_6': 0, 'k_1': 2, 'stack_0': 2, 'skstart_1': 6, 's_6': 3, 'k_4': 4, 'filters_6': 240, 'filters_12': 43, 'filters_10': 220, 'step': True, 'stack_2': 3, 'k_6': 5, 'k_7': 2, 'stack_1': 3, 's_0': 3, 'k_12': 1, 'filters_13': 383, 'k_10': 2, 's_3': 2, 'k_0': 4, 's_1': 4, 'activ_dense': 'softmax', 'filters_9': 373, 'activation': 'tanh'}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = False
     if test:
-        model = CNN_conf(X[0].to_dict(),test=test)
-        #model = CNN_conf(vla,test=test)
+        #model = CNN_conf(X[0].to_dict(),test=test)
+        model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        #timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
+        #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
+        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)
 
