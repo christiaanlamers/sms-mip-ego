@@ -253,9 +253,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             cnt += cfg['skstep_4']
         skint_4 = skint_4 << cfg['skstart_4']
     
-    #skip_manager = Skip_manager([skint_0,skint_1,skint_2,skint_3,skint_4],[cfg['skstep_0'],cfg['skstep_1'],cfg['skstep_2'],cfg['skstep_3'],cfg['skstep_4']])
+    skip_manager = Skip_manager([skint_0,skint_1,skint_2,skint_3,skint_4],[cfg['skstep_0'],cfg['skstep_1'],cfg['skstep_2'],cfg['skstep_3'],cfg['skstep_4']])
     
-    skip_manager = Skip_manager([0,0,0,0,0],[cfg['skstep_0'],cfg['skstep_1'],cfg['skstep_2'],cfg['skstep_3'],cfg['skstep_4']])
+    #skip_manager = Skip_manager([0,0,0,0,0],[cfg['skstep_0'],cfg['skstep_1'],cfg['skstep_2'],cfg['skstep_3'],cfg['skstep_4']])
     
     input1 = keras.layers.Input(shape=(x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     layer=input1
@@ -680,7 +680,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
         model = CNN_conf(vla,test=test)
