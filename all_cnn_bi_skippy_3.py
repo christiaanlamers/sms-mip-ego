@@ -68,33 +68,52 @@ class Skip_manager(object):
             self.skip_connections[i][3] = dropout_val
         return
     
-    def pad_and_connect(self, layer, incoming_layer):
+    def pad_and_connect(self, layer, incoming_layer,filters,regulizer):
+        max_layer_width = 1
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             pad_tpl1 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)))
             pad_tpl2 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)))
             #print(pad_tpl)
             if K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
                 padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(incoming_layer)
+                if K.int_shape(padded)[3] > max_layer_width * filters:
+                    #CHRIS convolution to bound amount of features
+                    #CHRIS can funcion as addition, or projection followed by addition
+                    padded = Conv2D(max_layer_width*filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded)#CHRIS kernel value set to (1,1) in order to simply act as projection
                 layer = Concatenate()([layer, padded])
             elif K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] >= K.int_shape(layer)[2]:
                 padded1 = ZeroPadding2D(padding=(pad_tpl1, 0))(incoming_layer)
                 padded2 = ZeroPadding2D(padding=(0, pad_tpl2))(layer)
+                if K.int_shape(padded1)[3] > max_layer_width* filters:
+                    #CHRIS convolution to bound amount of features
+                    #CHRIS can funcion as addition, or projection followed by addition
+                    padded1 = Conv2D(max_layer_width*filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded1)#CHRIS kernel value set to (1,1) in order to simply act as projection
                 layer = Concatenate()([padded1, padded2])
             elif K.int_shape(incoming_layer)[1] >= K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] < K.int_shape(layer)[2]:
                 padded1 = ZeroPadding2D(padding=(0, pad_tpl2))(incoming_layer)
                 padded2 = ZeroPadding2D(padding=(pad_tpl1, 0))(layer)
+                if K.int_shape(padded1)[3] > max_layer_width* filters:
+                    #CHRIS convolution to bound amount of features
+                    #CHRIS can funcion as addition, or projection followed by addition
+                    padded1 = Conv2D(max_layer_width*filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded1)#CHRIS kernel value set to (1,1) in order to simply act as projection
                 layer= Concatenate()([padded1, padded2])
             else:
                 #print(layer.shape)
                 padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(layer)
-                #print(padded.shape)
-                #print(incoming_layer.shape)
+                if K.int_shape(padded)[3] > max_layer_width* filters:
+                    #CHRIS convolution to bound amount of features
+                    #CHRIS can funcion as addition, or projection followed by addition
+                    padded = Conv2D(max_layer_width*filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded)#CHRIS kernel value set to (1,1) in order to simply act as projection
                 layer= Concatenate()([padded, incoming_layer])
         else:
+            if K.int_shape(incoming_layer)[3] > max_layer_width* filters:
+                #CHRIS convolution to bound amount of features
+                #CHRIS can funcion as addition, or projection followed by addition
+                incoming_layer = Conv2D(max_layer_width*filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(incoming_layer)#CHRIS kernel value set to (1,1) in order to simply act as projection
             layer= Concatenate()([layer, incoming_layer])
         return layer
 
-    def pool_pad_connect(self, layer, incoming_layer,dropout_val):
+    def pool_pad_connect(self, layer, incoming_layer,dropout_val,filters,regulizer):
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             #print('layer dimensions:')
             #print(K.int_shape(layer)[1], K.int_shape(layer)[2])
@@ -117,7 +136,7 @@ class Skip_manager(object):
                 #print('Did a max pool')
         if dropout_val is not None:
             incoming_layer = Dropout(dropout_val)(incoming_layer)
-        return self.pad_and_connect(layer, incoming_layer)
+        return self.pad_and_connect(layer, incoming_layer,filters,regulizer)
 
     def start_skip(self,layer):
         for j in range(len(self.skip_ints)):
@@ -137,7 +156,7 @@ class Skip_manager(object):
                 if prev_skip != self.skip_connections[j][2]:#this removes skip connection duplicates (works because same skip connections are next to eachother) TODO maybe better to make more robust
                     #CHRIS TODO add pooling, because this becomes too complex to train
                     #layer = self.pad_and_connect(layer, self.skip_connections[j][0])#CHRIS warning! pad_and_connect does not do dropout!
-                    layer = self.pool_pad_connect(layer, self.skip_connections[j][0],self.skip_connections[j][3])
+                    layer = self.pool_pad_connect(layer, self.skip_connections[j][0],self.skip_connections[j][3],filters,regulizer)
                     connected = True#CHRIS an end skip connection is made
                 #if upscaling is desired: (can result in enormous tensors though)
                 #shape1 = K.int_shape(layer)
@@ -153,11 +172,6 @@ class Skip_manager(object):
                 del self.skip_connections[j]
             else:
                 j += 1
-        if connected and K.int_shape(layer)[3] > filters:#CHRIS we only want projection if an end skip connection is made, hence: ''connected''
-            #CHRIS convolution to bound amount of features
-            #CHRIS can funcion as addition, or projection followed by addition
-            layer = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(layer)#CHRIS kernel value set to (1,1) in order to simply act as projection
-            #layer = Activation(act)(layer)
         for j in range(len(self.skip_connections)):#CHRIS TODO this is a bit hacky
             self.skip_connections[j][1] += 1 #decrease skip connection counters
         return layer
