@@ -79,33 +79,33 @@ for i in range(len(solutions)):
 
 print("Percentage disfunctional networks: " + str(disfunctional * 100 / total) + "%")
 pauser = 0.008
+if False:
+    if len(surr_time_fit_hist) > 0:
+        print('surr_time_fit_hist:')
+        print(surr_time_fit_hist)
+    else:
+        print('No surr_time_fit_hist')
+    if len(surr_time_mies_hist) > 0:
+        print('surr_time_mies_hist:')
+        print(surr_time_mies_hist)
+    else:
+        print('No surr_time_mies_hist')
+    if len(surr_loss_fit_hist) > 0:
+        print('surr_loss_fit_hist:')
+        print(surr_loss_fit_hist)
+    else:
+        print('No surr_loss_fit_hist')
+    if len(surr_loss_mies_hist) > 0:
+        print('surr_loss_mies_hist:')
+        print(surr_loss_mies_hist)
+    else:
+        print('No surr_loss_fit_hist')
 
-if len(surr_time_fit_hist) > 0:
-    print('surr_time_fit_hist:')
-    print(surr_time_fit_hist)
-else:
-    print('No surr_time_fit_hist')
-if len(surr_time_mies_hist) > 0:
-    print('surr_time_mies_hist:')
-    print(surr_time_mies_hist)
-else:
-    print('No surr_time_mies_hist')
-if len(surr_loss_fit_hist) > 0:
-    print('surr_loss_fit_hist:')
-    print(surr_loss_fit_hist)
-else:
-    print('No surr_loss_fit_hist')
-if len(surr_loss_mies_hist) > 0:
-    print('surr_loss_mies_hist:')
-    print(surr_loss_mies_hist)
-else:
-    print('No surr_loss_fit_hist')
-
-if len(time_between_gpu_hist) > 0:
-    print('time_between_gpu_hist:')
-    print(time_between_gpu_hist)
-else:
-    print('no time_between_gpu_hist')
+    if len(time_between_gpu_hist) > 0:
+        print('time_between_gpu_hist:')
+        print(time_between_gpu_hist)
+    else:
+        print('no time_between_gpu_hist')
 
 time = [x.time for x in solutions]
 loss = [x.loss for x in solutions]
