@@ -65,11 +65,11 @@ class Skip_manager(object):
     
     def set_dropout(self,dropout_val):
         for i in range(len(self.skip_connections)):
-            self.skip_connections[i][3] = None#dropout_val
+            self.skip_connections[i][3] = dropout_val
         return
     
     def pad_and_connect(self, layer, incoming_layer,filters,regulizer):
-        max_layer_width = 1
+        max_layer_width = 3
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             pad_tpl1 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)))
             pad_tpl2 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)))
