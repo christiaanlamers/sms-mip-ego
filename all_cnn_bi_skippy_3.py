@@ -694,15 +694,15 @@ def test_skippy():
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
     test = False
     if test:
-        model = CNN_conf(X[0].to_dict(),test=test)
-        #model = CNN_conf(vla,test=test)
+        #model = CNN_conf(X[0].to_dict(),test=test)
+        model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        #timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
+        #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
+        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)
 
