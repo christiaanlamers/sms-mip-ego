@@ -676,7 +676,7 @@ def test_skippy():
     skstep_3 = 1
     skstep_4 = 1
     max_pooling = False
-    dense_size_0 = 1000
+    dense_size_0 = 0#1000
     dense_size_1 = 0
     #skippy parameters
 
