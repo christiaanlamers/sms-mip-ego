@@ -165,10 +165,19 @@ if len(all_time_r2) > 0 and len(all_loss_r2) > 0:
     print(np.average(np.array(all_loss_r2)))
 #print(par[0].var_name)
 print(par)
-for i in range(len(par)):
-    print(par[i].to_dict())
-    model = CNN_conf(par[i].to_dict(),test=True)
-    plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
+#for i in range(len(par)):
+#    print(par[i].to_dict())
+#    model = CNN_conf(par[i].to_dict(),test=True)
+#    plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
+
+print('top 7 highest accuracy:')
+top_seven = np.argsort(loss)[0:7]
+for i in top_seven:
+    print("time: " + str(solutions[i].time) + ", loss: " + str(solutions[i].loss) + ", acc: " + str(np.exp(-solutions[i].loss)))
+print()
+for i in top_seven:
+    print(solutions[i].to_dict())
+    print()
 
 #sorter = np.argsort([x.time for x in solutions])
 #for i in range(len(sorter)):
