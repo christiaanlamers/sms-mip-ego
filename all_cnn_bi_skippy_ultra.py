@@ -286,8 +286,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 0
     for i in range(cfg['stack_0']):
         filter_amount = cfg['filters_0']
-        layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_0'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_0'], (cfg['k_0'], cfg['k_0']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_0']>0):
         #maxpooling as cnn
@@ -305,8 +305,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 1
     for i in range(cfg['stack_1']):
         filter_amount = cfg['filters_2']
-        layer = Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_2'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_2'], (cfg['k_2'], cfg['k_2']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_1']>0):
         if not (cfg['max_pooling']):
@@ -323,8 +323,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 2
     for i in range(cfg['stack_2']):
         filter_amount = cfg['filters_4']
-        layer = Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_4'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_4'], (cfg['k_4'], cfg['k_4']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_2']>0):
         if not (cfg['max_pooling']):
@@ -341,8 +341,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 3
     for i in range(cfg['stack_3']):
         filter_amount = cfg['filters_6']
-        layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_6'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_6'], (cfg['k_6'], cfg['k_6']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_3']>0):
         if not (cfg['max_pooling']):
@@ -359,8 +359,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 4
     for i in range(cfg['stack_4']):
         filter_amount = cfg['filters_8']
-        layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_8'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_8'], (cfg['k_8'], cfg['k_8']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_4']>0):
         if not (cfg['max_pooling']):
@@ -377,8 +377,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 5
     for i in range(cfg['stack_5']):
         filter_amount = cfg['filters_10']
-        layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_10'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_10'], (cfg['k_10'], cfg['k_10']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_5']>0):
         if not (cfg['max_pooling']):
@@ -395,8 +395,8 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #stack 6
     for i in range(cfg['stack_6']):
         filter_amount = cfg['filters_12']
-        layer = Conv2D(cfg['filters_12'], (cfg['k_12'], cfg['k_12']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = skip_manager.connect_skip(layer,filter_amount,cfg['k_12'],cfg['l2'],cfg['activation'])
+        layer = Conv2D(cfg['filters_12'], (cfg['k_12'], cfg['k_12']), padding='same', kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
         layer = Activation(cfg['activation'])(layer)
     if (cfg['stack_6']>0):
         if not (cfg['max_pooling']):
@@ -675,8 +675,8 @@ def test_skippy():
     skstep_2 = 1
     skstep_3 = 1
     skstep_4 = 1
-    max_pooling = False
-    dense_size_0 = 0#1000
+    max_pooling = True
+    dense_size_0 = 1000
     dense_size_1 = 0
     #skippy parameters
 
