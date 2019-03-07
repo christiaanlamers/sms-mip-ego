@@ -564,7 +564,7 @@ class mipego(object):
         # for noisy fitness: perform a proportional selection from the evaluated ones   
         if self.noisy:
             #CHRIS after evaluate run S-metric on all solutions to determine fitness
-            for i in range(len(self.data)):
+            for i in range(len(self.data)):#CHRIS this is a bottleneck
                 other_solutions = copy.deepcopy(self.data)
                 del other_solutions[i]
                 self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
@@ -578,7 +578,7 @@ class mipego(object):
         print(self.n_left,self.max_iter)
         self.data += X
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
-        for i in range(len(self.data)):
+        for i in range(len(self.data)):#CHRIS this is a bottleneck
             other_solutions = copy.deepcopy(self.data)
             del other_solutions[i]
             self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
@@ -633,7 +633,7 @@ class mipego(object):
         self.evaluate(self.data, runs=self.init_n_eval)
         
         #CHRIS after evaluate run S-metric on all solutions to determine fitness
-        for i in range(len(self.data)):
+        for i in range(len(self.data)):#CHRIS this is a bottleneck
             other_solutions = copy.deepcopy(self.data)
             del other_solutions[i]
             self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
@@ -691,7 +691,7 @@ class mipego(object):
             #    for x in self.data:
             #        x.fitness = x.loss
             
-            for i in range(len(self.data)):
+            for i in range(len(self.data)):#CHRIS this is a bottleneck
                 other_solutions = copy.deepcopy(self.data)
                 del other_solutions[i]
                 self.data[i].fitness = s_metric(self.data[i], other_solutions,self.n_left,self.max_iter,ref_time=self.ref_time,ref_loss=self.ref_loss)
