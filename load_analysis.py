@@ -65,9 +65,9 @@ for i in name_array[0]:
     x = []
     y = []
     for j in solutions:
-        if j.to_dict()['lr'] < 0.01:
-            x.append(j.to_dict()[i])
-            y.append(np.exp(-j.loss))
+        #if j.to_dict()['lr'] < 0.01:
+        x.append(j.to_dict()[i])
+        y.append(np.exp(-j.loss))
     #print(x)
     try:
         plt.xlabel(i)
