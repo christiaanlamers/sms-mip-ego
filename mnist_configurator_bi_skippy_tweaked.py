@@ -251,9 +251,9 @@ if True:
     opt.surr_loss_mies_hist = surr_loss_mies_hist
     opt.time_between_gpu_hist = time_between_gpu_hist
 
-    opt.n_left = opt.max_iter - len(opt.data)
-    opt.iter_count = len(opt.data)
-    opt.eval_count = len(opt.data)
+    opt.n_left = opt.max_iter - len(opt.data)+opt.n_init_sample
+    opt.iter_count = len(opt.data)-opt.n_init_sample
+    opt.eval_count = len(opt.data)-opt.n_init_sample
 
     opt.run(restart=True)
 else:
