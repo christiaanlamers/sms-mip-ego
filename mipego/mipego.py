@@ -837,7 +837,7 @@ class mipego(object):
         # self.incumbent.to_csv(self.data_file, header=False, index=False, mode='a')
         return self.incumbent, self.incumbent.fitness
 
-    def run(self):
+    def run(self,restart=False):
         if (len(self.available_gpus) > 0):
 
             if self.n_jobs > len(self.available_gpus):
@@ -849,17 +849,33 @@ class mipego(object):
             self.logger.info('selected time_surrogate model: {}'.format(self.time_surrogate.__class__))
             self.logger.info('selected loss_surrogate model: {}'.format(self.loss_surrogate.__class__))
             self.logger.info('building the initial design of experiments...')
-
-            samples = self._space.sampling(self.n_init_sample)
-            datasamples = [Solution(s, index=k, var_name=self.var_names) for k, s in enumerate(samples)]
-            self.data = None
-
-
-            for i in range(self.n_init_sample):
-                self.evaluation_queue.put(datasamples[i])
             
-            self.iter_count -= self.n_init_sample#CHRIS because initial samples are in queue, counters count them as normal samples, so this needs to be coutered
-            self.n_left += self.n_init_sample
+            if not restart:
+                samples = self._space.sampling(self.n_init_sample)
+                datasamples = [Solution(s, index=k, var_name=self.var_names) for k, s in enumerate(samples)]
+                self.data = None
+
+
+                for i in range(self.n_init_sample):
+                    self.evaluation_queue.put(datasamples[i])
+
+                self.iter_count -= self.n_init_sample#CHRIS because initial samples are in queue, counters count them as normal samples, so this needs to be coutered
+                self.n_left += self.n_init_sample
+            else:
+                for i in range(self.n_jobs):
+                    self.evaluation_queue.put(self.data[i-self.n_jobs])
+                for i in range(self.n_jobs):
+                    del self.data[-1]
+                    del self.all_time_r2[-1]
+                    del self.all_loss_r2[-1]
+                    del self.surr_time_fit_hist[-1]
+                    del self.surr_time_mies_hist[-1]
+                    del self.surr_loss_fit_hist[-1]
+                    del self.surr_loss_mies_hist[-1]
+                    del self.time_between_gpu_hist[-1]
+                opt.n_left += self.n_jobs
+                opt.iter_count -= self.n_jobs
+                opt.eval_count -= self.n_jobs
 
             #self.evaluate(self.data, runs=self.init_n_eval)
             ## set the initial incumbent

@@ -201,7 +201,60 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
 #ref_time=3000.0,ref_loss=3.0
 
 #incumbent, stop_dict = opt.run() #CHRIS opt.run() does not return anything anymore
-opt.run()
+#CHRIS restart code
+if True:
+    with open('data_skippy_cifar10_big_one_tweaked_intermediate.json') as f:
+        for line in f:
+            data = json.loads(line)
+
+    conf_array = data[0]
+    fit_array = data[1]
+    time_array = data[2]
+    loss_array = data[3]
+    n_eval_array = data[4]
+    index_array = data[5]
+    name_array = data[6]
+
+    all_time_r2 = data[7]
+    all_loss_r2 = data[8]
+
+    surr_time_fit_hist = data[9]
+    surr_time_mies_hist = data[10]
+    surr_loss_fit_hist = data[11]
+    surr_loss_mies_hist = data[12]
+    time_between_gpu_hist = data[13]
+
+
+    solutions = []
+    for i in range(len(conf_array)):
+        conf_x = [conf_array[i][j] for j in name_array[i]]
+        solutions.append(Solution(x=conf_x,fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
+
+    opt.data=solutions
+
+    for i in range(len(opt.data)):
+        opt.data[i].fitness = fit_array[i]
+        opt.data[i].time = time_array[i]
+        opt.data[i].loss = loss_array[i]
+        opt.data[i].n_eval = n_eval_array[i]
+        opt.data[i].index = index_array[i]
+        opt.data[i].var_name = name_array[i]
+
+    opt.all_time_r2 = all_time_r2
+    opt.all_loss_r2 = all_loss_r2
+    opt.surr_time_fit_hist = surr_time_fit_hist
+    opt.surr_time_mies_hist = surr_time_mies_hist
+    opt.surr_loss_fit_hist = surr_loss_fit_hist
+    opt.surr_loss_mies_hist = surr_loss_mies_hist
+    opt.time_between_gpu_hist = time_between_gpu_hist
+
+    opt.n_left = self.max_iter - len(opt.data)
+    opt.iter_count = len(opt.data)
+    opt.eval_count = len(opt.data)
+
+    opt.run(restart=True)
+else:
+    opt.run()
 #print('incumbent #TODO_CHRIS makes no sense for now:')
 #for x in incumbent:
 #    try:
