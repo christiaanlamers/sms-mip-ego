@@ -28,7 +28,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
-setproctitle.setproctitle('lamers c, do not use GPU 5-15 please')
+setproctitle.setproctitle('lamers c, do not use GPU 4-7, 9-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
