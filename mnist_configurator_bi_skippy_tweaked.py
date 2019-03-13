@@ -23,6 +23,7 @@ import time
 import math
 
 import json
+from mipego.mipego import Solution
 
 np.random.seed(42)
 
