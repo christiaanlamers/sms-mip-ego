@@ -873,9 +873,9 @@ class mipego(object):
                     del self.surr_loss_fit_hist[-1]
                     del self.surr_loss_mies_hist[-1]
                     del self.time_between_gpu_hist[-1]
-                opt.n_left += self.n_jobs
-                opt.iter_count -= self.n_jobs
-                opt.eval_count -= self.n_jobs
+                self.n_left += self.n_jobs
+                self.iter_count -= self.n_jobs
+                self.eval_count -= self.n_jobs
 
             #self.evaluate(self.data, runs=self.init_n_eval)
             ## set the initial incumbent
