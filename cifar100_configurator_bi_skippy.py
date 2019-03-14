@@ -124,7 +124,7 @@ class obj_func(object):
             print("error in receiving answer from gpu " + str(gpu_no))
             success = True #CHRIS simply give large penalty in case of failure instead of setting success to False
             tuple_str1 = '80000'#CHRIS 2 times timeout value
-            tuple_str2 = str(-1 * math.log(0.05))#CHRIS half the accuracy of random guessing
+            tuple_str2 = str(-1 * math.log(0.005))#CHRIS half the accuracy of random guessing
         tuple = (float(tuple_str1),float(tuple_str2),success)
         #return outputval
         with open(self.save_name + '_thread_log.json', 'a') as outfile:

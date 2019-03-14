@@ -178,7 +178,7 @@ class Skip_manager(object):
 
 def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist'):
     batch_size = 100
-    num_classes = 10
+    num_classes = 100
     data_augmentation = False
     num_predictions = 20
     logfile = 'mnist-cnn.log'
