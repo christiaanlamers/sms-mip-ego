@@ -186,7 +186,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     # The data, shuffled and split between train and test sets:
     #(x_train, y_train), (x_test, y_test) = mnist.load_data()
-    (x_train, y_train), (x_test, y_test) = cifar100.load_data()#mnist.load_data()
+    (x_train, y_train), (x_test, y_test) = cifar100.load_data(label_mode='fine')#mnist.load_data()
     
     #CHRIS reshape only needed for mnist
     #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)

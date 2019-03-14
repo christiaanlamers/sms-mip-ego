@@ -1,0 +1,17 @@
+thread 1: step 3 gpu 3 obj_func 1
+thread 1: step 3 gpu 3 obj_func 2
+thread 1: step 3 gpu 3 obj_func 3
+thread 1: step 3 gpu 3 obj_func 6b error
+thread 1: step 3 gpu 3 obj_func 7
+thread 1: step 3 gpu 3 obj_func 8b error
+thread 1: step 3 gpu 3 obj_func 9
+thread 1: step 3 gpu 3 obj_func 1
+thread 1: step 3 gpu 3 obj_func 2
+thread 1: step 3 gpu 3 obj_func 3
+thread 1: step 3 gpu 3 obj_func 6b error
+thread 1: step 3 gpu 3 obj_func 7
+thread 1: step 3 gpu 3 obj_func 8b error
+thread 1: step 3 gpu 3 obj_func 9
+thread 1: step 3 gpu 3 obj_func 1
+thread 1: step 3 gpu 3 obj_func 2
+thread 1: step 3 gpu 3 obj_func 3
