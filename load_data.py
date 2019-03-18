@@ -74,7 +74,7 @@ disfunctional = 0
 total = 0
 for i in range(len(solutions)):
     total +=1
-    if solutions[i].time >= 80000.0 - 1.0 or solutions[i].loss >= -1 * math.log(0.05) - 0.1:
+    if solutions[i].time >= 80000.0 - 1.0:
         disfunctional +=1
 
 print("Percentage disfunctional networks: " + str(disfunctional * 100 / total) + "%")

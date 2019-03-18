@@ -28,7 +28,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
-setproctitle.setproctitle('lamers c, do not use GPU 4-7, 9-15 please')
+#setproctitle.setproctitle('lamers c, do not use GPU 4-7, 9-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -676,7 +676,7 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'filters_10': 401, 'filters_12': 346, 'stack_2': 2, 'dropout_4': 0.08293946066139354, 'k_3': 12, 'filters_5': 131, 'k_0': 3, 'dropout_8': 0.4154918962016023, 'skstep_4': 4, 's_6': 4, 'k_4': 13, 's_4': 8, 'filters_0': 158, 'dropout_1': 0.08617111019026907, 'k_12': 4, 'filters_1': 226, 'stack_1': 6, 'activation': 'elu', 'skstart_1': 6, 's_5': 6, 'dropout_2': 0.1140358165155314, 'skstart_0': 0, 'filters_2': 238, 'stack_5': 1, 'filters_3': 370, 's_3': 6, 'dropout_0': 0.029434972020003558, 'activ_dense': 'softmax', 's_0': 1, 'k_13': 10, 'dropout_7': 0.5124116187056843, 's_2': 6, 'dense_size_0': 2677, 'skstart_3': 0, 'k_1': 4, 'max_pooling': True, 'k_7': 15, 'filters_9': 499, 'stack_3': 3, 'skstep_3': 3, 'k_2': 6, 'skstart_4': 4, 'k_9': 12, 'k_6': 8, 'stack_4': 2, 'k_11': 12, 'l2': 2.8395808328211293e-05, 'skstep_2': 8, 'filters_11': 320, 'filters_8': 49, 'global_pooling': False, 'skstep_1': 3, 'stack_0': 1, 'lr': 0.006234261110646127, 'stack_6': 4, 's_1': 3, 'dropout_9': 0.6267169591616528, 'dropout_6': 0.1968207029872453, 'step': True, 'filters_4': 562, 'k_5': 1, 'k_10': 11, 'skstart_2': 1, 'filters_13': 411, 'k_8': 10, 'dropout_3': 0.027093206837404644, 'skstep_0': 7, 'filters_6': 465, 'dropout_5': 0.7451507983029048, 'dense_size_1': 500, 'filters_7': 219}
+    vla = {'lr': 0.0016254166353152702, 'k_2': 6, 's_1': 6, 'l2': 0.0012125514852488898, 'skstep_0': 7, 'stack_2': 0, 'dropout_5': 0.3520151213745501, 'dropout_1': 0.08165527587051372, 'filters_0': 266, 's_4': 5, 'dropout_3': 0.00578637535742034, 'k_9': 8, 's_2': 3, 'k_7': 10, 'dropout_0': 0.22000228239802938, 's_0': 6, 'k_10': 14, 'k_12': 1, 'dense_size_0': 2725, 'stack_3': 1, 'skstep_2': 2, 'k_1': 1, 'dropout_4': 0.1532334980501459, 'stack_4': 2, 's_5': 6, 'dropout_6': 0.23369550742258033, 'filters_5': 116, 'activation': 'selu', 'skstart_2': 2, 'filters_10': 351, 'filters_1': 301, 'k_6': 10, 'stack_1': 1, 'filters_7': 199, 'dense_size_1': 2662, 'max_pooling': False, 'filters_6': 394, 'k_13': 12, 'dropout_7': 0.009109886353614842, 'filters_12': 451, 'filters_4': 331, 'dropout_8': 0.1569742969661152, 'filters_11': 180, 'activ_dense': 'softmax', 'skstep_4': 9, 'filters_8': 475, 'dropout_2': 0.6479438214152731, 'dropout_9': 0.03562259998351885, 'k_0': 10, 'skstart_0': 0, 'stack_5': 5, 'global_pooling': False, 'filters_3': 35, 'filters_13': 183, 'k_4': 2, 'skstart_3': 4, 'skstart_4': 0, 'filters_2': 578, 'filters_9': 66, 'skstep_3': 5, 'skstep_1': 8, 's_3': 7, 'skstart_1': 4, 'stack_6': 3, 'k_5': 11, 'step': False, 'k_8': 12, 'k_11': 3, 'k_3': 1, 's_6': 5, 'stack_0': 1}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
