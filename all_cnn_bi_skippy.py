@@ -28,7 +28,7 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
-#setproctitle.setproctitle('lamers c, do not use GPU 4-7, 9-15 please')
+setproctitle.setproctitle('lamers c, do not use GPU 4-7, 9-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -701,7 +701,7 @@ def test_skippy():
         print('timer, loss:')
         print(timer, loss)
 
-if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
+if __name__ == '__main__':
     #system arguments (configuration)
     if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
         cfg = eval(sys.argv[2])
