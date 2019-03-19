@@ -709,10 +709,11 @@ if __name__ == '__main__':#CHRIS TODO will this wreck the entire method?
             gpu = sys.argv[3]
             epochs = int(sys.argv[4])
             save_name = str(sys.argv[5])
+            data_augmentation = bool(str(sys.argv[6]))
             
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
             os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-        print(CNN_conf(cfg,gpu_no=gpu,epochs=epochs,save_name=save_name))
+        print(CNN_conf(cfg,gpu_no=gpu,epochs=epochs,save_name=save_name,data_augmentation=data_augmentation))
         K.clear_session()
     else:
         print('switching to test mode')

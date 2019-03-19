@@ -36,15 +36,16 @@ verbose = True
 save = False
 logfile = 'mnist.log'
 class obj_func(object):
-    def __init__(self, program, save_name='test'):
+    def __init__(self, program, save_name='test',data_augmentation=True):
         self.program = program
         self.save_name = save_name
+        self.data_augmentation=data_augmentation
         
-    def __call__(self, cfg, gpu_no,eval_epochs,save_name):
+    def __call__(self, cfg, gpu_no,eval_epochs,save_name,data_augmentation):
         with open(self.save_name + '_thread_log.json', 'a') as outfile:
             outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 1\n')
         print("calling program with gpu "+str(gpu_no))
-        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name)]
+        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name),str(data_augmentation)]
         #outputval = 0
         outputval = ""
         outs = ""
@@ -133,7 +134,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = 'data_skippy_cifar10_big_one_tweaked'
+save_name = 'data_skippy_cifar10_big_one_data_augmentation'
 objective = obj_func('./all_cnn_bi_skippy.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
