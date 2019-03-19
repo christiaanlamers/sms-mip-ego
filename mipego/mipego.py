@@ -75,7 +75,7 @@ class mipego(object):
                  n_init_sample=None, n_point=1, n_job=1, backend='multiprocessing',
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1, ignore_gpu=[],eval_epochs=1):
+                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1, ignore_gpu=[],eval_epochs=1,data_augmentation=False):
         """
         parameter
         ---------
@@ -139,6 +139,7 @@ class mipego(object):
         self.surr_loss_mies_hist = []
         self.time_between_gpu_hist = []#CHRIS time in gpuworker() that a network is not trained on a gpu
         self.eval_epochs = eval_epochs
+        self.data_augmentation = data_augmentation
         
         self.bi = bi #CHRIS False: only loss, True: time and loss
         self.hvi_alpha = hvi_alpha #CHRIS allows variable lower confidence interval
@@ -294,7 +295,7 @@ class mipego(object):
         while True:
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu) + ': step 3 gpu 3\n')
-            ans = self.obj_func(x.to_dict(), gpu_no=gpu_patch,eval_epochs=self.eval_epochs,save_name=self.save_name)
+            ans = self.obj_func(x.to_dict(), gpu_no=gpu_patch,eval_epochs=self.eval_epochs,save_name=self.save_name,data_augmentation=self.data_augmentation)
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu) + ': step 3 gpu 4\n')
             print("n_left,max_iter:")
@@ -378,7 +379,7 @@ class mipego(object):
         # except:
         #TODO_CHRIS make this work when runs != 1
         #ans = [self.obj_func(x.to_dict()) for i in range(runs)]
-        ans = self.obj_func(x.to_dict(), gpu_no=gpu,eval_epochs=self.eval_epochs,save_name=self.save_name)
+        ans = self.obj_func(x.to_dict(), gpu_no=gpu,eval_epochs=self.eval_epochs,save_name=self.save_name,data_augmentation=self.data_augmentation)
         #print('_eval_one():')
         #print(ans)#CHRIS this sometimes gave an error, so it is commented
         time_ans,loss_ans,success = ans[0],ans[1],ans[2]

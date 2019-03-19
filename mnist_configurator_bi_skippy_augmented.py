@@ -159,9 +159,27 @@ drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 10        # drop_out rate
 lr_rate = ContinuousSpace([1e-4, 1.0e-2], 'lr')        # learning rate#CHRIS tweaked
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
+#augmented parameters
+featurewise_center = NominalSpace([True,False], "featurewise_center")
+samplewise_center = NominalSpace([True,False], "samplewise_center")
+featurewise_std_normalization = NominalSpace([True,False], "featurewise_std_normalization")
+samplewise_std_normalization = NominalSpace([True,False], "samplewise_std_normalization")
+zca_epsilon = ContinuousSpace([1e-5, 1e-7], 'zca_epsilon')
+zca_whitening = NominalSpace([True,False], "zca_whitening")
+rotation_range = OrdinalSpace([0, 180], 'rotation_range')
+width_shift_range = ContinuousSpace([0.0, 1.0], 'width_shift_range')
+height_shift_range = ContinuousSpace([0.0, 1.0], 'height_shift_range')
+shear_range = ContinuousSpace([-90.0, 90.0], 'shear_range')
+zoom_range = ContinuousSpace([0.0, 1.0], 'zoom_range')
+channel_shift_range = ContinuousSpace([0.0, 1.0], 'channel_shift_range')
+fill_mode = NominalSpace(["constant","nearest","reflect","wrap"], "fill_mode")
+cval = ContinuousSpace([0.0, 255.0], 'cval')
+horizontal_flip = NominalSpace([True,False], "horizontal_flip")
+vertical_flip = NominalSpace([True,False], "vertical_flip")
+#augmented parameters
 
-search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skstart * skstep * max_pooling * dense_size
 
+search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skstart * skstep * max_pooling * dense_size * featurewise_center * samplewise_center * featurewise_std_normalization * samplewise_std_normalization * zca_epsilon * zca_whitening * rotation_range * width_shift_range * height_shift_range * shear_range * zoom_range * channel_shift_range * fill_mode * cval * horizontal_flip * vertical_flip
 
 print('starting program...')    
 #available_gpus = gp.getAvailable(limit=2)
@@ -199,7 +217,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs)
+                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs,data_augmentation=True)
 
 #ref_time=3000.0,ref_loss=3.0
 
