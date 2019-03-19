@@ -36,10 +36,9 @@ verbose = True
 save = False
 logfile = 'mnist.log'
 class obj_func(object):
-    def __init__(self, program, save_name='test',data_augmentation=True):
+    def __init__(self, program, save_name='test'):
         self.program = program
         self.save_name = save_name
-        self.data_augmentation=data_augmentation
         
     def __call__(self, cfg, gpu_no,eval_epochs,save_name,data_augmentation):
         with open(self.save_name + '_thread_log.json', 'a') as outfile:

@@ -487,7 +487,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         print('Using real-time data augmentation.')
         # This will do preprocessing and realtime data augmentation:
         datagen = ImageDataGenerator(
-            featurewise_center=cfg['featurewise_center'],  # set input mean to 0 over the dataset
+            featurewise_center=cfg['featurewise_cente'],  # set input mean to 0 over the dataset
             samplewise_center=cfg['samplewise_center'],  # set each sample mean to 0
             featurewise_std_normalization=cfg['featurewise_std_normalization'],  # divide inputs by std of the dataset
             samplewise_std_normalization=cfg['samplewise_std_normalization'],  # divide each input by its std
