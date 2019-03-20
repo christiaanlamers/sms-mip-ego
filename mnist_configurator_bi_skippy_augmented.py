@@ -223,8 +223,8 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
 
 #incumbent, stop_dict = opt.run() #CHRIS opt.run() does not return anything anymore
 #CHRIS restart code
-if False:
-    with open('data_skippy_cifar10_big_one_tweaked_intermediate.json') as f:
+if True:
+    with open('data_skippy_cifar10_big_one_data_augmentation_intermediate.json') as f:
         for line in f:
             data = json.loads(line)
 
