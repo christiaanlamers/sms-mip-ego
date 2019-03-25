@@ -176,12 +176,21 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False):
-    batch_size = 100
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False,batch_size=100):
     num_classes = 10
     num_predictions = 20
     logfile = 'mnist-cnn.log'
     savemodel = False
+    
+    #try:
+    epochs = cfg['epoch_sp']
+    #except:
+    #    pass
+
+    #try:
+    batch_size=cfg['batch_size_sp']
+    #except:
+    #    pass
 
     # The data, shuffled and split between train and test sets:
     #(x_train, y_train), (x_test, y_test) = mnist.load_data()
