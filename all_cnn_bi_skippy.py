@@ -28,6 +28,9 @@ from pynvml import * #CHRIS needed to test gpu memory capacity
 import setproctitle
 import json
 
+import sklearn
+import sklearn.model_selection
+
 setproctitle.setproctitle('lamers c, do not use GPU 11-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
@@ -176,26 +179,19 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False,batch_size=100):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation = False):
+    batch_size = 100
     num_classes = 10
     num_predictions = 20
     logfile = 'mnist-cnn.log'
     savemodel = False
-    
-    #try:
-    epochs = cfg['epoch_sp']
-    #except:
-    #    pass
-
-    #try:
-    batch_size=cfg['batch_size_sp']
-    #except:
-    #    pass
 
     # The data, shuffled and split between train and test sets:
     #(x_train, y_train), (x_test, y_test) = mnist.load_data()
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
     
+    if use_validation:
+        x_train,x_val,y_train, y_val = sklearn.model_selection.train_test_split(x_train,y_train, test_size=2000, train_size=None, random_state=42)
     #CHRIS reshape only needed for mnist
     #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
     #x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
@@ -719,10 +715,11 @@ if __name__ == '__main__':
             epochs = int(sys.argv[4])
             save_name = str(sys.argv[5])
             data_augmentation = bool(str(sys.argv[6]))
+            use_validation = bool(str(sys.argv[7]))
             
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
             os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-        print(CNN_conf(cfg,gpu_no=gpu,epochs=epochs,save_name=save_name,data_augmentation=data_augmentation))
+        print(CNN_conf(cfg,gpu_no=gpu,epochs=epochs,save_name=save_name,data_augmentation=data_augmentation,use_validation=use_validation))
         K.clear_session()
     else:
         print('switching to test mode')

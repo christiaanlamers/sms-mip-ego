@@ -40,11 +40,11 @@ class obj_func(object):
         self.program = program
         self.save_name = save_name
         
-    def __call__(self, cfg, gpu_no,eval_epochs,save_name,data_augmentation):
+    def __call__(self, cfg, gpu_no,eval_epochs,save_name,data_augmentation,use_validation):
         with open(self.save_name + '_thread_log.json', 'a') as outfile:
             outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 1\n')
         print("calling program with gpu "+str(gpu_no))
-        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name),str(data_augmentation)]
+        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name),str(data_augmentation),str(use_validation)]
         #outputval = 0
         outputval = ""
         outs = ""
@@ -217,7 +217,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs,data_augmentation=True)
+                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs,data_augmentation=True,use_validation = False)
 
 #ref_time=3000.0,ref_loss=3.0
 
