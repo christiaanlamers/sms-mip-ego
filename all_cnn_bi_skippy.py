@@ -714,7 +714,7 @@ if __name__ == '__main__':
             gpu = sys.argv[3]
             epochs = int(sys.argv[4])
             save_name = str(sys.argv[5])
-            data_augmentation = bool(str(sys.argv[6]))
+            data_augmentation = False #bool(str(sys.argv[6]))#TODO CHRIS toggling data augmentation through a string does not work, since it is always True
             use_validation = bool(str(sys.argv[7]))
             
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
