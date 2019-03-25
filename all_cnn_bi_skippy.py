@@ -179,7 +179,7 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation = False):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation=False):
     batch_size = 100
     num_classes = 10
     num_predictions = 20
@@ -193,11 +193,12 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #(x_train, y_train), (x_test, y_test) = mnist.load_data()
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()#mnist.load_data()
     
-    if use_validation:
-        x_train,x_val,y_train, y_val = sklearn.model_selection.train_test_split(x_train,y_train, test_size=2000, train_size=None, random_state=42)
     #CHRIS reshape only needed for mnist
     #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
     #x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
+    
+    if use_validation:
+        x_train,x_val,y_train, y_val = sklearn.model_selection.train_test_split(x_train,y_train, test_size=2000, train_size=None, random_state=42)
     
     cfg_df = pd.DataFrame(cfg, index=[0])
 
@@ -717,8 +718,8 @@ if __name__ == '__main__':
             gpu = sys.argv[3]
             epochs = int(sys.argv[4])
             save_name = str(sys.argv[5])
-            data_augmentation = False #bool(str(sys.argv[6]))#TODO CHRIS toggling data augmentation through a string does not work, since it is always True
-            use_validation = bool(str(sys.argv[7]))
+            data_augmentation = str(sys.argv[6]) == 'True'
+            use_validation = str(sys.argv[7]) == 'True'
             
             os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
             os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)

@@ -53,7 +53,7 @@ class obj_func(object):
         try:
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 3\n')
-            outs = str(check_output(cmd,stderr=STDOUT, timeout=40000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
+            outs = str(check_output(cmd,stderr=STDOUT, timeout=200000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 4\n')
             if os.path.isfile(logfile): 
@@ -123,7 +123,7 @@ class obj_func(object):
                 outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 8b error\n')
             print("error in receiving answer from gpu " + str(gpu_no))
             success = True #CHRIS simply give large penalty in case of failure instead of setting success to False
-            tuple_str1 = '80000'#CHRIS 2 times timeout value
+            tuple_str1 = '400000'#CHRIS 2 times timeout value
             tuple_str2 = str(-1 * math.log(0.05))#CHRIS half the accuracy of random guessing
         tuple = (float(tuple_str1),float(tuple_str2),success)
         #return outputval
@@ -202,7 +202,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
                  infill='HVI', n_init_sample=n_init_sample, n_point=1, n_job=n_job,
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES',
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs,data_augmentation=False, use_validation = True)
+                 available_gpus=available_gpus, bi=True, save_name=save_name,ref_time=None,ref_loss=None,ignore_gpu=ignore_gpu,eval_epochs=eval_epochs,data_augmentation=False, use_validation=True)
 
 #ref_time=3000.0,ref_loss=3.0
 

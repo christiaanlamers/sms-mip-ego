@@ -75,7 +75,7 @@ class mipego(object):
                  n_init_sample=None, n_point=1, n_job=1, backend='multiprocessing',
                  n_restart=None, max_infill_eval=None, wait_iter=3, optimizer='MIES', 
                  log_file=None, data_file=None, verbose=False, random_seed=None,
-                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1, ignore_gpu=[],eval_epochs=1,data_augmentation=False,use_validation = False):
+                 available_gpus=[],bi=True, save_name='test_data',ref_time=3000.0,ref_loss=3.0, hvi_alpha=0.1, ignore_gpu=[],eval_epochs=1,data_augmentation=False,use_validation=False):
         """
         parameter
         ---------
