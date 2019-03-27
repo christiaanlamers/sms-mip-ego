@@ -31,7 +31,7 @@ import json
 import sklearn
 import sklearn.model_selection
 
-#setproctitle.setproctitle('lamers c, do not use GPU 11-15 please')
+setproctitle.setproctitle('lamers c, do not use GPU 11-15 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -189,7 +189,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     batch_size = cfg['batch_size_sp']
     #epochs = cfg['epoch_sp']
     
-    cut = True
+    cut = False
 
     # The data, shuffled and split between train and test sets:
     #(x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -719,11 +719,11 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
         model = CNN_conf(vla,test=test)
-        plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
+        plot_model(model, to_file='model_skippy_no_cut.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
