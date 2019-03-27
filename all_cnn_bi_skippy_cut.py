@@ -283,7 +283,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     
     #stack 0
     for i in range(cfg['stack_0']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_0']
@@ -305,7 +305,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     
     #stack 1
     for i in range(cfg['stack_1']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_2']
@@ -326,7 +326,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 2
     for i in range(cfg['stack_2']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_4']
@@ -347,7 +347,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 3
     for i in range(cfg['stack_3']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_6']
@@ -368,7 +368,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 4
     for i in range(cfg['stack_4']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_8']
@@ -389,7 +389,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 5
     for i in range(cfg['stack_5']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_10']
@@ -410,7 +410,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     #stack 6
     for i in range(cfg['stack_6']):
-        print(layer.shape[1], layer.shape[2])
+        #print(layer.shape[1], layer.shape[2])
         if cut and layer.shape[1] <= 1 and layer.shape[2] <= 1:
             break
         filter_amount = cfg['filters_12']
