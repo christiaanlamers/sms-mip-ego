@@ -187,7 +187,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     savemodel = False
     
     batch_size = cfg['batch_size_sp']
-    #epochs = cfg['epoch_sp']
+    epochs = cfg['epoch_sp']
     
     cut = False
 
