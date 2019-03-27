@@ -189,7 +189,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     batch_size = cfg['batch_size_sp']
     epochs = cfg['epoch_sp']
     
-    cut = False
+    cut = True
 
     # The data, shuffled and split between train and test sets:
     #(x_train, y_train), (x_test, y_test) = mnist.load_data()
