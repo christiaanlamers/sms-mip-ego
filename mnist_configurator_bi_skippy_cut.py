@@ -133,7 +133,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = '~/../../data/s0315435/data_skippy_cifar10_big_one_cut'
+save_name = '../../../data/s0315435/data_skippy_cifar10_big_one_cut'
 objective = obj_func('./all_cnn_bi_skippy_cut.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
