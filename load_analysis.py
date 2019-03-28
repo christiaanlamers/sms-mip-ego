@@ -5,19 +5,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(style="darkgrid")
-
 from all_cnn_bi_skippy import inv_gray, Skip_manager,CNN_conf
 from keras.utils import plot_model
-
 import sys
-
 from mipego.mipego import Solution
 from mipego.Bi_Objective import *
 import math
-
 from scipy.interpolate import UnivariateSpline
-
 import numbers
+from pandas.plotting import parallel_coordinates
+import sklearn
+from sklearn.cluster import KMeans
+import sklearn.metrics as sm
 
 file_name = str(sys.argv[1])
 with open(file_name) as f:
@@ -102,12 +101,26 @@ data_panda = pd.DataFrame(data=data_lib)
 
 #g = sns.PairGrid(data_panda,vars=['acc','time','lr','l2','s_0','s_1','filters_0','filters_1','k_0','k_1','dropout_0','dropout_1','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
 #g = sns.PairGrid(data_panda,vars=['filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13'],hue='acc',palette='GnBu_d')
-g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
-g.map(plt.scatter)
+#g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
+#g.map(plt.scatter)
 #g.map_upper(plt.scatter)
 #g.map_lower(sns.kdeplot)
 #g.map_diag(sns.kdeplot, lw=3, legend=False);
 
 #plt.savefig('load_analysis_output.png')
-plt.savefig('load_analysis_output_kernels.png')
-#plt.show()
+#plt.savefig('load_analysis_output_kernels.png')
+
+#parallel_coordinates(data_panda, class_column='acc', cols=['lr','l2'])
+#correlations = data_panda.corr()
+#print(correlations)
+select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
+scaler = sklearn.preprocessing.StandardScaler()
+scaler.fit(data_panda.loc[:, select])
+# K Means Cluster
+model = KMeans(n_clusters=2)
+model.fit(scaler.transform(data_panda.loc[:, select]))
+# Create a colormap
+#colormap = np.array(['red', 'lime', 'black'])
+plt.scatter(data_panda.time,data_panda.acc, c=model.labels_, s=40)
+
+plt.show()
