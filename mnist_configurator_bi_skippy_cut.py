@@ -53,7 +53,7 @@ class obj_func(object):
         try:
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 3\n')
-            outs = str(check_output(cmd,stderr=STDOUT, timeout=200000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
+            outs = str(check_output(cmd,stderr=STDOUT, timeout=100000))#CHRIS stderr=None was stderr=STDOUT we don't want warnings because they mess up the output
             with open(self.save_name + '_thread_log.json', 'a') as outfile:
                 outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 4\n')
             if os.path.isfile(logfile): 
@@ -123,7 +123,7 @@ class obj_func(object):
                 outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 8b error\n')
             print("error in receiving answer from gpu " + str(gpu_no))
             success = True #CHRIS simply give large penalty in case of failure instead of setting success to False
-            tuple_str1 = '400000'#CHRIS 2 times timeout value
+            tuple_str1 = '200000'#CHRIS 2 times timeout value
             tuple_str2 = str(-1 * math.log(0.05))#CHRIS half the accuracy of random guessing
         tuple = (float(tuple_str1),float(tuple_str2),success)
         #return outputval
@@ -133,7 +133,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = '../../../data/s0315435/data_skippy_cifar10_big_one_cut'
+save_name = '../../../data/s0315435/data_skippy_cifar10_big_one_cut_smaller'
 objective = obj_func('./all_cnn_bi_skippy_cut.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
@@ -159,7 +159,7 @@ drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 10        # drop_out rate
 lr_rate = ContinuousSpace([1e-4, 1.0e-2], 'lr')        # learning rate#CHRIS tweaked
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
-epoch_sp = OrdinalSpace([5, 50], 'epoch_sp')
+epoch_sp = OrdinalSpace([5, 25], 'epoch_sp')
 batch_size_sp = OrdinalSpace([50, 200], 'batch_size_sp')
 
 

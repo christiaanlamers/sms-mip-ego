@@ -55,7 +55,8 @@ if len(data) > 13:
 solutions = []
 for i in range(len(conf_array)):
     conf_x = [conf_array[i][j] for j in name_array[i]]
-    solutions.append(Solution(x=conf_x,fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
+    if time_array[i] < 80000:#TODO CHRIS filter out disfunciontal network, note that the time penalty value differs per research instance
+        solutions.append(Solution(x=conf_x,fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
 
 print("len(solutions): " + str(len(solutions)))
 #print([i.to_dict() for i in solutions])
@@ -120,7 +121,7 @@ scaler.fit(data_panda.loc[:, select])
 model = KMeans(n_clusters=2)
 model.fit(scaler.transform(data_panda.loc[:, select]))
 # Create a colormap
-#colormap = np.array(['red', 'lime', 'black'])
-plt.scatter(data_panda.time,data_panda.acc, c=model.labels_, s=40)
+colormap = np.array(['red', 'lime', 'black','blue'])
+plt.scatter(data_panda.time,data_panda.acc, c=colormap[model.labels_], s=1)
 
 plt.show()

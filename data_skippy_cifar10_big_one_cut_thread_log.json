@@ -1,5 +1,5 @@
-thread 11: step 1
 thread 12: step 1
+thread 11: step 1
 thread 13: step 1
 thread 14: step 1
 thread 15: step 1
@@ -72,3 +72,264 @@ thread 14: step 3 gpu 3
 thread 14: step 3 gpu 3 obj_func 1
 thread 14: step 3 gpu 3 obj_func 2
 thread 14: step 3 gpu 3 obj_func 3
+thread 14: step 3 gpu 3 obj_func 4
+thread 14: step 3 gpu 3 obj_func 5
+thread 14: step 3 gpu 3 obj_func 6
+thread 14: step 3 gpu 3 obj_func 7
+thread 14: step 3 gpu 3 obj_func 8a
+thread 14: step 3 gpu 3 obj_func 9
+thread 14: step 3 gpu 4
+thread 14: step 3 gpu 5
+thread 14: step 3 gpu 6a
+thread 14: step 3 gpu 7
+thread 14: step 3 gpu 7
+thread 14: step 4
+thread 14: step 5
+thread 14: step 6
+thread 14: step 7
+thread 14: step 8
+thread 14: step 9b
+thread 14: step 10b
+thread 14: step 11b
+thread 14: step 12
+thread 14: step 1
+thread 14: step 2
+thread 14: step 3
+thread 14: step 3 gpu 1
+thread 14: step 3 gpu 2
+thread 14: step 3 gpu 3
+thread 14: step 3 gpu 3 obj_func 1
+thread 14: step 3 gpu 3 obj_func 2
+thread 14: step 3 gpu 3 obj_func 3
+thread 14: step 3 gpu 3 obj_func 4
+thread 14: step 3 gpu 3 obj_func 5
+thread 14: step 3 gpu 3 obj_func 6
+thread 14: step 3 gpu 3 obj_func 7
+thread 14: step 3 gpu 3 obj_func 8a
+thread 14: step 3 gpu 3 obj_func 9
+thread 14: step 3 gpu 4
+thread 14: step 3 gpu 5
+thread 14: step 3 gpu 6a
+thread 14: step 3 gpu 7
+thread 14: step 3 gpu 7
+thread 14: step 4
+thread 14: step 5
+thread 14: step 6
+thread 14: step 7
+thread 14: step 8
+thread 14: step 9b
+thread 14: step 10b
+thread 14: step 11b
+thread 14: step 12
+thread 14: step 1
+thread 14: step 2
+thread 14: step 3
+thread 14: step 3 gpu 1
+thread 14: step 3 gpu 2
+thread 14: step 3 gpu 3
+thread 14: step 3 gpu 3 obj_func 1
+thread 14: step 3 gpu 3 obj_func 2
+thread 14: step 3 gpu 3 obj_func 3
+thread 12: step 3 gpu 3 obj_func 4
+thread 12: step 3 gpu 3 obj_func 5
+thread 12: step 3 gpu 3 obj_func 6
+thread 12: step 3 gpu 3 obj_func 7
+thread 12: step 3 gpu 3 obj_func 8a
+thread 12: step 3 gpu 3 obj_func 9
+thread 12: step 3 gpu 4
+thread 12: step 3 gpu 5
+thread 12: step 3 gpu 6a
+thread 12: step 3 gpu 7
+thread 12: step 3 gpu 7
+thread 12: step 4
+thread 12: step 5
+thread 12: step 6
+thread 12: step 7
+thread 12: step 8
+thread 12: step 9b
+thread 12: step 10b
+thread 12: step 11b
+thread 12: step 12
+thread 12: step 1
+thread 12: step 2
+thread 12: step 3
+thread 12: step 3 gpu 1
+thread 12: step 3 gpu 2
+thread 12: step 3 gpu 3
+thread 12: step 3 gpu 3 obj_func 1
+thread 12: step 3 gpu 3 obj_func 2
+thread 12: step 3 gpu 3 obj_func 3
+thread 12: step 3 gpu 3 obj_func 4
+thread 12: step 3 gpu 3 obj_func 5
+thread 12: step 3 gpu 3 obj_func 6
+thread 12: step 3 gpu 3 obj_func 7
+thread 12: step 3 gpu 3 obj_func 8a
+thread 12: step 3 gpu 3 obj_func 9
+thread 12: step 3 gpu 4
+thread 12: step 3 gpu 5
+thread 12: step 3 gpu 6a
+thread 12: step 3 gpu 7
+thread 12: step 3 gpu 7
+thread 12: step 4
+thread 12: step 5
+thread 12: step 6
+thread 12: step 7
+thread 12: step 8
+thread 12: step 9b
+thread 12: step 10b
+thread 12: step 11b
+thread 12: step 12
+thread 12: step 1
+thread 12: step 2
+thread 12: step 3
+thread 12: step 3 gpu 1
+thread 12: step 3 gpu 2
+thread 12: step 3 gpu 3
+thread 12: step 3 gpu 3 obj_func 1
+thread 12: step 3 gpu 3 obj_func 2
+thread 12: step 3 gpu 3 obj_func 3
+thread 12: step 3 gpu 3 obj_func 4
+thread 12: step 3 gpu 3 obj_func 5
+thread 12: step 3 gpu 3 obj_func 6
+thread 12: step 3 gpu 3 obj_func 7
+thread 12: step 3 gpu 3 obj_func 8a
+thread 12: step 3 gpu 3 obj_func 9
+thread 12: step 3 gpu 4
+thread 12: step 3 gpu 5
+thread 12: step 3 gpu 6a
+thread 12: step 3 gpu 7
+thread 12: step 3 gpu 7
+thread 12: step 4
+thread 12: step 5
+thread 12: step 6
+thread 12: step 7
+thread 12: step 8
+thread 12: step 9b
+thread 12: step 10b
+thread 12: step 11b
+thread 12: step 12
+thread 12: step 1
+thread 12: step 2
+thread 12: step 3
+thread 12: step 3 gpu 1
+thread 12: step 3 gpu 2
+thread 12: step 3 gpu 3
+thread 12: step 3 gpu 3 obj_func 1
+thread 12: step 3 gpu 3 obj_func 2
+thread 12: step 3 gpu 3 obj_func 3
+thread 15: step 3 gpu 3 obj_func 4
+thread 15: step 3 gpu 3 obj_func 5
+thread 15: step 3 gpu 3 obj_func 6
+thread 15: step 3 gpu 3 obj_func 7
+thread 15: step 3 gpu 3 obj_func 8a
+thread 15: step 3 gpu 3 obj_func 9
+thread 15: step 3 gpu 4
+thread 15: step 3 gpu 5
+thread 15: step 3 gpu 6a
+thread 15: step 3 gpu 7
+thread 15: step 3 gpu 7
+thread 15: step 4
+thread 15: step 5
+thread 15: step 6
+thread 15: step 7
+thread 15: step 8
+thread 15: step 9b
+thread 15: step 10b
+thread 15: step 11b
+thread 15: step 12
+thread 15: step 1
+thread 15: step 2
+thread 15: step 3
+thread 15: step 3 gpu 1
+thread 15: step 3 gpu 2
+thread 15: step 3 gpu 3
+thread 15: step 3 gpu 3 obj_func 1
+thread 15: step 3 gpu 3 obj_func 2
+thread 15: step 3 gpu 3 obj_func 3
+thread 12: step 3 gpu 3 obj_func 4
+thread 12: step 3 gpu 3 obj_func 5
+thread 12: step 3 gpu 3 obj_func 6
+thread 12: step 3 gpu 3 obj_func 7
+thread 12: step 3 gpu 3 obj_func 8a
+thread 12: step 3 gpu 3 obj_func 9
+thread 12: step 3 gpu 4
+thread 12: step 3 gpu 5
+thread 12: step 3 gpu 6a
+thread 12: step 3 gpu 7
+thread 12: step 3 gpu 7
+thread 12: step 4
+thread 12: step 5
+thread 12: step 6
+thread 12: step 7
+thread 12: step 8
+thread 12: step 9b
+thread 12: step 10b
+thread 12: step 11b
+thread 12: step 12
+thread 12: step 1
+thread 12: step 2
+thread 12: step 3
+thread 12: step 3 gpu 1
+thread 12: step 3 gpu 2
+thread 12: step 3 gpu 3
+thread 12: step 3 gpu 3 obj_func 1
+thread 12: step 3 gpu 3 obj_func 2
+thread 12: step 3 gpu 3 obj_func 3
+thread 12: step 3 gpu 3 obj_func 4
+thread 12: step 3 gpu 3 obj_func 5
+thread 12: step 3 gpu 3 obj_func 6
+thread 12: step 3 gpu 3 obj_func 7
+thread 12: step 3 gpu 3 obj_func 8a
+thread 12: step 3 gpu 3 obj_func 9
+thread 12: step 3 gpu 4
+thread 12: step 3 gpu 5
+thread 12: step 3 gpu 6a
+thread 12: step 3 gpu 7
+thread 12: step 3 gpu 7
+thread 12: step 4
+thread 12: step 5
+thread 12: step 6
+thread 12: step 7
+thread 12: step 8
+thread 12: step 9b
+thread 12: step 10b
+thread 12: step 11b
+thread 12: step 12
+thread 12: step 1
+thread 12: step 2
+thread 12: step 3
+thread 12: step 3 gpu 1
+thread 12: step 3 gpu 2
+thread 12: step 3 gpu 3
+thread 12: step 3 gpu 3 obj_func 1
+thread 12: step 3 gpu 3 obj_func 2
+thread 12: step 3 gpu 3 obj_func 3
+thread 12: step 3 gpu 3 obj_func 4
+thread 12: step 3 gpu 3 obj_func 5
+thread 12: step 3 gpu 3 obj_func 6
+thread 12: step 3 gpu 3 obj_func 7
+thread 12: step 3 gpu 3 obj_func 8a
+thread 12: step 3 gpu 3 obj_func 9
+thread 12: step 3 gpu 4
+thread 12: step 3 gpu 5
+thread 12: step 3 gpu 6a
+thread 12: step 3 gpu 7
+thread 12: step 3 gpu 7
+thread 12: step 4
+thread 12: step 5
+thread 12: step 6
+thread 12: step 7
+thread 12: step 8
+thread 12: step 9b
+thread 12: step 10b
+thread 12: step 11b
+thread 12: step 12
+thread 12: step 1
+thread 12: step 2
+thread 12: step 3
+thread 12: step 3 gpu 1
+thread 12: step 3 gpu 2
+thread 12: step 3 gpu 3
+thread 12: step 3 gpu 3 obj_func 1
+thread 12: step 3 gpu 3 obj_func 2
+thread 12: step 3 gpu 3 obj_func 3
