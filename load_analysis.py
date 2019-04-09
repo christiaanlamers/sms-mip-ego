@@ -24,7 +24,7 @@ from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 disfunc_time = 80000 #CHRIS panalty value given to a disfuncitonal network. This differs per experiment
 do_spline_fit = False
 do_pairgrid = False
-do_correlations = True
+do_correlations = False
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
@@ -81,6 +81,10 @@ data_lib_bad = {}
 #y = [np.exp(-i.loss) for i in solutions]#[i.time for i in solutions]
 data_lib['acc'] = [np.exp(-i.loss) for i in solutions]#[i.time for i in solutions]
 data_lib['time'] = [i.time for i in solutions]
+data_lib_good['acc'] = [np.exp(-i.loss) for i in solutions if np.exp(-i.loss) >= acc_pivot]#[i.time for i in solutions]
+data_lib_good['time'] = [i.time for i in solutions if np.exp(-i.loss) >= acc_pivot]
+data_lib_bad['acc'] = [np.exp(-i.loss) for i in solutions if np.exp(-i.loss) < acc_pivot]#[i.time for i in solutions]
+data_lib_bad['time'] = [i.time for i in solutions if np.exp(-i.loss) < acc_pivot]
 #n_points = 1000
 stopper = 0
 for i in name_array[0]:
@@ -101,6 +105,76 @@ for i in name_array[0]:
         data_lib[i] = x
         data_lib_good[i] = x_good
         data_lib_bad[i] = x_bad
+    elif x[0] == "elu" or x[0] == "relu" or x[0] == "tanh" or x[0] == "sigmoid" or x[0] == "selu":
+        elu = []
+        relu = []
+        tanh= []
+        sigmoid = []
+        selu = []
+        for j in x:
+            elu.append(j == "elu")
+            relu.append(j=="relu")
+            tanh.append(j=="tanh")
+            sigmoid.append(j=="sigmoid")
+            selu.append(j=="selu")
+        data_lib["elu"] = elu
+        data_lib["relu"] = relu
+        data_lib["tanh"] = tanh
+        data_lib["sigmoid"] = sigmoid
+        data_lib["selu"] = selu
+
+        elu = []
+        relu = []
+        tanh= []
+        sigmoid = []
+        selu = []
+        for j in x_good:
+            elu.append(j == "elu")
+            relu.append(j=="relu")
+            tanh.append(j=="tanh")
+            sigmoid.append(j=="sigmoid")
+            selu.append(j=="selu")
+        data_lib_good["elu"] = elu
+        data_lib_good["relu"] = relu
+        data_lib_good["tanh"] = tanh
+        data_lib_good["sigmoid"] = sigmoid
+        data_lib_good["selu"] = selu
+        
+        elu = []
+        relu = []
+        tanh= []
+        sigmoid = []
+        selu = []
+        for j in x_bad:
+            elu.append(j == "elu")
+            relu.append(j=="relu")
+            tanh.append(j=="tanh")
+            sigmoid.append(j=="sigmoid")
+            selu.append(j=="selu")
+        data_lib_bad["elu"] = elu
+        data_lib_bad["relu"] = relu
+        data_lib_bad["tanh"] = tanh
+        data_lib_bad["sigmoid"] = sigmoid
+        data_lib_bad["selu"] = selu
+    elif x[0] == "softmax":
+        pass
+        #softmax = []
+        #for j in x:
+        #    softmax.append(j=="softmax")
+        #data_lib["softmax"] = softmax
+        #
+        #softmax = []
+        #for j in x_good:
+        #    softmax.append(j=="softmax")
+        #data_lib_good["softmax"] = softmax
+        #
+        #softmax = []
+        #for j in x_bad:
+        #    softmax.append(j=="softmax")
+        #data_lib_bad["softmax"] = softmax
+    else:
+        print("error, unknown feature!")
+
     #print(x)
     if do_spline_fit:
         try:
@@ -123,21 +197,24 @@ for i in name_array[0]:
         except:
             pass
 
+
 data_panda = pd.DataFrame(data=data_lib)
 data_panda_good = pd.DataFrame(data=data_lib_good)
 data_panda_bad = pd.DataFrame(data=data_lib_bad)
 
 if do_pairgrid:
+    #g = sns.PairGrid(data_panda_good,vars=['acc','time','stack_0','stack_1','stack_2','stack_3','stack_4','stack_5','stack_6','s_0','s_1','s_2','s_3','s_4','s_5','s_6','filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13','k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13','dropout_0','dropout_1','dropout_2','dropout_3','dropout_4','dropout_5','dropout_6','dropout_7','dropout_8','dropout_9','lr','l2','global_pooling','skstart_0','skstart_1','skstart_2','skstart_3','skstart_4','skstep_0','skstep_1','skstep_2','skstep_3','skstep_4','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
     #g = sns.PairGrid(data_panda,vars=['acc','time','lr','l2','s_0','s_1','filters_0','filters_1','k_0','k_1','dropout_0','dropout_1','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
     #g = sns.PairGrid(data_panda,vars=['filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13'],hue='acc',palette='GnBu_d')
-    g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
+    #g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
+    g = sns.PairGrid(data_panda,vars=["softmax","elu","relu","tanh","sigmoid","selu"],hue='acc',palette='GnBu_d')
     g.map(plt.scatter)
     #g.map_upper(plt.scatter)
     #g.map_lower(sns.kdeplot)
     #g.map_diag(sns.kdeplot, lw=3, legend=False);
 
     #plt.savefig('load_analysis_output.png')
-    plt.savefig('load_analysis_output_kernels.png')
+    plt.savefig('load_analysis_output_good_activation.png')
 
 if do_correlations:
     parallel_coordinates(data_panda, class_column='acc', cols=['lr','l2'])
@@ -168,9 +245,9 @@ if do_dbscan:
             #model = DBSCAN(eps=10, min_samples=6)# (8,2)
             model = DBSCAN(eps=i, min_samples=j)
             model.fit(scaler.transform(data_panda.loc[:, select]))
-            print('number of clusters:')
+            #print('number of clusters:')
             n_clusters = len(set(model.labels_)) - (1 if -1 in model.labels_ else 0)
-            print(n_clusters)
+            #print(n_clusters)
             if n_clusters >= 2 and n_clusters <= 10:
                 print(i,j)
                 plt.clf()
