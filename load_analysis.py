@@ -23,12 +23,13 @@ from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
 disfunc_time = 80000 #CHRIS panalty value given to a disfuncitonal network. This differs per experiment
 do_spline_fit = False
+do_parallel_plot = True
 do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
-do_feature_imp = True
+do_feature_imp = False
 do_sens_analysis = False
 
 file_name = str(sys.argv[1])
@@ -202,6 +203,24 @@ data_panda = pd.DataFrame(data=data_lib)
 data_panda_good = pd.DataFrame(data=data_lib_good)
 data_panda_bad = pd.DataFrame(data=data_lib_bad)
 
+normalizer = data_panda_bad.max()-data_panda_bad.min()
+for i in range(normalizer.shape[0]):
+    if normalizer[i] == 0:
+        if data_panda_bad.max()[i] == 0:
+            normalizer[i] = 1.0
+        else:
+            normalizer[i] = data_panda_bad.max()
+
+normalized_df=(data_panda_bad-data_panda_bad.min())/normalizer
+
+
+if do_parallel_plot:
+    fig = matplotlib.pyplot.gcf()
+    for i in range(normalized_df.shape[0]):
+        parallel_coordinates(pd.DataFrame(data=normalized_df.loc[i:i]),'acc',alpha=normalized_df.loc[i:i]['acc'].values)#, colormap=plt.get_cmap("Set2"))
+    fig.set_size_inches(180, 105)
+    fig.savefig('parallel_coord_plot_bad.png',dpi=100)
+
 if do_pairgrid:
     #g = sns.PairGrid(data_panda_good,vars=['acc','time','stack_0','stack_1','stack_2','stack_3','stack_4','stack_5','stack_6','s_0','s_1','s_2','s_3','s_4','s_5','s_6','filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13','k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13','dropout_0','dropout_1','dropout_2','dropout_3','dropout_4','dropout_5','dropout_6','dropout_7','dropout_8','dropout_9','lr','l2','global_pooling','skstart_0','skstart_1','skstart_2','skstart_3','skstart_4','skstep_0','skstep_1','skstep_2','skstep_3','skstep_4','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
     #g = sns.PairGrid(data_panda,vars=['acc','time','lr','l2','s_0','s_1','filters_0','filters_1','k_0','k_1','dropout_0','dropout_1','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
@@ -291,6 +310,9 @@ if do_rule_finding:
                 for i in range(len(data_panda[x])):
                     data_discrete[i].append(data_panda[x])
         first = False
+    
+    for i in range(len(data_discrete)):
+        data_discrete[i] = set(data_discrete[i])
 
     data_discrete_good = []
     first = True
@@ -311,6 +333,9 @@ if do_rule_finding:
                     data_discrete_good[i].append(data_panda_good[x])
         first = False
 
+    for i in range(len(data_discrete_good)):
+        data_discrete_good[i] = set(data_discrete_good[i])
+
     data_discrete_bad = []
     first = True
     for x in data_panda_bad.columns:
@@ -329,49 +354,112 @@ if do_rule_finding:
                 for i in range(len(data_panda_bad[x])):
                     data_discrete_bad[i].append(data_panda_bad[x])
         first = False
+        
+    for i in range(len(data_discrete_bad)):
+        data_discrete_bad[i] = set(data_discrete_bad[i])
 
     #print(data_discrete)
+    
+    #example of possible function parameters
+    #apriori(records, min_support=0.0045, min_confidence=0.2, min_lift=3, min_length=2)
+    min_support = 0.9
+    results = list(apriori(data_discrete,min_support=min_support))
 
-
-    results = list(apriori(data_discrete))
-
-    print('\n3 items:\n')
+    print('\n10 items or more:\n')
     for i in results:
-        if len(i.items) == 3:
-            print(i.items)
-            print(i.support)
-
-
-    print('\n4 items:\n')
-    for i in results:
-        if len(i.items) == 4:
-            print(i.items)
-            print(i.support)
-
-    print('\n5 items or more:\n')
-    for i in results:
-        if len(i.items) >= 5:
+        if len(i.items) >= 10:
             print(i.items)
             print(i.support)
 
     print(len(data_discrete))
     print(len(data_discrete_good))
     print(len(data_discrete_bad))
-
-    results_good = list(apriori(data_discrete_good))
-    results_bad = list(apriori(data_discrete_bad))
-
-    print('\ngood, 5 items or more:\n')
+    
+    min_support = 0.8
+    results_good = list(apriori(data_discrete_good,min_support=min_support))
+    min_support = 0.2
+    results_bad = list(apriori(data_discrete_bad,min_support=min_support))
+    
+    good_patterns = []
+    print('\ngood, 6 items or more:\n')
     for i in results_good:
-        if len(i.items) >= 5:
+        if len(i.items) >= 6:
+            good_patterns.append(i.items)
             print(i.items)
             print(i.support)
 
-    print('\nbad, 5 items or more:\n')
+    bad_patterns = []
+    print('\nbad, 6 items or more:\n')
     for i in results_bad:
-        if len(i.items) >= 5:
+        if len(i.items) >= 6:
+            bad_patterns.append(i.items)
             print(i.items)
             print(i.support)
+    
+    union_patterns = []
+    print('\nunion, 6 items or more:\n')
+    for i in results_good:
+        if len(i.items) >= 6:
+            for j in results_bad:
+                if len(j.items) >= 6 and i.items == j.items:
+                    union_patterns.append(i.items)
+                    print(i.items)
+                    print(i.support)
+                    print(j.support)
+    
+    p_union_s_good = []
+    for p in union_patterns:
+        p_union_s_good_append = []
+        for d in data_discrete_good:
+            if p.issubset(d):
+                p_union_s_good_append.append(d.difference(p))
+        p_union_s_good.append(p_union_s_good_append)
+    
+    p_union_s_bad = []
+    for p in union_patterns:
+        p_union_s_bad_append = []
+        for d in data_discrete_bad:
+            if p.issubset(d):
+                p_union_s_bad_append.append(d.difference(p))
+        p_union_s_bad.append(p_union_s_bad_append)
+    
+    print("good patterns")
+    min_support = 0.4
+    p_union_s_good_results = []
+    p_union_s_bad_results = []
+    for i in range(len(union_patterns)):
+        p_union_s_good_results.append(list(apriori(p_union_s_good[i],min_support=min_support)))
+        p_union_s_bad_results.append(list(apriori(p_union_s_bad[i],min_support=min_support)))
+        print()
+        print("If:")
+        print(union_patterns[i])
+        print()
+        print("-->")
+        print()
+        print("do:")
+        print()
+        for j in range(len(p_union_s_good_results[i])):
+            exist_equal = False
+            for k in range(len(p_union_s_bad_results[i])):
+                if p_union_s_good_results[i][j].items == p_union_s_bad_results[i][k].items:
+                    exist_equal = True
+                    break
+            if not exist_equal:
+                print(p_union_s_good_results[i][j].items)
+                print(p_union_s_good_results[i][j].support)
+        print()
+        print("do not:")
+        print()
+        for j in range(len(p_union_s_bad_results[i])):
+            exist_equal = False
+            for k in range(len(p_union_s_good_results[i])):
+                if p_union_s_bad_results[i][j].items == p_union_s_good_results[i][k].items:
+                    exist_equal = True
+                    break
+            if not exist_equal:
+                print(p_union_s_bad_results[i][j].items)
+                print(p_union_s_bad_results[i][j].support)
+            
 
 #define the search space.
 activation_fun = ["softmax"]
@@ -401,7 +489,7 @@ l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
 search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skstart * skstep * max_pooling * dense_size
 
-print("searchspace",search_space.levels)
+#print("searchspace",search_space.levels)
 
 time_model = RandomForest(levels=search_space.levels,n_estimators=10,workaround=True)
 loss_model = RandomForest(levels=search_space.levels,n_estimators=10,workaround=True)
