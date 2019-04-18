@@ -23,9 +23,9 @@ from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
 disfunc_time = 80000 #CHRIS panalty value given to a disfuncitonal network. This differs per experiment
 do_spline_fit = False
-do_parallel_plot = True
+do_parallel_plot = False
 do_pairgrid = False
-do_correlations = False
+do_correlations = True
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
@@ -236,9 +236,43 @@ if do_pairgrid:
     plt.savefig('load_analysis_output_good_activation.png')
 
 if do_correlations:
-    parallel_coordinates(data_panda, class_column='acc', cols=['lr','l2'])
+    corr_pivot = 0.2
+    #parallel_coordinates(data_panda, class_column='acc', cols=['lr','l2'])
     correlations = data_panda.corr()
-    print(correlations)
+    
+    print()
+    print('correlations greater than '+ str(corr_pivot) + ' on all data')
+    print()
+    
+    for i in correlations:
+        for j in correlations:
+            if correlations.loc[i,j] != 1.0 and abs(correlations.loc[i,j]) >= corr_pivot:
+                print(i,j)
+                print(correlations.loc[i,j])
+    
+    correlations_good = data_panda_good.corr()
+    
+    print()
+    print('correlations greater than '+ str(corr_pivot) + ' on good data')
+    print()
+
+    for i in correlations_good:
+        for j in correlations_good:
+            if correlations_good.loc[i,j] != 1.0 and abs(correlations_good.loc[i,j]) >= corr_pivot:
+                print(i,j)
+                print(correlations_good.loc[i,j])
+
+    correlations_bad = data_panda_bad.corr()
+    
+    print()
+    print('correlations greater than '+ str(corr_pivot) + ' on bad data')
+    print()
+
+    for i in correlations_bad:
+        for j in correlations_bad:
+            if correlations_bad.loc[i,j] != 1.0 and abs(correlations_bad.loc[i,j]) >= corr_pivot:
+                print(i,j)
+                print(correlations_bad.loc[i,j])
 
 select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
 scaler = sklearn.preprocessing.StandardScaler()
@@ -444,7 +478,7 @@ if do_rule_finding:
                 if p_union_s_good_results[i][j].items == p_union_s_bad_results[i][k].items:
                     exist_equal = True
                     break
-            if not exist_equal:
+            if not exist_equal and not any('acc:' in string for string in p_union_s_good_results[i][j].items) and not any('time:' in string for string in p_union_s_good_results[i][j].items):
                 print(p_union_s_good_results[i][j].items)
                 print(p_union_s_good_results[i][j].support)
         print()
@@ -456,7 +490,7 @@ if do_rule_finding:
                 if p_union_s_bad_results[i][j].items == p_union_s_good_results[i][k].items:
                     exist_equal = True
                     break
-            if not exist_equal:
+            if not exist_equal and not any('acc:' in string for string in p_union_s_bad_results[i][j].items) and not any('time:' in string for string in p_union_s_bad_results[i][j].items):
                 print(p_union_s_bad_results[i][j].items)
                 print(p_union_s_bad_results[i][j].support)
             
