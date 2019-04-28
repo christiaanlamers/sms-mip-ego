@@ -21,14 +21,19 @@ from apyori import apriori
 from mipego.Surrogate import RandomForest
 from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
-disfunc_time = 80000 #CHRIS panalty value given to a disfuncitonal network. This differs per experiment
+disfunc_time = 80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
+cut = False #needed for derived data such as depth, in case of the cut method, the network is less deep
+max_stack = 7 #the number of stacks in the construction method
+CIFAR10 = True #do we use CIFAR-10 or MNIST?
+img_dim = 32 #CIFAR-10 has 32x32 images
+
 do_spline_fit = False
 do_parallel_plot = False
 do_pairgrid = False
-do_correlations = True
+do_correlations = False
 do_k_means = False
 do_dbscan = False
-do_rule_finding = False
+do_rule_finding = True
 do_feature_imp = False
 do_sens_analysis = False
 
@@ -112,51 +117,60 @@ for i in name_array[0]:
         tanh= []
         sigmoid = []
         selu = []
+        activation = []
         for j in x:
             elu.append(j == "elu")
             relu.append(j=="relu")
             tanh.append(j=="tanh")
             sigmoid.append(j=="sigmoid")
             selu.append(j=="selu")
+            activation.append(j)
         data_lib["elu"] = elu
         data_lib["relu"] = relu
         data_lib["tanh"] = tanh
         data_lib["sigmoid"] = sigmoid
         data_lib["selu"] = selu
+        data_lib["activation"] = activation
 
         elu = []
         relu = []
         tanh= []
         sigmoid = []
         selu = []
+        activation = []
         for j in x_good:
             elu.append(j == "elu")
             relu.append(j=="relu")
             tanh.append(j=="tanh")
             sigmoid.append(j=="sigmoid")
             selu.append(j=="selu")
+            activation.append(j)
         data_lib_good["elu"] = elu
         data_lib_good["relu"] = relu
         data_lib_good["tanh"] = tanh
         data_lib_good["sigmoid"] = sigmoid
         data_lib_good["selu"] = selu
+        data_lib_good["activation"] = activation
         
         elu = []
         relu = []
         tanh= []
         sigmoid = []
         selu = []
+        activation = []
         for j in x_bad:
             elu.append(j == "elu")
             relu.append(j=="relu")
             tanh.append(j=="tanh")
             sigmoid.append(j=="sigmoid")
             selu.append(j=="selu")
+            activation.append(j)
         data_lib_bad["elu"] = elu
         data_lib_bad["relu"] = relu
         data_lib_bad["tanh"] = tanh
         data_lib_bad["sigmoid"] = sigmoid
         data_lib_bad["selu"] = selu
+        data_lib_bad["activation"] = activation
     elif x[0] == "softmax":
         pass
         #softmax = []
@@ -175,7 +189,6 @@ for i in name_array[0]:
         #data_lib_bad["softmax"] = softmax
     else:
         print("error, unknown feature!")
-
     #print(x)
     if do_spline_fit:
         try:
@@ -198,20 +211,86 @@ for i in name_array[0]:
         except:
             pass
 
+#add extra features to data_lib TODO test this code
+depth = [0] * len(data_lib["stack_0"])
+num_features = [0] * len(data_lib["stack_0"])
+img_size = [img_dim] * len(data_lib["stack_0"])
+avg_dropout = [j for j in data_lib["dropout_0"]]
+
+depth_good = [0] * len(data_lib_good["stack_0"])
+num_features_good = [0] * len(data_lib_good["stack_0"])
+img_size_good = [img_dim] * len(data_lib_good["stack_0"])
+avg_dropout_good = [j for j in data_lib_good["dropout_0"]]
+
+depth_bad = [0] * len(data_lib_bad["stack_0"])
+num_features_bad = [0] * len(data_lib_bad["stack_0"])
+img_size_bad = [img_dim] * len(data_lib_bad["stack_0"])
+avg_dropout_bad = [j for j in data_lib_bad["dropout_0"]]
+
+for i in range(max_stack):
+    for j in range(len(depth)):
+        if (not cut) or img_size[j] > 1:
+            depth[j] += data_lib["stack_"+str(i)][j]
+            num_features[j] += data_lib["stack_"+str(i)][j] * data_lib["filters_" + str(2*i)][j]
+            avg_dropout[j] += data_lib["dropout_" + str(i+1)][j]
+        img_size[j] = int(np.ceil(img_size[j] / data_lib["s_" + str(i)][j]))
+    for j in range(len(depth_good)):
+        if (not cut) or img_size_good[j] > 1:
+            depth_good[j] += data_lib_good["stack_"+str(i)][j]
+            num_features_good[j] += data_lib_good["stack_"+str(i)][j] * data_lib_good["filters_" + str(2*i)][j]
+            avg_dropout_good[j] += data_lib_good["dropout_" + str(i+1)][j]
+        img_size_good[j] = int(np.ceil(img_size_good[j] / data_lib_good["s_" + str(i)][j]))
+    for j in range(len(depth_bad)):
+        if (not cut) or img_size_bad[j] > 1:
+            depth_bad[j] += data_lib_bad["stack_"+str(i)][j]
+            num_features_bad[j] += data_lib_bad["stack_"+str(i)][j] * data_lib_bad["filters_" + str(2*i)][j]
+            avg_dropout_bad[j] += data_lib_bad["dropout_" + str(i+1)][j]
+        img_size_bad[j] = int(np.ceil(img_size_bad[j] / data_lib_bad["s_" + str(i)][j]))
+for j in range(len(depth)):
+    avg_dropout[j] += data_lib["dropout_" + str(max_stack+1)][j]
+    avg_dropout[j] += data_lib["dropout_" + str(max_stack+2)][j]
+for j in range(len(depth_good)):
+    avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+1)][j]
+    avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+2)][j]
+for j in range(len(depth_bad)):
+    avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+1)][j]
+    avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+2)][j]
+
+if CIFAR10:
+    avg_dropout = [j/(max_stack+3) for j in avg_dropout]
+    avg_dropout_good = [j/(max_stack+3) for j in avg_dropout_good]
+    avg_dropout_bad = [j/(max_stack+3) for j in avg_dropout_bad]
+else:
+    print("ERROR! first implement MNIST dropout normalisation")
+
+
+data_lib["depth"]=depth
+data_lib_good["depth"] = depth_good
+data_lib_bad["depth"] = depth_bad
+
+data_lib["num_features"] = num_features
+data_lib_good["num_features"] = num_features_good
+data_lib_bad["num_features"] = num_features_bad
+
+data_lib["avg_dropout"] = avg_dropout
+data_lib_good["avg_dropout"] = avg_dropout_good
+data_lib_bad["avg_dropout"] = avg_dropout_bad
 
 data_panda = pd.DataFrame(data=data_lib)
 data_panda_good = pd.DataFrame(data=data_lib_good)
 data_panda_bad = pd.DataFrame(data=data_lib_bad)
 
-normalizer = data_panda_bad.max()-data_panda_bad.min()
+select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
+selection = data_panda.loc[:, select]
+normalizer = selection.max()-selection.min()
 for i in range(normalizer.shape[0]):
     if normalizer[i] == 0:
-        if data_panda_bad.max()[i] == 0:
+        if data_panda.max()[i] == 0:
             normalizer[i] = 1.0
         else:
-            normalizer[i] = data_panda_bad.max()
+            normalizer[i] = data_panda.max()
 
-normalized_df=(data_panda_bad-data_panda_bad.min())/normalizer
+normalized_df=(selection-selection.min())/normalizer
 
 
 if do_parallel_plot:
@@ -219,60 +298,85 @@ if do_parallel_plot:
     for i in range(normalized_df.shape[0]):
         parallel_coordinates(pd.DataFrame(data=normalized_df.loc[i:i]),'acc',alpha=normalized_df.loc[i:i]['acc'].values)#, colormap=plt.get_cmap("Set2"))
     fig.set_size_inches(180, 105)
-    fig.savefig('parallel_coord_plot_bad.png',dpi=100)
+    fig.savefig('parallel_coord_plot_cut.png',dpi=100)
 
 if do_pairgrid:
-    #g = sns.PairGrid(data_panda_good,vars=['acc','time','stack_0','stack_1','stack_2','stack_3','stack_4','stack_5','stack_6','s_0','s_1','s_2','s_3','s_4','s_5','s_6','filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13','k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13','dropout_0','dropout_1','dropout_2','dropout_3','dropout_4','dropout_5','dropout_6','dropout_7','dropout_8','dropout_9','lr','l2','global_pooling','skstart_0','skstart_1','skstart_2','skstart_3','skstart_4','skstep_0','skstep_1','skstep_2','skstep_3','skstep_4','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
+    #g = sns.PairGrid(data_panda_good,vars=['acc','time','stack_0','stack_1','stack_2','stack_3','stack_4','stack_5','stack_6','s_0','s_1','s_2','s_3','s_4','s_5','s_6','filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13','k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13','dropout_0','dropout_1','dropout_2','dropout_3','dropout_4','dropout_5','dropout_6','dropout_7','dropout_8','dropout_9','lr','l2','global_pooling','skstart_0','skstart_1','skstart_2','skstart_3','skstart_4','skstep_0','skstep_1','skstep_2','skstep_3','skstep_4','dense_size_0','dense_size_1','epoch_sp','batch_size_sp'],hue='acc',palette='GnBu_d')
     #g = sns.PairGrid(data_panda,vars=['acc','time','lr','l2','s_0','s_1','filters_0','filters_1','k_0','k_1','dropout_0','dropout_1','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
     #g = sns.PairGrid(data_panda,vars=['filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13'],hue='acc',palette='GnBu_d')
     #g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
-    g = sns.PairGrid(data_panda,vars=["softmax","elu","relu","tanh","sigmoid","selu"],hue='acc',palette='GnBu_d')
+    #g = sns.PairGrid(data_panda,vars=["softmax","elu","relu","tanh","sigmoid","selu"],hue='acc',palette='GnBu_d')
+    g = sns.PairGrid(data_panda,vars=["acc","time","epoch_sp","batch_size_sp","depth"],hue='acc',palette='GnBu_d')
     g.map(plt.scatter)
     #g.map_upper(plt.scatter)
     #g.map_lower(sns.kdeplot)
     #g.map_diag(sns.kdeplot, lw=3, legend=False);
 
     #plt.savefig('load_analysis_output.png')
-    plt.savefig('load_analysis_output_good_activation.png')
+    plt.savefig('load_analysis_output_cut_epoch_batch_depth.png')
 
 if do_correlations:
-    corr_pivot = 0.2
+    corr_pivot = 0.3
     #parallel_coordinates(data_panda, class_column='acc', cols=['lr','l2'])
-    correlations = data_panda.corr()
+    select = [x for x in data_panda.columns if x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    #select = [x for x in data_panda.columns if x == "acc" or x == "time" or x == "depth" or x == "epoch_sp" or x == "batch_size_sp"]
+    selection = data_panda.loc[:, select]
+    correlations = selection.corr()
     
     print()
     print('correlations greater than '+ str(corr_pivot) + ' on all data')
     print()
-    
+    corr_pivot_labels = set([])
     for i in correlations:
         for j in correlations:
             if correlations.loc[i,j] != 1.0 and abs(correlations.loc[i,j]) >= corr_pivot:
                 print(i,j)
                 print(correlations.loc[i,j])
+                corr_pivot_labels = corr_pivot_labels.union(set([i,j]))
+    corr_pivot_labels = list(corr_pivot_labels)
+    corr_select = selection[corr_pivot_labels].corr()
+    #plt.matshow(correlations)
+    sns.heatmap(corr_select,xticklabels=corr_select.columns.values,yticklabels=corr_select.columns.values,cmap='coolwarm')
+    #correlations.style.background_gradient(cmap='coolwarm').set_precision(2)
+    plt.show()
     
-    correlations_good = data_panda_good.corr()
+    select_good = [x for x in data_panda_good.columns if x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    selection_good = data_panda_good.loc[:, select_good]
+    correlations_good = selection_good.corr()
     
     print()
     print('correlations greater than '+ str(corr_pivot) + ' on good data')
     print()
-
+    corr_pivot_labels_good = set([])
     for i in correlations_good:
         for j in correlations_good:
             if correlations_good.loc[i,j] != 1.0 and abs(correlations_good.loc[i,j]) >= corr_pivot:
                 print(i,j)
                 print(correlations_good.loc[i,j])
+                corr_pivot_labels_good = corr_pivot_labels_good.union(set([i,j]))
+    corr_pivot_labels_good = list(corr_pivot_labels_good)
+    corr_select_good = selection_good[corr_pivot_labels_good].corr()
+    sns.heatmap(corr_select_good,xticklabels=corr_select_good.columns.values,yticklabels=corr_select_good.columns.values,cmap='coolwarm')
+    plt.show()
 
-    correlations_bad = data_panda_bad.corr()
+    select_bad = [x for x in data_panda_bad.columns if x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    selection_bad = data_panda_bad.loc[:, select_bad]
+    correlations_bad = selection_bad.corr()
     
     print()
     print('correlations greater than '+ str(corr_pivot) + ' on bad data')
     print()
-
+    corr_pivot_labels_bad = set([])
     for i in correlations_bad:
         for j in correlations_bad:
             if correlations_bad.loc[i,j] != 1.0 and abs(correlations_bad.loc[i,j]) >= corr_pivot:
                 print(i,j)
                 print(correlations_bad.loc[i,j])
+                corr_pivot_labels_bad = corr_pivot_labels_bad.union(set([i,j]))
+    corr_pivot_labels_bad = list(corr_pivot_labels_bad)
+    corr_select_bad = selection_bad[corr_pivot_labels_bad].corr()
+    sns.heatmap(corr_select_bad,xticklabels=corr_select_bad.columns.values,yticklabels=corr_select_bad.columns.values,cmap='coolwarm')
+    plt.show()
 
 select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
 scaler = sklearn.preprocessing.StandardScaler()
@@ -289,7 +393,7 @@ if do_k_means:
     plt.xlabel('time')
     plt.ylabel('accuracy')
     plt.scatter(data_panda.time,data_panda.acc, c=colormap[model_kmeans.labels_], s=1)
-    plt.savefig('Kmeans_2.png')
+    plt.savefig('Kmeans_2_cut.png')
 
 if do_dbscan:
     n_clusters = 0
@@ -307,7 +411,7 @@ if do_dbscan:
                 plt.xlabel('time')
                 plt.ylabel('accuracy')
                 plt.scatter(data_panda.time,data_panda.acc, c=model.labels_, s=1)
-                plt.savefig('DBSCAN_eps_' + str(i) + '_mins_' + str(j) + '.png')
+                plt.savefig('DBSCAN_eps_' + str(i) + '_mins_' + str(j) + '_cut.png')
     plt.scatter(data_panda.time,data_panda.acc, c=model.labels_, s=1)
 
     #plt.show()
@@ -318,75 +422,84 @@ if do_rule_finding:
     string_cast_dict = {}
     max_val_dict = {}
     min_val_dict = {}
+    
+    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    selection = data_panda.loc[:, select]
 
     data_discrete = []
     first = True
-    for x in data_panda.columns:
+    for x in selection.columns:
         if x != "activation" and x != "activ_dense":
-            max_val = float(max(data_panda[x]))
-            min_val = float(min(data_panda[x]))
+            max_val = float(max(selection[x]))
+            min_val = float(min(selection[x]))
             string_cast = [x + ': ' + str(s * (max_val-min_val)/n_sections + min_val) + ' - ' + str((s+1) * (max_val-min_val)/n_sections + min_val) for s in range(n_sections)]
             string_cast_dict[x] = string_cast
             max_val_dict[x] = max_val
             min_val_dict[x] = min_val
             #print(string_cast)
             if first:
-                for d in data_panda[x]:
+                for d in selection[x]:
                     data_discrete.append([string_cast[min(n_sections-1,int((float(d) - min_val)/(max_val-min_val)*n_sections))]])
             else:
-                for i in range(len(data_panda[x])):
-                    data_discrete[i].append(string_cast[min(n_sections-1,int((float(data_panda[x][i]) - min_val)/(max_val-min_val)*n_sections))])
+                for i in range(len(selection[x])):
+                    data_discrete[i].append(string_cast[min(n_sections-1,int((float(selection[x][i]) - min_val)/(max_val-min_val)*n_sections))])
         else:
             if first:
-                for d in data_panda[x]:
+                for d in selection[x]:
                     data_discrete.append([d])
             else:
-                for i in range(len(data_panda[x])):
+                for i in range(len(selection[x])):
                     data_discrete[i].append(data_panda[x])
         first = False
     
     for i in range(len(data_discrete)):
         data_discrete[i] = set(data_discrete[i])
-
+    
+    select_good = [x for x in data_panda_good.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    selection_good = data_panda_good.loc[:, select_good]
+    
     data_discrete_good = []
     first = True
-    for x in data_panda_good.columns:
+    for x in selection_good.columns:
         if x != "activation" and x != "activ_dense":
             if first:
-                for d in data_panda_good[x]:
+                for d in selection_good[x]:
                     data_discrete_good.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))]])
             else:
-                for i in range(len(data_panda_good[x])):
-                    data_discrete_good[i].append(string_cast_dict[x][min(n_sections-1,int((float(data_panda_good[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
+                for i in range(len(selection_good[x])):
+                    data_discrete_good[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_good[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
         else:
             if first:
-                for d in data_panda_good[x]:
+                for d in selection_good[x]:
                     data_discrete_good.append([d])
             else:
-                for i in range(len(data_panda_good[x])):
-                    data_discrete_good[i].append(data_panda_good[x])
+                for i in range(len(selection_good[x])):
+                    data_discrete_good[i].append(selection_good[x])
         first = False
 
     for i in range(len(data_discrete_good)):
         data_discrete_good[i] = set(data_discrete_good[i])
+    
+    select_bad = [x for x in data_panda_bad.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    selection_bad = data_panda_bad.loc[:, select_bad]
 
     data_discrete_bad = []
     first = True
-    for x in data_panda_bad.columns:
+    for x in selection_bad.columns:
         if x != "activation" and x != "activ_dense":
             if first:
-                for d in data_panda_bad[x]:
+                for d in selection_bad[x]:
                     data_discrete_bad.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))]])
             else:
-                for i in range(len(data_panda_bad[x])):
-                    data_discrete_bad[i].append(string_cast_dict[x][min(n_sections-1,int((float(data_panda_bad[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
+                for i in range(len(selection_bad[x])):
+                    data_discrete_bad[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_bad[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
         else:
             if first:
-                for d in data_panda_bad[x]:
+                for d in selection_bad[x]:
                     data_discrete_bad.append([d])
             else:
-                for i in range(len(data_panda_bad[x])):
-                    data_discrete_bad[i].append(data_panda_bad[x])
+                for i in range(len(selection_bad[x])):
+                    data_discrete_bad[i].append(selection_bad[x])
         first = False
         
     for i in range(len(data_discrete_bad)):
@@ -396,47 +509,87 @@ if do_rule_finding:
     
     #example of possible function parameters
     #apriori(records, min_support=0.0045, min_confidence=0.2, min_lift=3, min_length=2)
-    min_support = 0.9
+    min_support = 0.5
     results = list(apriori(data_discrete,min_support=min_support))
-
-    print('\n10 items or more:\n')
-    for i in results:
-        if len(i.items) >= 10:
-            print(i.items)
-            print(i.support)
-
-    print(len(data_discrete))
-    print(len(data_discrete_good))
-    print(len(data_discrete_bad))
     
-    min_support = 0.8
+    patterns = []
+    print('\n1 items or more top 10 support:\n')
+    for i in results:
+        if len(i.items) >= 1:
+            patterns.append(i)
+    idx_sort = np.argsort([i.support for i in patterns])[::-1]
+    for i in range(min(len(idx_sort),10)):
+        print(patterns[idx_sort[i]].items)
+        print(patterns[idx_sort[i]].support)
+
+    #print(len(data_discrete))
+    #print(len(data_discrete_good))
+    #print(len(data_discrete_bad))
+    
+    min_support = 0.5
     results_good = list(apriori(data_discrete_good,min_support=min_support))
-    min_support = 0.2
+    min_support = 0.5
     results_bad = list(apriori(data_discrete_bad,min_support=min_support))
     
     good_patterns = []
-    print('\ngood, 6 items or more:\n')
+    print('\ngood, 1 items or more top 10 support:\n')
     for i in results_good:
-        if len(i.items) >= 6:
-            good_patterns.append(i.items)
-            print(i.items)
-            print(i.support)
+        if len(i.items) >= 1:
+            good_patterns.append(i)
+    idx_sort = np.argsort([i.support for i in good_patterns])[::-1]
+    for i in range(min(len(idx_sort),10)):
+        print(good_patterns[idx_sort[i]].items)
+        print(good_patterns[idx_sort[i]].support)
 
     bad_patterns = []
-    print('\nbad, 6 items or more:\n')
+    print('\nbad, 1 items or more top 10 support:\n')
     for i in results_bad:
-        if len(i.items) >= 6:
-            bad_patterns.append(i.items)
-            print(i.items)
-            print(i.support)
+        if len(i.items) >= 1:
+            bad_patterns.append(i)
+    idx_sort = np.argsort([i.support for i in bad_patterns])[::-1]
+    for i in range(min(len(idx_sort),10)):
+        print(bad_patterns[idx_sort[i]].items)
+        print(bad_patterns[idx_sort[i]].support)
+    
+    good_patterns_not_in_bad = []
+    print('\ngood patterns not in bad (1 items or more) top 10:\n')
+    for i in results_good:
+        exist = False
+        for j in results_bad:
+            if i.items == j.items:
+                exist = True
+                break
+        if not exist:
+            good_patterns_not_in_bad.append(i)
+    idx_sort = np.argsort([i.support for i in good_patterns_not_in_bad])[::-1]
+    for i in range(min(len(idx_sort),10)):
+        print(good_patterns_not_in_bad[idx_sort[i]].items)
+        print(good_patterns_not_in_bad[idx_sort[i]].support)
+    
+    bad_patterns_not_in_good = []
+    print('\nbad patterns not in good (1 items or more) top 10:\n')
+    for i in results_bad:
+        exist = False
+        for j in results_good:
+            if i.items == j.items:
+                exist = True
+                break
+        if not exist:
+            bad_patterns_not_in_good.append(i)
+    idx_sort = np.argsort([i.support for i in bad_patterns_not_in_good])[::-1]
+    for i in range(min(len(idx_sort),10)):
+        print(bad_patterns_not_in_good[idx_sort[i]].items)
+        print(bad_patterns_not_in_good[idx_sort[i]].support)
     
     union_patterns = []
-    print('\nunion, 6 items or more:\n')
+    bad_union_support = []
+    print('\nunion, 1 items or more:\n')
     for i in results_good:
-        if len(i.items) >= 6:
+        if len(i.items) >= 1:
             for j in results_bad:
-                if len(j.items) >= 6 and i.items == j.items:
-                    union_patterns.append(i.items)
+                if len(j.items) >= 1 and i.items == j.items:
+                    union_patterns.append(i)
+                    bad_union_support.append(j.support)
                     print(i.items)
                     print(i.support)
                     print(j.support)
@@ -445,54 +598,77 @@ if do_rule_finding:
     for p in union_patterns:
         p_union_s_good_append = []
         for d in data_discrete_good:
-            if p.issubset(d):
-                p_union_s_good_append.append(d.difference(p))
+            if p.items.issubset(d):
+                p_union_s_good_append.append(d.difference(p.items))
         p_union_s_good.append(p_union_s_good_append)
     
     p_union_s_bad = []
     for p in union_patterns:
         p_union_s_bad_append = []
         for d in data_discrete_bad:
-            if p.issubset(d):
-                p_union_s_bad_append.append(d.difference(p))
+            if p.items.issubset(d):
+                p_union_s_bad_append.append(d.difference(p.items))
         p_union_s_bad.append(p_union_s_bad_append)
     
-    print("good patterns")
-    min_support = 0.4
+    print("\nrules:")
+    min_support = 0.5
     p_union_s_good_results = []
     p_union_s_bad_results = []
     for i in range(len(union_patterns)):
         p_union_s_good_results.append(list(apriori(p_union_s_good[i],min_support=min_support)))
         p_union_s_bad_results.append(list(apriori(p_union_s_bad[i],min_support=min_support)))
+    
+    top_good_idx = np.argsort([i.support for i in union_patterns])[::-1]
+    top_bad_idx = np.argsort([i for i in bad_union_support])[::-1]
+    for i in range(min(len(top_good_idx),10)):
+        idx = top_good_idx[i]
+        #if i < 5:
+        #    idx = top_good_idx[i]
+        #else:
+        #    idx = top_bad_idx[i-5]
         print()
         print("If:")
-        print(union_patterns[i])
+        print(union_patterns[idx].items)
+        print("good support:")
+        print(union_patterns[idx].support)
+        print("bad support:")
+        print(bad_union_support[idx])
         print()
         print("-->")
         print()
         print("do:")
         print()
-        for j in range(len(p_union_s_good_results[i])):
+        for j in range(len(p_union_s_good_results[idx])):
+            do = []
             exist_equal = False
-            for k in range(len(p_union_s_bad_results[i])):
-                if p_union_s_good_results[i][j].items == p_union_s_bad_results[i][k].items:
+            for k in range(len(p_union_s_bad_results[idx])):
+                if p_union_s_good_results[idx][j].items == p_union_s_bad_results[idx][k].items:
                     exist_equal = True
                     break
-            if not exist_equal and not any('acc:' in string for string in p_union_s_good_results[i][j].items) and not any('time:' in string for string in p_union_s_good_results[i][j].items):
-                print(p_union_s_good_results[i][j].items)
-                print(p_union_s_good_results[i][j].support)
+            if not exist_equal and not any('acc:' in string for string in p_union_s_good_results[idx][j].items) and not any('time:' in string for string in p_union_s_good_results[idx][j].items):
+                do.append(p_union_s_good_results[idx][j])
+        do_idx = np.argsort([j.support for j in do])[::-1]
+        for j in range(min(5,len(do_idx))):
+            print(do[do_idx[j]].items)
+            print("support in good subset selection:")
+            print(do[do_idx[j]].support)
         print()
         print("do not:")
         print()
-        for j in range(len(p_union_s_bad_results[i])):
+        for j in range(len(p_union_s_bad_results[idx])):
+            do_not = []
             exist_equal = False
-            for k in range(len(p_union_s_good_results[i])):
-                if p_union_s_bad_results[i][j].items == p_union_s_good_results[i][k].items:
+            for k in range(len(p_union_s_good_results[idx])):
+                if p_union_s_bad_results[idx][j].items == p_union_s_good_results[idx][k].items:
                     exist_equal = True
                     break
-            if not exist_equal and not any('acc:' in string for string in p_union_s_bad_results[i][j].items) and not any('time:' in string for string in p_union_s_bad_results[i][j].items):
-                print(p_union_s_bad_results[i][j].items)
-                print(p_union_s_bad_results[i][j].support)
+            if not exist_equal and not any('acc:' in string for string in p_union_s_bad_results[idx][j].items) and not any('time:' in string for string in p_union_s_bad_results[idx][j].items):
+                do_not.append(p_union_s_bad_results[idx][j])
+        do_not_idx = np.argsort([j.support for j in do_not])[::-1]
+        for j in range(min(5,len(do_not_idx))):
+            print(do_not[do_not_idx[j]].items)
+            print("support in good subset selection:")
+            print(do_not[do_not_idx[j]].support)
             
 
 #define the search space.
