@@ -187,7 +187,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     savemodel = False
     
     batch_size = cfg['batch_size_sp']
-    if not test:
+    if not verbose: #TODO CHRIS remove this if statement and always do epochs = etc.
         epochs = cfg['epoch_sp']
     
     cut = True
