@@ -179,7 +179,7 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation=True):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation=True,use_epoch_sp=True):
     batch_size = 100
     num_classes = 10
     num_predictions = 20
@@ -187,7 +187,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     savemodel = False
     
     batch_size = cfg['batch_size_sp']
-    if not verbose: #TODO CHRIS remove this if statement and always do epochs = etc.
+    if use_epoch_sp:
         epochs = cfg['epoch_sp']
     
     cut = True
@@ -730,7 +730,7 @@ def test_skippy():
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
         #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
+        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1,use_epoch_sp=False)
         print('timer, loss:')
         print(timer, loss)
 
