@@ -715,11 +715,11 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'dropout_2': 0.10503529076687178, 'global_pooling': False, 'activ_dense': 'softmax', 'step': False, 'batch_size_sp': 170, 'k_5': 11, 'filters_9': 502, 'dropout_4': 0.5454956319314442, 'filters_0': 108, 'filters_11': 493, 'stack_6': 0, 's_0': 3, 'stack_2': 2, 'skstep_2': 3, 'k_6': 13, 'stack_5': 4, 'filters_13': 141, 's_2': 7, 'stack_3': 6, 'k_8': 12, 'k_9': 9, 'filters_3': 579, 'filters_7': 350, 'max_pooling': True, 'lr': 0.004860286083081829, 'stack_0': 2, 'k_4': 5, 'skstep_4': 8, 'dropout_8': 0.6713796132485909, 'dropout_3': 0.4258548492846925, 'k_10': 14, 'filters_10': 351, 'skstep_1': 4, 'k_3': 8, 'skstart_3': 3, 'k_13': 3, 's_1': 7, 'k_0': 8, 'dropout_7': 0.7656562067402091, 'k_2': 1, 'epoch_sp': 33, 'dropout_0': 0.12495090785008392, 'dropout_6': 0.09603825810959132, 'skstep_0': 9, 'k_12': 15, 'skstep_3': 5, 'filters_2': 55, 'skstart_4': 2, 'dropout_9': 0.3676723784593959, 'stack_4': 6, 'dense_size_0': 3884, 'filters_6': 246, 'l2': 0.0018527840854743725, 's_3': 1, 'filters_12': 239, 'k_11': 4, 's_4': 6, 'activation': 'tanh', 'filters_5': 112, 'filters_8': 554, 'stack_1': 4, 'skstart_0': 6, 'dropout_1': 0.00244978236390256, 'skstart_1': 1, 'k_7': 5, 'k_1': 10, 's_6': 9, 'filters_1': 374, 'skstart_2': 1, 'filters_4': 409, 'dense_size_1': 3232, 'dropout_5': 0.7148625620753165, 's_5': 1}
+    vla = {'stack_3': 0, 'k_13': 13, 'filters_4': 96, 'dropout_8': 0.4334407345524673, 'skstart_1': 0, 'k_4': 11, 'stack_0': 0, 'activ_dense': 'softmax', 'k_11': 2, 'stack_4': 5, 'filters_9': 164, 'dropout_7': 0.722057620926275, 'skstep_2': 6, 'batch_size_sp': 161, 's_3': 2, 'dropout_0': 0.006585730795479166, 'filters_2': 223, 's_2': 3, 'max_pooling': True, 'filters_8': 258, 'filters_6': 551, 'activation': 'tanh', 'stack_6': 4, 'dense_size_0': 2138, 'lr': 0.006308299610988853, 'epoch_sp': 24, 'dropout_6': 0.8251804103904812, 'filters_3': 437, 'filters_12': 349, 'filters_11': 190, 'global_pooling': False, 'skstep_0': 7, 'l2': 0.0019845517494426227, 'dropout_5': 0.5061046505734745, 'k_0': 11, 's_4': 8, 'skstep_4': 5, 'filters_7': 239, 'dropout_4': 0.7522812347648945, 'filters_13': 264, 'dropout_3': 0.04315591833160787, 'filters_1': 92, 'k_12': 15, 's_5': 6, 'k_9': 15, 'filters_5': 266, 'step': True, 'filters_10': 171, 'dropout_1': 0.14516130505677416, 'dropout_9': 0.33853188036625337, 'stack_2': 0, 'skstart_3': 4, 'stack_5': 4, 'k_8': 8, 'skstep_3': 9, 'filters_0': 61, 'k_6': 7, 'skstart_4': 7, 'k_10': 3, 's_0': 7, 'k_1': 9, 'dense_size_1': 3254, 'skstart_2': 0, 'stack_1': 7, 'dropout_2': 0.17276412402942404, 's_6': 6, 'k_5': 12, 'k_2': 5, 'skstart_0': 3, 'k_3': 10, 'skstep_1': 3, 's_1': 7, 'k_7': 15}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
         #model = CNN_conf(X[0].to_dict(),test=test)
         model = CNN_conf(vla,test=test)
@@ -729,7 +729,7 @@ def test_skippy():
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
         #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        timer, loss = CNN_conf(vla,test=test,epochs= 20,verbose=1)
+        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)
 
