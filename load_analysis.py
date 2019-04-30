@@ -345,8 +345,14 @@ for i in range(len(data_lib["stack_0"])):
         if cut and img_size[i] <= 1:
             break
         
-
+print("overlap:")
 print(overlap)
+print("depth")
+print(depth)
+print("num_features")
+print(num_features)
+print("avg_dropout")
+print(avg_dropout)
 exit(0)
 overlap_good = []
 overlap_bad = []
