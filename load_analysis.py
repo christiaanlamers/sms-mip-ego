@@ -78,7 +78,7 @@ for i in range(len(conf_array)):
         solutions.append(Solution(x=conf_x,fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
 
 #TODO test code, remove this
-vla = {'stack_3': 0, 'k_13': 13, 'filters_4': 96, 'dropout_8': 0.4334407345524673, 'skstart_1': 0, 'k_4': 11, 'stack_0': 0, 'activ_dense': 'softmax', 'k_11': 2, 'stack_4': 5, 'filters_9': 164, 'dropout_7': 0.722057620926275, 'skstep_2': 6, 'batch_size_sp': 161, 's_3': 2, 'dropout_0': 0.006585730795479166, 'filters_2': 223, 's_2': 3, 'max_pooling': True, 'filters_8': 258, 'filters_6': 551, 'activation': 'tanh', 'stack_6': 4, 'dense_size_0': 2138, 'lr': 0.006308299610988853, 'epoch_sp': 24, 'dropout_6': 0.8251804103904812, 'filters_3': 437, 'filters_12': 349, 'filters_11': 190, 'global_pooling': False, 'skstep_0': 7, 'l2': 0.0019845517494426227, 'dropout_5': 0.5061046505734745, 'k_0': 11, 's_4': 8, 'skstep_4': 5, 'filters_7': 239, 'dropout_4': 0.7522812347648945, 'filters_13': 264, 'dropout_3': 0.04315591833160787, 'filters_1': 92, 'k_12': 15, 's_5': 6, 'k_9': 15, 'filters_5': 266, 'step': True, 'filters_10': 171, 'dropout_1': 0.14516130505677416, 'dropout_9': 0.33853188036625337, 'stack_2': 0, 'skstart_3': 4, 'stack_5': 4, 'k_8': 8, 'skstep_3': 9, 'filters_0': 61, 'k_6': 7, 'skstart_4': 7, 'k_10': 3, 's_0': 7, 'k_1': 9, 'dense_size_1': 3254, 'skstart_2': 0, 'stack_1': 7, 'dropout_2': 0.17276412402942404, 's_6': 6, 'k_5': 12, 'k_2': 5, 'skstart_0': 3, 'k_3': 10, 'skstep_1': 3, 's_1': 7, 'k_7': 15}
+vla = {'k_4': 2, 's_6': 7, 'dense_size_1': 1241, 'global_pooling': False, 's_5': 4, 's_2': 5, 'lr': 0.003501726354312528, 'skstep_1': 4, 'k_2': 10, 'stack_2': 4, 'filters_10': 551, 'stack_4': 3, 'k_0': 3, 'stack_6': 2, 'stack_1': 0, 'filters_8': 511, 's_4': 6, 'activation': 'selu', 'skstart_3': 1, 'skstep_2': 8, 'k_3': 8, 'filters_1': 397, 'l2': 0.0009492010751150128, 'stack_5': 5, 'k_9': 9, 'dropout_7': 0.7646234665989783, 'filters_12': 302, 'filters_13': 23, 'k_1': 3, 'filters_2': 434, 'k_8': 2, 'dropout_5': 0.7216534228875703, 'activ_dense': 'softmax', 'dropout_8': 0.1543831789544944, 'filters_6': 81, 'filters_4': 75, 'skstart_1': 1, 'dropout_0': 0.03091621120839141, 'max_pooling': False, 'k_7': 12, 'filters_7': 413, 'skstep_4': 3, 'skstep_0': 2, 'skstart_2': 4, 'k_12': 13, 'k_6': 7, 'filters_9': 306, 'k_10': 3, 'dropout_2': 0.24840891675589885, 'dropout_9': 0.099218749701623, 'k_5': 13, 'filters_5': 437, 'skstart_4': 2, 'batch_size_sp': 107, 'dropout_4': 0.79941143829701, 'skstart_0': 5, 's_3': 6, 'dense_size_0': 664, 'skstep_3': 1, 'epoch_sp': 6, 'dropout_6': 0.13887319979956475, 'filters_0': 25, 'filters_11': 293, 'stack_3': 2, 'k_13': 6, 'dropout_3': 0.3596025163802057, 's_0': 7, 'step': True, 'dropout_1': 0.0652637867895933, 'stack_0': 6, 'filters_3': 300, 's_1': 9, 'k_11': 7}
 solutions = [Solution(x=[vla[j] for j in name_array[0]],fitness=1,n_eval=1,index=index_array[0],var_name=name_array[0],loss=1,time=1)]
 #TODO end test code removal
 
@@ -292,7 +292,8 @@ for i in range(len(data_lib["stack_0"])):
         print(data_lib["stack_"+str(j)][i])
         for k in range(data_lib["stack_"+str(j)][i]):
             test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
             if idx > 0:
                 overlap[idx-1][i] += 1
             print("current_level: " + str(current_level))
@@ -304,6 +305,18 @@ for i in range(len(data_lib["stack_0"])):
             print()
             current_level += 1
         if not data_lib["max_pooling"][i] and data_lib["stack_"+str(j)][i] > 0:
+            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+            idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+            if idx > 0:
+                overlap[idx-1][i] += 1
+            print("current_level: " + str(current_level))
+            print("test: " +str(test))
+            print("idx: " +str(idx))
+            print("img_size:" + str(img_size[i]))
+            print("overlap:")
+            print(overlap)
+            print()
             current_level += 1
         print("stride: " + str(data_lib["s_" + str(j)][i]))
         if data_lib["stack_"+str(j)][i] > 0:
@@ -313,6 +326,9 @@ for i in range(len(data_lib["stack_0"])):
         
 
 print(overlap)
+exit(0)
+overlap_good = []
+overlap_bad = []
 for i in range(5):
     data_lib["overlap_"+str(i+1)]=overlap[i]
     data_lib_good["overlap_"+str(i+1)]=overlap_good[i]
