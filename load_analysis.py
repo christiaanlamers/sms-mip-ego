@@ -78,7 +78,7 @@ for i in range(len(conf_array)):
         solutions.append(Solution(x=conf_x,fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
 
 #TODO test code, remove this
-vla = {'k_4': 2, 's_6': 7, 'dense_size_1': 1241, 'global_pooling': False, 's_5': 4, 's_2': 5, 'lr': 0.003501726354312528, 'skstep_1': 4, 'k_2': 10, 'stack_2': 4, 'filters_10': 551, 'stack_4': 3, 'k_0': 3, 'stack_6': 2, 'stack_1': 0, 'filters_8': 511, 's_4': 6, 'activation': 'selu', 'skstart_3': 1, 'skstep_2': 8, 'k_3': 8, 'filters_1': 397, 'l2': 0.0009492010751150128, 'stack_5': 5, 'k_9': 9, 'dropout_7': 0.7646234665989783, 'filters_12': 302, 'filters_13': 23, 'k_1': 3, 'filters_2': 434, 'k_8': 2, 'dropout_5': 0.7216534228875703, 'activ_dense': 'softmax', 'dropout_8': 0.1543831789544944, 'filters_6': 81, 'filters_4': 75, 'skstart_1': 1, 'dropout_0': 0.03091621120839141, 'max_pooling': False, 'k_7': 12, 'filters_7': 413, 'skstep_4': 3, 'skstep_0': 2, 'skstart_2': 4, 'k_12': 13, 'k_6': 7, 'filters_9': 306, 'k_10': 3, 'dropout_2': 0.24840891675589885, 'dropout_9': 0.099218749701623, 'k_5': 13, 'filters_5': 437, 'skstart_4': 2, 'batch_size_sp': 107, 'dropout_4': 0.79941143829701, 'skstart_0': 5, 's_3': 6, 'dense_size_0': 664, 'skstep_3': 1, 'epoch_sp': 6, 'dropout_6': 0.13887319979956475, 'filters_0': 25, 'filters_11': 293, 'stack_3': 2, 'k_13': 6, 'dropout_3': 0.3596025163802057, 's_0': 7, 'step': True, 'dropout_1': 0.0652637867895933, 'stack_0': 6, 'filters_3': 300, 's_1': 9, 'k_11': 7}
+vla = {'filters_4': 96, 'stack_6': 4, 'skstep_4': 5, 'k_2': 5, 'stack_5': 4, 'filters_13': 264, 'dropout_4': 0.7522812347648945, 'k_0': 11, 'skstep_2': 6, 'skstart_4': 7, 'filters_11': 190, 's_6': 6, 'filters_10': 171, 'filters_9': 164, 'dropout_5': 0.5061046505734745, 'filters_5': 266, 'dropout_2': 0.17276412402942404, 'k_11': 2, 'k_1': 9, 'stack_3': 0, 'dropout_6': 0.8251804103904812, 'dense_size_1': 3254, 'filters_12': 349, 'l2': 0.0019845517494426227, 'k_8': 8, 'lr': 0.006308299610988853, 's_5': 6, 'k_6': 7, 's_0': 7, 'epoch_sp': 24, 'dropout_8': 0.4334407345524673, 'k_10': 3, 'k_12': 15, 'skstep_1': 3, 's_3': 2, 'global_pooling': False, 'filters_6': 551, 'stack_4': 5, 'skstart_2': 0, 'dropout_3': 0.04315591833160787, 'dense_size_0': 2138, 'max_pooling': True, 'step': True, 'skstart_1': 0, 's_2': 3, 'k_7': 15, 's_4': 8, 'stack_2': 0, 'k_5': 12, 'k_3': 10, 'stack_0': 0, 'dropout_0': 0.006585730795479166, 'filters_8': 258, 'filters_1': 92, 'k_13': 13, 'filters_3': 437, 'stack_1': 7, 's_1': 7, 'k_9': 15, 'dropout_7': 0.722057620926275, 'activ_dense': 'softmax', 'skstart_0': 3, 'filters_2': 223, 'dropout_9': 0.33853188036625337, 'activation': 'tanh', 'skstart_3': 4, 'k_4': 11, 'dropout_1': 0.14516130505677416, 'batch_size_sp': 161, 'filters_7': 239, 'filters_0': 61, 'skstep_3': 9, 'skstep_0': 7}
 solutions = [Solution(x=[vla[j] for j in name_array[0]],fitness=1,n_eval=1,index=index_array[0],var_name=name_array[0],loss=1,time=1)]
 #TODO end test code removal
 
@@ -221,59 +221,80 @@ depth = np.array([0] * len(data_lib["stack_0"]))
 num_features = np.array([0] * len(data_lib["stack_0"]))
 img_size = np.array([img_dim] * len(data_lib["stack_0"]))
 avg_dropout = np.array([j for j in data_lib["dropout_0"]])
+dropout_norm = np.array([1] * len(data_lib["stack_0"]))
 
 depth_good = np.array([0] * len(data_lib_good["stack_0"]))
 num_features_good = np.array([0] * len(data_lib_good["stack_0"]))
 img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
 avg_dropout_good = np.array([j for j in data_lib_good["dropout_0"]])
+dropout_norm_good = np.array([1] * len(data_lib_good["stack_0"]))
 
 depth_bad = np.array([0] * len(data_lib_bad["stack_0"]))
 num_features_bad = np.array([0] * len(data_lib_bad["stack_0"]))
 img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
 avg_dropout_bad = np.array([j for j in data_lib_bad["dropout_0"]])
+dropout_norm_bad = np.array([1] * len(data_lib_bad["stack_0"]))
 
 for i in range(max_stack):
     for j in range(len(depth)):
         if (not cut) or img_size[j] > 1:
             depth[j] += data_lib["stack_"+str(i)][j]
             num_features[j] += data_lib["stack_"+str(i)][j] * data_lib["filters_" + str(2*i)][j]
-            avg_dropout[j] += data_lib["dropout_" + str(i+1)][j]
-        if data_lib["stack_"+str(i)][j] > 0:
-            img_size[j] = int(np.ceil(img_size[j] / data_lib["s_" + str(i)][j]))
-            if not data_lib["max_pooling"][j]:
-                depth[j] += 1
+            if data_lib["stack_"+str(i)][j] > 0:
+                avg_dropout[j] += data_lib["dropout_" + str(i+1)][j]
+                dropout_norm[j] += 1
+                img_size[j] = int(np.ceil(img_size[j] / data_lib["s_" + str(i)][j]))
+                if not data_lib["max_pooling"][j]:
+                    num_features[j] += data_lib["filters_" + str(2*i+1)][j]
+                    depth[j] += 1
     for j in range(len(depth_good)):
         if (not cut) or img_size_good[j] > 1:
             depth_good[j] += data_lib_good["stack_"+str(i)][j]
             num_features_good[j] += data_lib_good["stack_"+str(i)][j] * data_lib_good["filters_" + str(2*i)][j]
-            avg_dropout_good[j] += data_lib_good["dropout_" + str(i+1)][j]
-        if data_lib_good["stack_"+str(i)][j] > 0:
-            img_size_good[j] = int(np.ceil(img_size_good[j] / data_lib_good["s_" + str(i)][j]))
-            if not data_lib_good["max_pooling"][j]:
-                depth_good[j] += 1
+            if data_lib_good["stack_"+str(i)][j] > 0:
+                avg_dropout_good[j] += data_lib_good["dropout_" + str(i+1)][j]
+                dropout_norm_good[j] += 1
+                img_size_good[j] = int(np.ceil(img_size_good[j] / data_lib_good["s_" + str(i)][j]))
+                if not data_lib_good["max_pooling"][j]:
+                    num_features_good[j] += data_lib_good["filters_" + str(2*i+1)][j]
+                    depth_good[j] += 1
     for j in range(len(depth_bad)):
         if (not cut) or img_size_bad[j] > 1:
             depth_bad[j] += data_lib_bad["stack_"+str(i)][j]
             num_features_bad[j] += data_lib_bad["stack_"+str(i)][j] * data_lib_bad["filters_" + str(2*i)][j]
-            avg_dropout_bad[j] += data_lib_bad["dropout_" + str(i+1)][j]
-        if data_lib_bad["stack_"+str(i)][j] > 0:
-            img_size_bad[j] = int(np.ceil(img_size_bad[j] / data_lib_bad["s_" + str(i)][j]))
-            if not data_lib_bad["max_pooling"][j]:
-                depth_bad[j] += 1
+            if data_lib_bad["stack_"+str(i)][j] > 0:
+                avg_dropout_bad[j] += data_lib_bad["dropout_" + str(i+1)][j]
+                dropout_norm_bad[j] += 1
+                img_size_bad[j] = int(np.ceil(img_size_bad[j] / data_lib_bad["s_" + str(i)][j]))
+                if not data_lib_bad["max_pooling"][j]:
+                    num_features_bad[j] += data_lib_bad["filters_" + str(2*i+1)][j]
+                    depth_bad[j] += 1
 for j in range(len(depth)):
-    avg_dropout[j] += data_lib["dropout_" + str(max_stack+1)][j]
-    avg_dropout[j] += data_lib["dropout_" + str(max_stack+2)][j]
+    if data_lib["dense_size_0"][j] > 0:
+        avg_dropout[j] += data_lib["dropout_" + str(max_stack+1)][j]
+        dropout_norm[j] += 1
+    if data_lib["dense_size_1"][j] > 0:
+        avg_dropout[j] += data_lib["dropout_" + str(max_stack+2)][j]
+        dropout_norm[j] += 1
 for j in range(len(depth_good)):
-    avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+1)][j]
-    avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+2)][j]
+    if data_lib_good["dense_size_0"][j] > 0:
+        avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+1)][j]
+        dropout_norm_good[j] += 1
+    if data_lib_good["dense_size_1"][j] > 0:
+        avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+2)][j]
+        dropout_norm_good[j] += 1
 for j in range(len(depth_bad)):
-    avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+1)][j]
-    avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+2)][j]
+    if data_lib_bad["dense_size_0"][j] > 0:
+        avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+1)][j]
+        dropout_norm_bad[j] += 1
+    if data_lib_bad["dense_size_1"][j] > 0:
+        avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+2)][j]
+        dropout_norm_bad[j] += 1
 
 if CIFAR10:
-    avg_dropout = [j/(max_stack+3) for j in avg_dropout]
-    avg_dropout_good = [j/(max_stack+3) for j in avg_dropout_good]
-    avg_dropout_bad = [j/(max_stack+3) for j in avg_dropout_bad]
+    avg_dropout = [avg_dropout[j]/dropout_norm[j] for j in range(len(avg_dropout))]
+    avg_dropout_good = [avg_dropout_good[j]/dropout_norm_good[j] for j in range(len(avg_dropout_good))]
+    avg_dropout_bad = [avg_dropout_bad[j]/dropout_norm_bad[j] for j in range(len(avg_dropout_bad))]
 else:
     print("ERROR! first implement MNIST dropout normalisation")
 
