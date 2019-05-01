@@ -21,7 +21,7 @@ from apyori import apriori
 from mipego.Surrogate import RandomForest
 from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
-disfunc_time = 80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
+disfunc_time = 200000 #80000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
 cut = True #needed for derived data such as depth, in case of the cut method, the network is less deep
 max_stack = 7 #the number of stacks in the construction method
 CIFAR10 = True #do we use CIFAR-10 or MNIST?
@@ -30,10 +30,10 @@ img_dim = 32 #CIFAR-10 has 32x32 images
 do_spline_fit = False
 do_parallel_plot = False
 do_pairgrid = False
-do_correlations = False
+do_correlations = True
 do_k_means = False
 do_dbscan = False
-do_rule_finding = True
+do_rule_finding = False
 do_feature_imp = False
 do_sens_analysis = False
 
@@ -78,8 +78,8 @@ for i in range(len(conf_array)):
         solutions.append(Solution(x=conf_x,fitness=fit_array[i],n_eval=n_eval_array[i],index=index_array[i],var_name=name_array[i],loss=loss_array[i],time=time_array[i]))
 
 #TODO test code, remove this
-vla = {'filters_4': 96, 'stack_6': 4, 'skstep_4': 5, 'k_2': 5, 'stack_5': 4, 'filters_13': 264, 'dropout_4': 0.7522812347648945, 'k_0': 11, 'skstep_2': 6, 'skstart_4': 7, 'filters_11': 190, 's_6': 6, 'filters_10': 171, 'filters_9': 164, 'dropout_5': 0.5061046505734745, 'filters_5': 266, 'dropout_2': 0.17276412402942404, 'k_11': 2, 'k_1': 9, 'stack_3': 0, 'dropout_6': 0.8251804103904812, 'dense_size_1': 3254, 'filters_12': 349, 'l2': 0.0019845517494426227, 'k_8': 8, 'lr': 0.006308299610988853, 's_5': 6, 'k_6': 7, 's_0': 7, 'epoch_sp': 24, 'dropout_8': 0.4334407345524673, 'k_10': 3, 'k_12': 15, 'skstep_1': 3, 's_3': 2, 'global_pooling': False, 'filters_6': 551, 'stack_4': 5, 'skstart_2': 0, 'dropout_3': 0.04315591833160787, 'dense_size_0': 2138, 'max_pooling': True, 'step': True, 'skstart_1': 0, 's_2': 3, 'k_7': 15, 's_4': 8, 'stack_2': 0, 'k_5': 12, 'k_3': 10, 'stack_0': 0, 'dropout_0': 0.006585730795479166, 'filters_8': 258, 'filters_1': 92, 'k_13': 13, 'filters_3': 437, 'stack_1': 7, 's_1': 7, 'k_9': 15, 'dropout_7': 0.722057620926275, 'activ_dense': 'softmax', 'skstart_0': 3, 'filters_2': 223, 'dropout_9': 0.33853188036625337, 'activation': 'tanh', 'skstart_3': 4, 'k_4': 11, 'dropout_1': 0.14516130505677416, 'batch_size_sp': 161, 'filters_7': 239, 'filters_0': 61, 'skstep_3': 9, 'skstep_0': 7}
-solutions = [Solution(x=[vla[j] for j in name_array[0]],fitness=1,n_eval=1,index=index_array[0],var_name=name_array[0],loss=1,time=1)]
+#vla = {'stack_1': 1, 'k_11': 13, 'dropout_3': 0.8165875526780366, 'max_pooling': True, 'skstep_1': 6, 'dropout_1': 0.23195911906645486, 'dropout_0': 0.8979110939293858, 's_6': 1, 'dropout_4': 0.4075181725682306, 'stack_3': 1, 'global_pooling': True, 'stack_0': 0, 'skstart_2': 1, 'filters_6': 43, 'k_9': 8, 'k_8': 2, 'dropout_6': 0.7253793783496744, 'k_12': 3, 's_0': 6, 'k_3': 8, 'filters_2': 45, 'filters_0': 287, 'skstart_1': 3, 'step': False, 'filters_3': 477, 'k_4': 10, 'filters_4': 15, 'filters_10': 230, 'dropout_9': 0.8933940350619436, 'filters_7': 131, 'filters_1': 389, 'skstart_4': 0, 'dropout_7': 0.06222967681587999, 'k_5': 11, 'skstep_0': 7, 'skstep_3': 5, 'activation': 'elu', 'dense_size_0': 2414, 'filters_8': 382, 'dropout_5': 0.021260790909403388, 'dense_size_1': 3980, 's_1': 4, 'stack_4': 6, 'filters_12': 263, 'stack_6': 6, 'skstart_0': 7, 'stack_2': 0, 'stack_5': 0, 's_2': 8, 'dropout_2': 0.4709580590734798, 'filters_11': 354, 'k_7': 11, 'filters_13': 84, 'l2': 0.00025394282998525213, 'k_2': 4, 'k_0': 15, 'skstart_3': 3, 'filters_5': 144, 's_4': 2, 's_3': 4, 'k_1': 14, 'k_10': 2, 'skstep_4': 3, 'activ_dense': 'softmax', 'filters_9': 203, 'k_6': 10, 'lr': 0.0019219792048921292, 'skstep_2': 3, 'k_13': 2, 's_5': 1, 'dropout_8': 0.8643908357346506}
+#solutions = [Solution(x=[vla[j] for j in name_array[0]],fitness=1,n_eval=1,index=index_array[0],var_name=name_array[0],loss=1,time=1)]
 #TODO end test code removal
 
 print("len(solutions): " + str(len(solutions)))
@@ -301,29 +301,16 @@ else:
 img_size = np.array([img_dim] * len(data_lib["stack_0"]))
 overlap = np.array([[0]*len(data_lib["stack_0"])] * 5)
 
-print("aaaaaaaaaaaaa")
-print(img_size)
-print()
-
 for i in range(len(data_lib["stack_0"])):
     current_level = 1
     for j in range(max_stack):
         local_skip_start = [data_lib["skstart_"+str(l)][i] for l in range(5)]
-        print("range:")
-        print(data_lib["stack_"+str(j)][i])
         for k in range(data_lib["stack_"+str(j)][i]):
             test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
             idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
             idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
             if idx > 0:
                 overlap[idx-1][i] += 1
-            print("current_level: " + str(current_level))
-            print("test: " +str(test))
-            print("idx: " +str(idx))
-            print("img_size:" + str(img_size[i]))
-            print("overlap:")
-            print(overlap)
-            print()
             current_level += 1
         if not data_lib["max_pooling"][i] and data_lib["stack_"+str(j)][i] > 0:
             test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
@@ -331,36 +318,85 @@ for i in range(len(data_lib["stack_0"])):
             idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
             if idx > 0:
                 overlap[idx-1][i] += 1
-            print("current_level: " + str(current_level))
-            print("test: " +str(test))
-            print("idx: " +str(idx))
-            print("img_size:" + str(img_size[i]))
-            print("overlap:")
-            print(overlap)
-            print()
             current_level += 1
-        print("stride: " + str(data_lib["s_" + str(j)][i]))
         if data_lib["stack_"+str(j)][i] > 0:
             img_size[i] = int(np.ceil(img_size[i] / data_lib["s_" + str(j)][i]))
         if cut and img_size[i] <= 1:
             break
-        
-print("overlap:")
-print(overlap)
-print("depth")
-print(depth)
-print("num_features")
-print(num_features)
-print("avg_dropout")
-print(avg_dropout)
-exit(0)
-overlap_good = []
-overlap_bad = []
+
+img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
+overlap_good = np.array([[0]*len(data_lib_good["stack_0"])] * 5)
+
+for i in range(len(data_lib_good["stack_0"])):
+    current_level = 1
+    for j in range(max_stack):
+        local_skip_start = [data_lib_good["skstart_"+str(l)][i] for l in range(5)]
+        for k in range(data_lib_good["stack_"+str(j)][i]):
+            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_good["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+            idx = sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx -= sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and data_lib_good["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_good["skstep_"+str(m)][i] == data_lib_good["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_good["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+            if idx > 0:
+                overlap_good[idx-1][i] += 1
+            current_level += 1
+        if not data_lib_good["max_pooling"][i] and data_lib_good["stack_"+str(j)][i] > 0:
+            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_good["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+            idx = sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx -= sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and data_lib_good["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_good["skstep_"+str(m)][i] == data_lib_good["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_good["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+            if idx > 0:
+                overlap_good[idx-1][i] += 1
+            current_level += 1
+        if data_lib_good["stack_"+str(j)][i] > 0:
+            img_size_good[i] = int(np.ceil(img_size_good[i] / data_lib_good["s_" + str(j)][i]))
+        if cut and img_size_good[i] <= 1:
+            break
+
+img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
+overlap_bad = np.array([[0]*len(data_lib_bad["stack_0"])] * 5)
+
+for i in range(len(data_lib_bad["stack_0"])):
+    current_level = 1
+    for j in range(max_stack):
+        local_skip_start = [data_lib_bad["skstart_"+str(l)][i] for l in range(5)]
+        for k in range(data_lib_bad["stack_"+str(j)][i]):
+            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_bad["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+            idx = sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx -= sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and data_lib_bad["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_bad["skstep_"+str(m)][i] == data_lib_bad["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_bad["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+            if idx > 0:
+                overlap_bad[idx-1][i] += 1
+            current_level += 1
+        if not data_lib_bad["max_pooling"][i] and data_lib_bad["stack_"+str(j)][i] > 0:
+            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_bad["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+            idx = sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+            idx -= sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and data_lib_bad["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_bad["skstep_"+str(m)][i] == data_lib_bad["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_bad["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+            if idx > 0:
+                overlap_bad[idx-1][i] += 1
+            current_level += 1
+        if data_lib_bad["stack_"+str(j)][i] > 0:
+            img_size_bad[i] = int(np.ceil(img_size_bad[i] / data_lib_bad["s_" + str(j)][i]))
+        if cut and img_size_bad[i] <= 1:
+            break
+
 for i in range(5):
     data_lib["overlap_"+str(i+1)]=overlap[i]
     data_lib_good["overlap_"+str(i+1)]=overlap_good[i]
     data_lib_bad["overlap_"+str(i+1)]=overlap_bad[i]
 
+total_skip = np.array([0] * len(data_lib["stack_0"]))
+for i in range(len(total_skip)):
+    for j in range(5):
+        total_skip[i] += (j+1) * overlap[j][i]
+total_skip_good = np.array([0] * len(data_lib_good["stack_0"]))
+for i in range(len(total_skip_good)):
+    for j in range(5):
+        total_skip_good[i] += (j+1) * overlap_good[j][i]
+total_skip_bad = np.array([0] * len(data_lib_bad["stack_0"]))
+for i in range(len(total_skip_bad)):
+    for j in range(5):
+        total_skip_bad[i] += (j+1) * overlap_bad[j][i]
+
+data_lib["total_skip"] = total_skip
+data_lib_good["total_skip"] = total_skip_good
+data_lib_bad["total_skip"] = total_skip_bad
 
 data_lib["depth"]=depth
 data_lib_good["depth"] = depth_good
@@ -378,15 +414,16 @@ data_panda = pd.DataFrame(data=data_lib)
 data_panda_good = pd.DataFrame(data=data_lib_good)
 data_panda_bad = pd.DataFrame(data=data_lib_bad)
 
+
 select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
 selection = data_panda.loc[:, select]
 normalizer = selection.max()-selection.min()
 for i in range(normalizer.shape[0]):
     if normalizer[i] == 0:
-        if data_panda.max()[i] == 0:
+        if selection.max()[i] == 0:
             normalizer[i] = 1.0
         else:
-            normalizer[i] = data_panda.max()
+            normalizer[i] = selection.max()[i]
 
 normalized_df=(selection-selection.min())/normalizer
 
@@ -536,11 +573,19 @@ if do_rule_finding:
             min_val_dict[x] = min_val
             #print(string_cast)
             if first:
-                for d in selection[x]:
-                    data_discrete.append([string_cast[min(n_sections-1,int((float(d) - min_val)/(max_val-min_val)*n_sections))]])
+                if max_val - min_val == 0:
+                    for d in selection[x]:
+                        data_discrete.append([string_cast[min(n_sections-1,int((float(d) - min_val)*n_sections))]])
+                else:
+                    for d in selection[x]:
+                        data_discrete.append([string_cast[min(n_sections-1,int((float(d) - min_val)/(max_val-min_val)*n_sections))]])
             else:
-                for i in range(len(selection[x])):
-                    data_discrete[i].append(string_cast[min(n_sections-1,int((float(selection[x][i]) - min_val)/(max_val-min_val)*n_sections))])
+                if max_val - min_val == 0:
+                    for i in range(len(selection[x])):
+                        data_discrete[i].append(string_cast[min(n_sections-1,int((float(selection[x][i]) - min_val)*n_sections))])
+                else:
+                    for i in range(len(selection[x])):
+                        data_discrete[i].append(string_cast[min(n_sections-1,int((float(selection[x][i]) - min_val)/(max_val-min_val)*n_sections))])
         else:
             if first:
                 for d in selection[x]:
@@ -561,11 +606,19 @@ if do_rule_finding:
     for x in selection_good.columns:
         if x != "activation" and x != "activ_dense":
             if first:
-                for d in selection_good[x]:
-                    data_discrete_good.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))]])
+                if max_val_dict[x]-min_val_dict[x] == 0:
+                    for d in selection_good[x]:
+                        data_discrete_good.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])*n_sections))]])
+                else:
+                    for d in selection_good[x]:
+                        data_discrete_good.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))]])
             else:
-                for i in range(len(selection_good[x])):
-                    data_discrete_good[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_good[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
+                if max_val_dict[x]-min_val_dict[x] == 0:
+                    for i in range(len(selection_good[x])):
+                        data_discrete_good[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_good[x][i]) - min_val_dict[x])*n_sections))])
+                else:
+                    for i in range(len(selection_good[x])):
+                        data_discrete_good[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_good[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
         else:
             if first:
                 for d in selection_good[x]:
@@ -586,11 +639,19 @@ if do_rule_finding:
     for x in selection_bad.columns:
         if x != "activation" and x != "activ_dense":
             if first:
-                for d in selection_bad[x]:
-                    data_discrete_bad.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))]])
+                if max_val_dict[x]-min_val_dict[x] == 0:
+                    for d in selection_bad[x]:
+                        data_discrete_bad.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])*n_sections))]])
+                else:
+                    for d in selection_bad[x]:
+                        data_discrete_bad.append([string_cast_dict[x][min(n_sections-1,int((float(d) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))]])
             else:
-                for i in range(len(selection_bad[x])):
-                    data_discrete_bad[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_bad[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
+                if max_val_dict[x]-min_val_dict[x] == 0:
+                    for i in range(len(selection_bad[x])):
+                        data_discrete_bad[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_bad[x][i]) - min_val_dict[x])*n_sections))])
+                else:
+                    for i in range(len(selection_bad[x])):
+                        data_discrete_bad[i].append(string_cast_dict[x][min(n_sections-1,int((float(selection_bad[x][i]) - min_val_dict[x])/(max_val_dict[x]-min_val_dict[x])*n_sections))])
         else:
             if first:
                 for d in selection_bad[x]:
