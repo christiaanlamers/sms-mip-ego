@@ -12,6 +12,7 @@ from mipego.mipego import Solution
 from mipego.Bi_Objective import *
 import math
 from scipy.interpolate import UnivariateSpline
+import scipy.special
 import numbers
 from pandas.plotting import parallel_coordinates
 import sklearn
@@ -29,8 +30,8 @@ img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
 do_parallel_plot = False
-do_pairgrid = False
-do_correlations = True
+do_pairgrid = True
+do_correlations = False
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
@@ -235,168 +236,92 @@ img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
 avg_dropout_bad = np.array([j for j in data_lib_bad["dropout_0"]])
 dropout_norm_bad = np.array([1] * len(data_lib_bad["stack_0"]))
 
-for i in range(max_stack):
+def make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_norm):
+    for i in range(max_stack):
+        for j in range(len(depth)):
+            if (not cut) or img_size[j] > 1:
+                depth[j] += data_lib["stack_"+str(i)][j]
+                num_features[j] += data_lib["stack_"+str(i)][j] * data_lib["filters_" + str(2*i)][j]
+                if data_lib["stack_"+str(i)][j] > 0:
+                    avg_dropout[j] += data_lib["dropout_" + str(i+1)][j]
+                    dropout_norm[j] += 1
+                    img_size[j] = int(np.ceil(img_size[j] / data_lib["s_" + str(i)][j]))
+                    if not data_lib["max_pooling"][j]:
+                        num_features[j] += data_lib["filters_" + str(2*i+1)][j]
+                        depth[j] += 1
     for j in range(len(depth)):
-        if (not cut) or img_size[j] > 1:
-            depth[j] += data_lib["stack_"+str(i)][j]
-            num_features[j] += data_lib["stack_"+str(i)][j] * data_lib["filters_" + str(2*i)][j]
-            if data_lib["stack_"+str(i)][j] > 0:
-                avg_dropout[j] += data_lib["dropout_" + str(i+1)][j]
-                dropout_norm[j] += 1
-                img_size[j] = int(np.ceil(img_size[j] / data_lib["s_" + str(i)][j]))
-                if not data_lib["max_pooling"][j]:
-                    num_features[j] += data_lib["filters_" + str(2*i+1)][j]
-                    depth[j] += 1
-    for j in range(len(depth_good)):
-        if (not cut) or img_size_good[j] > 1:
-            depth_good[j] += data_lib_good["stack_"+str(i)][j]
-            num_features_good[j] += data_lib_good["stack_"+str(i)][j] * data_lib_good["filters_" + str(2*i)][j]
-            if data_lib_good["stack_"+str(i)][j] > 0:
-                avg_dropout_good[j] += data_lib_good["dropout_" + str(i+1)][j]
-                dropout_norm_good[j] += 1
-                img_size_good[j] = int(np.ceil(img_size_good[j] / data_lib_good["s_" + str(i)][j]))
-                if not data_lib_good["max_pooling"][j]:
-                    num_features_good[j] += data_lib_good["filters_" + str(2*i+1)][j]
-                    depth_good[j] += 1
-    for j in range(len(depth_bad)):
-        if (not cut) or img_size_bad[j] > 1:
-            depth_bad[j] += data_lib_bad["stack_"+str(i)][j]
-            num_features_bad[j] += data_lib_bad["stack_"+str(i)][j] * data_lib_bad["filters_" + str(2*i)][j]
-            if data_lib_bad["stack_"+str(i)][j] > 0:
-                avg_dropout_bad[j] += data_lib_bad["dropout_" + str(i+1)][j]
-                dropout_norm_bad[j] += 1
-                img_size_bad[j] = int(np.ceil(img_size_bad[j] / data_lib_bad["s_" + str(i)][j]))
-                if not data_lib_bad["max_pooling"][j]:
-                    num_features_bad[j] += data_lib_bad["filters_" + str(2*i+1)][j]
-                    depth_bad[j] += 1
-for j in range(len(depth)):
-    if data_lib["dense_size_0"][j] > 0:
-        avg_dropout[j] += data_lib["dropout_" + str(max_stack+1)][j]
-        dropout_norm[j] += 1
-    if data_lib["dense_size_1"][j] > 0:
-        avg_dropout[j] += data_lib["dropout_" + str(max_stack+2)][j]
-        dropout_norm[j] += 1
-for j in range(len(depth_good)):
-    if data_lib_good["dense_size_0"][j] > 0:
-        avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+1)][j]
-        dropout_norm_good[j] += 1
-    if data_lib_good["dense_size_1"][j] > 0:
-        avg_dropout_good[j] += data_lib_good["dropout_" + str(max_stack+2)][j]
-        dropout_norm_good[j] += 1
-for j in range(len(depth_bad)):
-    if data_lib_bad["dense_size_0"][j] > 0:
-        avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+1)][j]
-        dropout_norm_bad[j] += 1
-    if data_lib_bad["dense_size_1"][j] > 0:
-        avg_dropout_bad[j] += data_lib_bad["dropout_" + str(max_stack+2)][j]
-        dropout_norm_bad[j] += 1
+        if data_lib["dense_size_0"][j] > 0:
+            avg_dropout[j] += data_lib["dropout_" + str(max_stack+1)][j]
+            dropout_norm[j] += 1
+        if data_lib["dense_size_1"][j] > 0:
+            avg_dropout[j] += data_lib["dropout_" + str(max_stack+2)][j]
+            dropout_norm[j] += 1
+    if CIFAR10:
+        avg_dropout = [avg_dropout[j]/dropout_norm[j] for j in range(len(avg_dropout))]
+    else:
+        print("ERROR! first implement MNIST dropout normalisation")
 
-if CIFAR10:
-    avg_dropout = [avg_dropout[j]/dropout_norm[j] for j in range(len(avg_dropout))]
-    avg_dropout_good = [avg_dropout_good[j]/dropout_norm_good[j] for j in range(len(avg_dropout_good))]
-    avg_dropout_bad = [avg_dropout_bad[j]/dropout_norm_bad[j] for j in range(len(avg_dropout_bad))]
-else:
-    print("ERROR! first implement MNIST dropout normalisation")
+make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_norm)
+make_some_features(data_lib_good,depth_good,num_features_good,img_size_good,avg_dropout_good,dropout_norm_good)
+make_some_features(data_lib_bad,depth_bad,num_features_bad,img_size_bad,avg_dropout_bad,dropout_norm_bad)
+
+def make_overlap(data_lib,img_size,overlap,total_skip,total_overlap):
+    for i in range(len(data_lib["stack_0"])):
+        current_level = 1
+        for j in range(max_stack):
+            local_skip_start = [data_lib["skstart_"+str(l)][i] for l in range(5)]
+            for k in range(data_lib["stack_"+str(j)][i]):
+                test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+                idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+                idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+                if idx > 0:
+                    overlap[idx-1][i] += 1
+                current_level += 1
+            if not data_lib["max_pooling"][i] and data_lib["stack_"+str(j)][i] > 0:
+                test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
+                idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
+                idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
+                if idx > 0:
+                    overlap[idx-1][i] += 1
+                current_level += 1
+            if data_lib["stack_"+str(j)][i] > 0:
+                img_size[i] = int(np.ceil(img_size[i] / data_lib["s_" + str(j)][i]))
+            if cut and img_size[i] <= 1:
+                break
+    for i in range(5):
+        data_lib["overlap_"+str(i+1)]=overlap[i]
+    for i in range(len(total_skip)):
+        for j in range(5):
+            total_skip[i] += (j+1) * overlap[j][i]
+            total_overlap[i] += scipy.special.binom(j+1,2) * overlap[j][i]
 
 img_size = np.array([img_dim] * len(data_lib["stack_0"]))
 overlap = np.array([[0]*len(data_lib["stack_0"])] * 5)
-
-for i in range(len(data_lib["stack_0"])):
-    current_level = 1
-    for j in range(max_stack):
-        local_skip_start = [data_lib["skstart_"+str(l)][i] for l in range(5)]
-        for k in range(data_lib["stack_"+str(j)][i]):
-            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
-            idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
-            if idx > 0:
-                overlap[idx-1][i] += 1
-            current_level += 1
-        if not data_lib["max_pooling"][i] and data_lib["stack_"+str(j)][i] > 0:
-            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
-            idx -= sum([current_level > local_skip_start[m] and data_lib["skstep_"+str(m)][i] > 1 and data_lib["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib["skstep_"+str(m)][i] == data_lib["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
-            if idx > 0:
-                overlap[idx-1][i] += 1
-            current_level += 1
-        if data_lib["stack_"+str(j)][i] > 0:
-            img_size[i] = int(np.ceil(img_size[i] / data_lib["s_" + str(j)][i]))
-        if cut and img_size[i] <= 1:
-            break
+total_skip = np.array([0] * len(data_lib["stack_0"]))
+total_overlap = np.array([0] * len(data_lib["stack_0"]))
+make_overlap(data_lib,img_size,overlap,total_skip,total_overlap)
 
 img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
 overlap_good = np.array([[0]*len(data_lib_good["stack_0"])] * 5)
+total_skip_good = np.array([0] * len(data_lib_good["stack_0"]))
+total_overlap_good = np.array([0] * len(data_lib_good["stack_0"]))
+make_overlap(data_lib_good,img_size_good,overlap_good,total_skip_good,total_overlap_good)
 
-for i in range(len(data_lib_good["stack_0"])):
-    current_level = 1
-    for j in range(max_stack):
-        local_skip_start = [data_lib_good["skstart_"+str(l)][i] for l in range(5)]
-        for k in range(data_lib_good["stack_"+str(j)][i]):
-            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_good["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
-            idx -= sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and data_lib_good["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_good["skstep_"+str(m)][i] == data_lib_good["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_good["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
-            if idx > 0:
-                overlap_good[idx-1][i] += 1
-            current_level += 1
-        if not data_lib_good["max_pooling"][i] and data_lib_good["stack_"+str(j)][i] > 0:
-            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_good["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
-            idx -= sum([current_level > local_skip_start[m] and data_lib_good["skstep_"+str(m)][i] > 1 and data_lib_good["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_good["skstep_"+str(m)][i] == data_lib_good["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_good["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_good["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
-            if idx > 0:
-                overlap_good[idx-1][i] += 1
-            current_level += 1
-        if data_lib_good["stack_"+str(j)][i] > 0:
-            img_size_good[i] = int(np.ceil(img_size_good[i] / data_lib_good["s_" + str(j)][i]))
-        if cut and img_size_good[i] <= 1:
-            break
 
 img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
 overlap_bad = np.array([[0]*len(data_lib_bad["stack_0"])] * 5)
-
-for i in range(len(data_lib_bad["stack_0"])):
-    current_level = 1
-    for j in range(max_stack):
-        local_skip_start = [data_lib_bad["skstart_"+str(l)][i] for l in range(5)]
-        for k in range(data_lib_bad["stack_"+str(j)][i]):
-            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_bad["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
-            idx -= sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and data_lib_bad["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_bad["skstep_"+str(m)][i] == data_lib_bad["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_bad["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
-            if idx > 0:
-                overlap_bad[idx-1][i] += 1
-            current_level += 1
-        if not data_lib_bad["max_pooling"][i] and data_lib_bad["stack_"+str(j)][i] > 0:
-            test = [(current_level, local_skip_start[m], current_level - local_skip_start[m] , data_lib_bad["skstep_"+str(m)][i]) for m in range(len(local_skip_start))]
-            idx = sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 for m in range(len(local_skip_start))])
-            idx -= sum([current_level > local_skip_start[m] and data_lib_bad["skstep_"+str(m)][i] > 1 and data_lib_bad["skstep_"+str(n)][i] > 1 and current_level > local_skip_start[n] and m != n and data_lib_bad["skstep_"+str(m)][i] == data_lib_bad["skstep_"+str(n)][i] and (current_level - local_skip_start[m]) % data_lib_bad["skstep_"+str(m)][i] == 0 and (current_level - local_skip_start[n]) % data_lib_bad["skstep_"+str(n)][i] == 0 for m in range(len(local_skip_start)) for n in range(len(local_skip_start))])//2
-            if idx > 0:
-                overlap_bad[idx-1][i] += 1
-            current_level += 1
-        if data_lib_bad["stack_"+str(j)][i] > 0:
-            img_size_bad[i] = int(np.ceil(img_size_bad[i] / data_lib_bad["s_" + str(j)][i]))
-        if cut and img_size_bad[i] <= 1:
-            break
-
-for i in range(5):
-    data_lib["overlap_"+str(i+1)]=overlap[i]
-    data_lib_good["overlap_"+str(i+1)]=overlap_good[i]
-    data_lib_bad["overlap_"+str(i+1)]=overlap_bad[i]
-
-total_skip = np.array([0] * len(data_lib["stack_0"]))
-for i in range(len(total_skip)):
-    for j in range(5):
-        total_skip[i] += (j+1) * overlap[j][i]
-total_skip_good = np.array([0] * len(data_lib_good["stack_0"]))
-for i in range(len(total_skip_good)):
-    for j in range(5):
-        total_skip_good[i] += (j+1) * overlap_good[j][i]
 total_skip_bad = np.array([0] * len(data_lib_bad["stack_0"]))
-for i in range(len(total_skip_bad)):
-    for j in range(5):
-        total_skip_bad[i] += (j+1) * overlap_bad[j][i]
+total_overlap_bad = np.array([0] * len(data_lib_bad["stack_0"]))
+make_overlap(data_lib_bad,img_size_bad,overlap_bad,total_skip_bad,total_overlap_bad)
+
 
 data_lib["total_skip"] = total_skip
 data_lib_good["total_skip"] = total_skip_good
 data_lib_bad["total_skip"] = total_skip_bad
+
+data_lib["total_overlap"] = total_overlap
+data_lib_good["total_overlap"] = total_overlap_good
+data_lib_bad["total_overlap"] = total_overlap_bad
 
 data_lib["depth"]=depth
 data_lib_good["depth"] = depth_good
@@ -435,80 +360,158 @@ if do_parallel_plot:
     fig.set_size_inches(180, 105)
     fig.savefig('parallel_coord_plot_cut.png',dpi=100)
 
-if do_pairgrid:
-    #g = sns.PairGrid(data_panda_good,vars=['acc','time','stack_0','stack_1','stack_2','stack_3','stack_4','stack_5','stack_6','s_0','s_1','s_2','s_3','s_4','s_5','s_6','filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13','k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13','dropout_0','dropout_1','dropout_2','dropout_3','dropout_4','dropout_5','dropout_6','dropout_7','dropout_8','dropout_9','lr','l2','global_pooling','skstart_0','skstart_1','skstart_2','skstart_3','skstart_4','skstep_0','skstep_1','skstep_2','skstep_3','skstep_4','dense_size_0','dense_size_1','epoch_sp','batch_size_sp'],hue='acc',palette='GnBu_d')
-    #g = sns.PairGrid(data_panda,vars=['acc','time','lr','l2','s_0','s_1','filters_0','filters_1','k_0','k_1','dropout_0','dropout_1','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
-    #g = sns.PairGrid(data_panda,vars=['filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13'],hue='acc',palette='GnBu_d')
-    #g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
-    #g = sns.PairGrid(data_panda,vars=["softmax","elu","relu","tanh","sigmoid","selu"],hue='acc',palette='GnBu_d')
-    g = sns.PairGrid(data_panda,vars=["acc","time","epoch_sp","batch_size_sp","depth"],hue='acc',palette='GnBu_d')
-    g.map(plt.scatter)
-    #g.map_upper(plt.scatter)
-    #g.map_lower(sns.kdeplot)
-    #g.map_diag(sns.kdeplot, lw=3, legend=False);
+def forbidden(i,j):#Filters out correlations that are too obvious
+    if (i == 'total_overlap' and 'overlap' in j) or (j == 'total_overlap' and 'overlap' in i):
+        return True
+    if (i == 'total_skip' and j == 'depth') or (j == 'total_skip' and i == 'depth'):
+        return True
+    if ('overlap' in i and j == 'total_skip') or ('overlap' in j and i == 'total_skip'):
+        return True
+    if ('overlap' in i and j == 'depth') or ('overlap' in j and i == 'depth'):
+        return True
+    if ('overlap' in i and j == 'num_features') or ('overlap' in j and i == 'num_features'):
+        return True
+    if (i == 'depth' and j == 'num_features') or (j == 'depth' and i == 'num_features'):
+        return True
+    if (i == 'total_skip' and j == 'num_features') or (j == 'total_skip' and i == 'num_features'):
+        return True
+    if (i == 'avg_dropout' and  'dropout' in j) or (j == 'avg_dropout' and  'dropout' in i):
+        return True
+    if (i == 'total_skip' and j == 'max_pooling') or (j == 'total_skip' and i == 'max_pooling'):
+        return True
+    if (i == 'max_pooling' and j == 'depth') or (j == 'max_pooling' and i == 'depth'):
+        return True
+    if ('overlap' in i and j == 'max_pooling') or ('overlap' in j and i == 'max_pooling'):
+        return True
+    act_funcs = ["elu","relu","tanh","sigmoid","selu"]
+    if any(i == m and j == n for m in act_funcs for n in act_funcs):
+        return True
+    return False
 
-    #plt.savefig('load_analysis_output.png')
-    plt.savefig('load_analysis_output_cut_epoch_batch_depth.png')
+def give_top_labels(selection, top, plot=False,save_name='test',compare_good_bad=False,bad=None):
+    correlations = selection.corr()
+    idx_pairs = [(i,j) for i in correlations for j in correlations if i != j and not math.isnan(correlations.loc[i,j]) and not forbidden(i,j)]
+    #print([abs(correlations.loc[idx_pairs[i][0],idx_pairs[i][1]]) for i in range(len(idx_pairs))])
+    sorted_idx_pairs = np.argsort([abs(correlations.loc[idx_pairs[i][0],idx_pairs[i][1]]) for i in range(len(idx_pairs))])[::-1]
+    #print(sorted_idx_pairs)
+    corr_pivot_labels = set([])
+    i = 0
+    while i < len(sorted_idx_pairs) and i < top:
+        if abs(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]]) != 1.0:
+            if not compare_good_bad and plot and i % 2 == 0:
+                x=[x for x in selection[idx_pairs[sorted_idx_pairs[i]][0]]]
+                y=[y for y in selection[idx_pairs[sorted_idx_pairs[i]][1]]]
+                plt.clf()
+                plt.cla()
+                plt.xlabel(idx_pairs[sorted_idx_pairs[i]][0]+'            correlation = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)))
+                plt.ylabel(idx_pairs[sorted_idx_pairs[i]][1])
+                sns.kdeplot(x,y,cmap="Blues_d")
+                plt.savefig(save_name + '_n_'+ str(i//2) +'.png')
+            elif compare_good_bad and i % 2 == 0:
+                x=[x for x in selection[idx_pairs[sorted_idx_pairs[i]][0]]]
+                y=[y for y in selection[idx_pairs[sorted_idx_pairs[i]][1]]]
+                plt.clf()
+                plt.cla()
+                fig = plt.figure()
+                ax1 = fig.add_subplot(1,2,1)
+                ax2 = fig.add_subplot(1,2,2,sharex=ax1,sharey=ax1)
+                ax1.set(xlabel=idx_pairs[sorted_idx_pairs[i]][0]+' good corr = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)), ylabel=idx_pairs[sorted_idx_pairs[i]][1])
+                #plt.xlabel(idx_pairs[sorted_idx_pairs[i]][0]+' correlation = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)))
+                #plt.ylabel(idx_pairs[sorted_idx_pairs[i]][1])
+                sns.kdeplot(x,y,cmap="Blues_d",ax=ax1)
+                correlations_bad = bad.corr()
+                x=[x for x in bad[idx_pairs[sorted_idx_pairs[i]][0]]]
+                y=[y for y in bad[idx_pairs[sorted_idx_pairs[i]][1]]]
+                ax2.set(xlabel=idx_pairs[sorted_idx_pairs[i]][0]+' bad corr = ' + str(round(correlations_bad.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)), ylabel=idx_pairs[sorted_idx_pairs[i]][1])
+                #plt.xlabel(idx_pairs[sorted_idx_pairs[i]][0]+'            correlation = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)))
+                #plt.ylabel(idx_pairs[sorted_idx_pairs[i]][1])
+                sns.kdeplot(x,y,cmap="Blues_d",ax=ax2)
+                plt.savefig(save_name + '_n_'+ str(i//2) +'.png')
+            plt.close("all")
+            print(idx_pairs[sorted_idx_pairs[i]][0],idx_pairs[sorted_idx_pairs[i]][1])
+            print(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0],idx_pairs[sorted_idx_pairs[i]][1]])
+            corr_pivot_labels = corr_pivot_labels.union(set([idx_pairs[sorted_idx_pairs[i]][0],idx_pairs[sorted_idx_pairs[i]][1]]))
+            i+=1
+                
+    return list(corr_pivot_labels)
+
+if do_pairgrid:
+    def make_pairgrid(data_panda,save_name,top):
+        select = [x for x in data_panda.columns]
+        selection = data_panda.loc[:, select]
+        corr_pivot_labels = give_top_labels(selection,top,plot=True,save_name=save_name)
+        #g = sns.PairGrid(data_panda_good,vars=['acc','time','stack_0','stack_1','stack_2','stack_3','stack_4','stack_5','stack_6','s_0','s_1','s_2','s_3','s_4','s_5','s_6','filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13','k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13','dropout_0','dropout_1','dropout_2','dropout_3','dropout_4','dropout_5','dropout_6','dropout_7','dropout_8','dropout_9','lr','l2','global_pooling','skstart_0','skstart_1','skstart_2','skstart_3','skstart_4','skstep_0','skstep_1','skstep_2','skstep_3','skstep_4','dense_size_0','dense_size_1','epoch_sp','batch_size_sp'],hue='acc',palette='GnBu_d')
+        #g = sns.PairGrid(data_panda,vars=['acc','time','lr','l2','s_0','s_1','filters_0','filters_1','k_0','k_1','dropout_0','dropout_1','dense_size_0','dense_size_1'],hue='acc',palette='GnBu_d')
+        #g = sns.PairGrid(data_panda,vars=['filters_0','filters_1','filters_2','filters_3','filters_4','filters_5','filters_6','filters_7','filters_8','filters_9','filters_10','filters_11','filters_12','filters_13'],hue='acc',palette='GnBu_d')
+        #g = sns.PairGrid(data_panda,vars=['k_0','k_1','k_2','k_3','k_4','k_5','k_6','k_7','k_8','k_9','k_10','k_11','k_12','k_13'],hue='acc',palette='GnBu_d')
+        #g = sns.PairGrid(data_panda,vars=["softmax","elu","relu","tanh","sigmoid","selu"],hue='acc',palette='GnBu_d')
+        #g = sns.PairGrid(data_panda,vars=["acc","time","epoch_sp","batch_size_sp","depth"],hue='acc',palette='GnBu_d')
+        plt.clf()
+        plt.cla()
+        #g = sns.PairGrid(data_panda,vars=corr_pivot_labels)
+        #g = sns.PairGrid(data_panda,vars=corr_pivot_labels,hue='acc',palette='GnBu_d')
+        #g.map(plt.scatter)
+        #g.map_upper(plt.scatter)
+        #g.map_lower(sns.kdeplot, cmap="Blues_d")
+        #g.map_diag(sns.kdeplot, lw=3, legend=False)
+        #g.map_diag(plt.scatter)
+
+        #plt.savefig('load_analysis_output.png')
+        #plt.savefig(save_name+'.png')
+    top = 80
+    give_top_labels(data_panda_good,top,plot=True,save_name='load_analysis_output_test_compare',compare_good_bad=True,bad=data_panda_bad)
+    print()
+    print('top ' + str(top) + ' correlations on all data')
+    print()
+    #make_pairgrid(data_panda,'load_analysis_output_test',top)
+    print()
+    print('top ' + str(top) + ' correlations on good data')
+    print()
+    #make_pairgrid(data_panda_good,'load_analysis_output_test_good',top)
+    print()
+    print('top ' + str(top) + ' correlations on bad data')
+    print()
+    #make_pairgrid(data_panda_bad,'load_analysis_output_test_bad',top)
 
 if do_correlations:
     corr_pivot = 0.3
     #parallel_coordinates(data_panda, class_column='acc', cols=['lr','l2'])
-    select = [x for x in data_panda.columns if x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    select = [x for x in data_panda.columns]
     #select = [x for x in data_panda.columns if x == "acc" or x == "time" or x == "depth" or x == "epoch_sp" or x == "batch_size_sp"]
     selection = data_panda.loc[:, select]
     correlations = selection.corr()
+    top = 20
     
     print()
-    print('correlations greater than '+ str(corr_pivot) + ' on all data')
+    print('top ' + str(top) + ' correlations on all data')
     print()
-    corr_pivot_labels = set([])
-    for i in correlations:
-        for j in correlations:
-            if correlations.loc[i,j] != 1.0 and abs(correlations.loc[i,j]) >= corr_pivot:
-                print(i,j)
-                print(correlations.loc[i,j])
-                corr_pivot_labels = corr_pivot_labels.union(set([i,j]))
-    corr_pivot_labels = list(corr_pivot_labels)
+    corr_pivot_labels = give_top_labels(selection, top)
     corr_select = selection[corr_pivot_labels].corr()
     #plt.matshow(correlations)
     sns.heatmap(corr_select,xticklabels=corr_select.columns.values,yticklabels=corr_select.columns.values,cmap='coolwarm')
     #correlations.style.background_gradient(cmap='coolwarm').set_precision(2)
     plt.show()
     
-    select_good = [x for x in data_panda_good.columns if x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    select_good = [x for x in data_panda_good.columns]
     selection_good = data_panda_good.loc[:, select_good]
     correlations_good = selection_good.corr()
     
     print()
-    print('correlations greater than '+ str(corr_pivot) + ' on good data')
+    print('top ' + str(top) + ' correlations on good data')
     print()
-    corr_pivot_labels_good = set([])
-    for i in correlations_good:
-        for j in correlations_good:
-            if correlations_good.loc[i,j] != 1.0 and abs(correlations_good.loc[i,j]) >= corr_pivot:
-                print(i,j)
-                print(correlations_good.loc[i,j])
-                corr_pivot_labels_good = corr_pivot_labels_good.union(set([i,j]))
-    corr_pivot_labels_good = list(corr_pivot_labels_good)
+    corr_pivot_labels_good = give_top_labels(selection_good, top)
     corr_select_good = selection_good[corr_pivot_labels_good].corr()
     sns.heatmap(corr_select_good,xticklabels=corr_select_good.columns.values,yticklabels=corr_select_good.columns.values,cmap='coolwarm')
     plt.show()
 
-    select_bad = [x for x in data_panda_bad.columns if x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    select_bad = [x for x in data_panda_bad.columns]
     selection_bad = data_panda_bad.loc[:, select_bad]
     correlations_bad = selection_bad.corr()
     
     print()
-    print('correlations greater than '+ str(corr_pivot) + ' on bad data')
+    print('top ' + str(top) + ' correlations on bad data')
     print()
-    corr_pivot_labels_bad = set([])
-    for i in correlations_bad:
-        for j in correlations_bad:
-            if correlations_bad.loc[i,j] != 1.0 and abs(correlations_bad.loc[i,j]) >= corr_pivot:
-                print(i,j)
-                print(correlations_bad.loc[i,j])
-                corr_pivot_labels_bad = corr_pivot_labels_bad.union(set([i,j]))
-    corr_pivot_labels_bad = list(corr_pivot_labels_bad)
+    corr_pivot_labels_bad = give_top_labels(selection_bad, top)
     corr_select_bad = selection_bad[corr_pivot_labels_bad].corr()
     sns.heatmap(corr_select_bad,xticklabels=corr_select_bad.columns.values,yticklabels=corr_select_bad.columns.values,cmap='coolwarm')
     plt.show()
@@ -558,7 +561,7 @@ if do_rule_finding:
     max_val_dict = {}
     min_val_dict = {}
     
-    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4"]
     selection = data_panda.loc[:, select]
 
     data_discrete = []
@@ -598,7 +601,7 @@ if do_rule_finding:
     for i in range(len(data_discrete)):
         data_discrete[i] = set(data_discrete[i])
     
-    select_good = [x for x in data_panda_good.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    select_good = [x for x in data_panda_good.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4"]
     selection_good = data_panda_good.loc[:, select_good]
     
     data_discrete_good = []
@@ -631,7 +634,7 @@ if do_rule_finding:
     for i in range(len(data_discrete_good)):
         data_discrete_good[i] = set(data_discrete_good[i])
     
-    select_bad = [x for x in data_panda_bad.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu"]
+    select_bad = [x for x in data_panda_bad.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4"]
     selection_bad = data_panda_bad.loc[:, select_bad]
 
     data_discrete_bad = []
