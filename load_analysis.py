@@ -842,7 +842,9 @@ if do_rule_finding:
             patterns.append(i)
     idx_sort = np.argsort([i.support for i in patterns])[::-1]
     for i in range(min(len(idx_sort),10)):
+        print()
         print(patterns[idx_sort[i]].items)
+        print("support in all data:")
         print(patterns[idx_sort[i]].support)
 
     #print(len(data_discrete))
@@ -861,7 +863,9 @@ if do_rule_finding:
             good_patterns.append(i)
     idx_sort = np.argsort([i.support for i in good_patterns])[::-1]
     for i in range(min(len(idx_sort),10)):
+        print()
         print(good_patterns[idx_sort[i]].items)
+        print("support in good:")
         print(good_patterns[idx_sort[i]].support)
 
     bad_patterns = []
@@ -871,51 +875,90 @@ if do_rule_finding:
             bad_patterns.append(i)
     idx_sort = np.argsort([i.support for i in bad_patterns])[::-1]
     for i in range(min(len(idx_sort),10)):
+        print()
         print(bad_patterns[idx_sort[i]].items)
+        print("support in bad:")
         print(bad_patterns[idx_sort[i]].support)
     
     good_patterns_not_in_bad = []
-    print('\ngood patterns not in bad (1 items or more) top 10:\n')
+    both_good = []
+    both_bad = []
+    print('\ngood patterns less in bad (1 items or more) top 10:\n')
     for i in results_good:
         exist = False
         for j in results_bad:
             if i.items == j.items:
                 exist = True
-                break
+                if i.support > j.support:
+                    both_good.append(i)
+                    both_bad.append(j)
         if not exist:
             good_patterns_not_in_bad.append(i)
     idx_sort = np.argsort([i.support for i in good_patterns_not_in_bad])[::-1]
     for i in range(min(len(idx_sort),10)):
+        print()
         print(good_patterns_not_in_bad[idx_sort[i]].items)
+        print("support in good:")
         print(good_patterns_not_in_bad[idx_sort[i]].support)
+        print("support in bad:")
+        print("< " + str(min_support))
+    both_idx = np.argsort([both_good[i].support/both_bad[i].support for i in range(len(both_good))])[::-1]
+    for i in range(max(0,min(10-len(idx_sort),len(both_idx)))):
+        print()
+        print(both_good[both_idx[i]].items)
+        print("support in good:")
+        print(both_good[both_idx[i]].support)
+        print("support in bad:")
+        print(both_bad[both_idx[i]].support)
     
     bad_patterns_not_in_good = []
-    print('\nbad patterns not in good (1 items or more) top 10:\n')
+    both_good = []
+    both_bad = []
+    print('\nbad patterns less in good (1 items or more) top 10:\n')
     for i in results_bad:
         exist = False
         for j in results_good:
             if i.items == j.items:
                 exist = True
-                break
+                if i.support > j.support:
+                    both_good.append(j)
+                    both_bad.append(i)
         if not exist:
             bad_patterns_not_in_good.append(i)
     idx_sort = np.argsort([i.support for i in bad_patterns_not_in_good])[::-1]
     for i in range(min(len(idx_sort),10)):
+        print()
         print(bad_patterns_not_in_good[idx_sort[i]].items)
+        print("support in good:")
+        print("< " + str(min_support))
+        print("support in bad:")
         print(bad_patterns_not_in_good[idx_sort[i]].support)
+    both_idx = np.argsort([both_bad[i].support/both_good[i].support for i in range(len(both_good))])[::-1]
+    for i in range(max(0,min(10-len(idx_sort),len(both_idx)))):
+        print()
+        print(both_good[both_idx[i]].items)
+        print("support in good:")
+        print(both_good[both_idx[i]].support)
+        print("support in bad:")
+        print(both_bad[both_idx[i]].support)
     
     union_patterns = []
     bad_union_support = []
-    print('\nunion, 1 items or more:\n')
+    print('\nunion, 1 items or more top 10 most difference:\n')
     for i in results_good:
         if len(i.items) >= 1:
             for j in results_bad:
                 if len(j.items) >= 1 and i.items == j.items:
                     union_patterns.append(i)
                     bad_union_support.append(j.support)
-                    print(i.items)
-                    print(i.support)
-                    print(j.support)
+    top_diff_idx = np.argsort([union_patterns[i].support / bad_union_support[i] for i in range(len(union_patterns))])[::-1]
+    for i in range(min(10,len(top_diff_idx))):
+        print()
+        print(union_patterns[top_diff_idx[i]].items)
+        print("support in good:")
+        print(union_patterns[top_diff_idx[i]].support)
+        print("support in bad:")
+        print(bad_union_support[top_diff_idx[i]])
     
     p_union_s_good = []
     for p in union_patterns:
@@ -943,8 +986,10 @@ if do_rule_finding:
     
     top_good_idx = np.argsort([i.support for i in union_patterns])[::-1]
     top_bad_idx = np.argsort([i for i in bad_union_support])[::-1]
-    for i in range(min(len(top_good_idx),10)):
-        idx = top_good_idx[i]
+    
+    for i in range(min(len(top_diff_idx),10)):
+        #idx = top_good_idx[i]
+        idx = top_diff_idx[i]
         #if i < 5:
         #    idx = top_good_idx[i]
         #else:
@@ -981,7 +1026,7 @@ if do_rule_finding:
             print("support in good subset selection:")
             print(do[do_idx[j]].support)
             print("support in bad subset selection:")
-            print(0.0)
+            print("< " + str(min_support))
         maybe_do_idx = np.argsort([maybe_do_good[j].support /maybe_do_bad[j].support for j in range(len(maybe_do_good))])[::-1]
         for j in range(max(0,min(5-len(do_idx),len(maybe_do_idx)))):
             print()
@@ -1011,7 +1056,7 @@ if do_rule_finding:
             print()
             print(do_not[do_not_idx[j]].items)
             print("support in good subset selection:")
-            print(0.0)
+            print("< " + str(min_support))
             print("support in bad subset selection:")
             print(do_not[do_not_idx[j]].support)
         maybe_do_not_idx = np.argsort([maybe_do_not_bad[j].support /maybe_do_not_good[j].support for j in range(len(maybe_do_not_bad))])[::-1]
