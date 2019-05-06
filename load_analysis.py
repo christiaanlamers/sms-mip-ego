@@ -29,12 +29,12 @@ CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
-do_parallel_plot = True
+do_parallel_plot = False
 do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
-do_rule_finding = False
+do_rule_finding = True
 do_feature_imp = False
 do_sens_analysis = False
 
@@ -239,6 +239,13 @@ dropout_norm_bad = np.array([1] * len(data_lib_bad["stack_0"]))
 def make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_norm):
     for i in range(max_stack):
         for j in range(len(depth)):
+            if cut and img_size[j] <= 1:
+                data_lib["filters_"+str(2*i)][j] = 0
+                data_lib["filters_"+str(2*i+1)][j] = 0
+                data_lib["k_"+str(2*i)][j] = 0
+                data_lib["k_"+str(2*i+1)][j] = 0
+                data_lib["s_"+str(i)][j] = 0
+                data_lib["stack_"+str(i)][j] = 0
             if (not cut) or img_size[j] > 1:
                 depth[j] += data_lib["stack_"+str(i)][j]
                 num_features[j] += data_lib["stack_"+str(i)][j] * data_lib["filters_" + str(2*i)][j]
@@ -500,7 +507,7 @@ def forbidden(i,j):#Filters out correlations that are too obvious
         return True
     if (i == 'depth' and j == 'num_features') or (j == 'depth' and i == 'num_features'):
         return True
-    if (i == 'total_skip' and j == 'num_features') or (j == 'total_skip' and i == 'num_features'):
+    if cut and (i == 'total_skip' and j == 'num_features') or (j == 'total_skip' and i == 'num_features'):
         return True
     if (i == 'avg_dropout' and  'dropout' in j) or (j == 'avg_dropout' and  'dropout' in i):
         return True
@@ -525,17 +532,26 @@ def forbidden(i,j):#Filters out correlations that are too obvious
     act_funcs = ["elu","relu","tanh","sigmoid","selu"]
     if any(i == m and j == n for m in act_funcs for n in act_funcs):
         return True
+    filters = ["filters_"+str(i) for i in range(2*max_stack)]
+    stacks =  ["stack_"+str(i) for i in range(max_stack)]
+    forbidden_set = [kernels,strides,filters,stacks]
+    if cut:
+        for v in forbidden_set:
+            for z in forbidden_set:
+                if any(i == m and j == n for m in v for n in z):
+                    return True
     return False
 
 def give_top_labels(selection, top, plot=False,save_name='test',compare_good_bad=False,bad=None):
     correlations = selection.corr()
-    idx_pairs = [(i,j) for i in correlations for j in correlations if i != j and not math.isnan(correlations.loc[i,j]) and not forbidden(i,j)]
+    idx_pairs = [(i,j) for i in correlations for j in correlations if i != j and (not math.isnan(correlations.loc[i,j])) and (not forbidden(i,j))]
     #print([abs(correlations.loc[idx_pairs[i][0],idx_pairs[i][1]]) for i in range(len(idx_pairs))])
     sorted_idx_pairs = np.argsort([abs(correlations.loc[idx_pairs[i][0],idx_pairs[i][1]]) for i in range(len(idx_pairs))])[::-1]
     #print(sorted_idx_pairs)
     corr_pivot_labels = set([])
     i = 0
-    while i < len(sorted_idx_pairs) and i < top:
+    total = 0
+    while i < len(sorted_idx_pairs) and total < top:
         if not compare_good_bad and plot and i % 2 == 0:
             x=[x for x in selection[idx_pairs[sorted_idx_pairs[i]][0]]]
             y=[y for y in selection[idx_pairs[sorted_idx_pairs[i]][1]]]
@@ -556,19 +572,26 @@ def give_top_labels(selection, top, plot=False,save_name='test',compare_good_bad
             ax1.set(xlabel=idx_pairs[sorted_idx_pairs[i]][0]+' good corr = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)), ylabel=idx_pairs[sorted_idx_pairs[i]][1])
             #plt.xlabel(idx_pairs[sorted_idx_pairs[i]][0]+' correlation = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)))
             #plt.ylabel(idx_pairs[sorted_idx_pairs[i]][1])
-            sns.kdeplot(x,y,cmap="Blues_d",ax=ax1)
+            try:
+                sns.kdeplot(x,y,cmap="Blues_d",ax=ax1)
+            except:
+                print("Could not plot good for " + str(idx_pairs[sorted_idx_pairs[i]][0]) + " and " + str(idx_pairs[sorted_idx_pairs[i]][1]))
             correlations_bad = bad.corr()
             x=[x for x in bad[idx_pairs[sorted_idx_pairs[i]][0]]]
             y=[y for y in bad[idx_pairs[sorted_idx_pairs[i]][1]]]
             ax2.set(xlabel=idx_pairs[sorted_idx_pairs[i]][0]+' bad corr = ' + str(round(correlations_bad.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)), ylabel=idx_pairs[sorted_idx_pairs[i]][1])
             #plt.xlabel(idx_pairs[sorted_idx_pairs[i]][0]+'            correlation = ' + str(round(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0]][idx_pairs[sorted_idx_pairs[i]][1]],2)))
             #plt.ylabel(idx_pairs[sorted_idx_pairs[i]][1])
-            sns.kdeplot(x,y,cmap="Blues_d",ax=ax2)
+            try:
+                sns.kdeplot(x,y,cmap="Blues_d",ax=ax2)
+            except:
+                print("Could not plot bad for " + str(idx_pairs[sorted_idx_pairs[i]][0]) + " and " + str(idx_pairs[sorted_idx_pairs[i]][1]))
             plt.savefig(save_name + '_n_'+ str(i//2) +'.png')
         plt.close("all")
         print(idx_pairs[sorted_idx_pairs[i]][0],idx_pairs[sorted_idx_pairs[i]][1])
         print(correlations.loc[idx_pairs[sorted_idx_pairs[i]][0],idx_pairs[sorted_idx_pairs[i]][1]])
         corr_pivot_labels = corr_pivot_labels.union(set([idx_pairs[sorted_idx_pairs[i]][0],idx_pairs[sorted_idx_pairs[i]][1]]))
+        total += 1
         i+=1
                 
     return list(corr_pivot_labels)
@@ -699,7 +722,7 @@ if do_rule_finding:
     max_val_dict = {}
     min_val_dict = {}
     
-    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4"]
+    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4" and x != "stack_0" and x != "stack_1" and x != "stack_2" and x != "stack_3" and x != "stack_4" and x != "stack_5" and x != "stack_6" and x!= "k_0" and x!= "k_1" and x!= "k_2" and x!= "k_3" and x!= "k_4" and x!= "k_5" and x!= "k_6" and x!= "k_7" and x!= "k_8" and x!= "k_9" and x!= "k_10" and x!= "k_11" and x!= "k_12" and x!= "k_13" and x!= "filters_0" and x!= "filters_1" and x!= "filters_2" and x!= "filters_3" and x!= "filters_4" and x!= "filters_5" and x!= "filters_6" and x!= "filters_7" and x!= "filters_8" and x!= "filters_9" and x!= "filters_10" and x!= "filters_11" and x!= "filters_12" and x!= "filters_13" and x!= "s_0" and x!= "s_1" and x!= "s_2" and x!= "s_3" and x!= "s_4" and x!= "s_5" and x!= "s_6" and x!= "s_7" and x!= "s_8" and x!= "s_9" and x!= "s_10" and x!= "s_11" and x!= "s_12" and x!= "s_13"]
     selection = data_panda.loc[:, select]
 
     data_discrete = []
@@ -739,7 +762,7 @@ if do_rule_finding:
     for i in range(len(data_discrete)):
         data_discrete[i] = set(data_discrete[i])
     
-    select_good = [x for x in data_panda_good.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4"]
+    select_good = [x for x in data_panda_good.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4" and x != "stack_0" and x != "stack_1" and x != "stack_2" and x != "stack_3" and x != "stack_4" and x != "stack_5" and x != "stack_6" and x!= "k_0" and x!= "k_1" and x!= "k_2" and x!= "k_3" and x!= "k_4" and x!= "k_5" and x!= "k_6" and x!= "k_7" and x!= "k_8" and x!= "k_9" and x!= "k_10" and x!= "k_11" and x!= "k_12" and x!= "k_13" and x!= "filters_0" and x!= "filters_1" and x!= "filters_2" and x!= "filters_3" and x!= "filters_4" and x!= "filters_5" and x!= "filters_6" and x!= "filters_7" and x!= "filters_8" and x!= "filters_9" and x!= "filters_10" and x!= "filters_11" and x!= "filters_12" and x!= "filters_13" and x!= "s_0" and x!= "s_1" and x!= "s_2" and x!= "s_3" and x!= "s_4" and x!= "s_5" and x!= "s_6" and x!= "s_7" and x!= "s_8" and x!= "s_9" and x!= "s_10" and x!= "s_11" and x!= "s_12" and x!= "s_13"]
     selection_good = data_panda_good.loc[:, select_good]
     
     data_discrete_good = []
@@ -772,7 +795,7 @@ if do_rule_finding:
     for i in range(len(data_discrete_good)):
         data_discrete_good[i] = set(data_discrete_good[i])
     
-    select_bad = [x for x in data_panda_bad.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4"]
+    select_bad = [x for x in data_panda_bad.columns if x != "time" and x != "acc" and x != "elu" and x != "relu" and x != "tanh" and x != "sigmoid" and x != "selu" and x != "overlap_5" and x != "overlap_4" and x != "stack_0" and x != "stack_1" and x != "stack_2" and x != "stack_3" and x != "stack_4" and x != "stack_5" and x != "stack_6" and x!= "k_0" and x!= "k_1" and x!= "k_2" and x!= "k_3" and x!= "k_4" and x!= "k_5" and x!= "k_6" and x!= "k_7" and x!= "k_8" and x!= "k_9" and x!= "k_10" and x!= "k_11" and x!= "k_12" and x!= "k_13" and x!= "filters_0" and x!= "filters_1" and x!= "filters_2" and x!= "filters_3" and x!= "filters_4" and x!= "filters_5" and x!= "filters_6" and x!= "filters_7" and x!= "filters_8" and x!= "filters_9" and x!= "filters_10" and x!= "filters_11" and x!= "filters_12" and x!= "filters_13" and x!= "s_0" and x!= "s_1" and x!= "s_2" and x!= "s_3" and x!= "s_4" and x!= "s_5" and x!= "s_6" and x!= "s_7" and x!= "s_8" and x!= "s_9" and x!= "s_10" and x!= "s_11" and x!= "s_12" and x!= "s_13"]
     selection_bad = data_panda_bad.loc[:, select_bad]
 
     data_discrete_bad = []
@@ -938,37 +961,67 @@ if do_rule_finding:
         print()
         print("do:")
         print()
+        do = []
+        maybe_do_good = []
+        maybe_do_bad = []
         for j in range(len(p_union_s_good_results[idx])):
-            do = []
             exist_equal = False
             for k in range(len(p_union_s_bad_results[idx])):
                 if p_union_s_good_results[idx][j].items == p_union_s_bad_results[idx][k].items:
                     exist_equal = True
-                    break
+                    if p_union_s_good_results[idx][j].support > p_union_s_bad_results[idx][k].support:
+                        maybe_do_good.append(p_union_s_good_results[idx][j])
+                        maybe_do_bad.append(p_union_s_bad_results[idx][k])
             if not exist_equal and not any('acc:' in string for string in p_union_s_good_results[idx][j].items) and not any('time:' in string for string in p_union_s_good_results[idx][j].items):
                 do.append(p_union_s_good_results[idx][j])
         do_idx = np.argsort([j.support for j in do])[::-1]
         for j in range(min(5,len(do_idx))):
+            print()
             print(do[do_idx[j]].items)
             print("support in good subset selection:")
             print(do[do_idx[j]].support)
+            print("support in bad subset selection:")
+            print(0.0)
+        maybe_do_idx = np.argsort([maybe_do_good[j].support /maybe_do_bad[j].support for j in range(len(maybe_do_good))])[::-1]
+        for j in range(max(0,min(5-len(do_idx),len(maybe_do_idx)))):
+            print()
+            print(maybe_do_good[maybe_do_idx[j]].items)
+            print("support in good subset selection:")
+            print(maybe_do_good[maybe_do_idx[j]].support)
+            print("support in bad subset selection:")
+            print(maybe_do_bad[maybe_do_idx[j]].support)
         print()
         print("do not:")
         print()
+        do_not = []
+        maybe_do_not_bad = []
+        maybe_do_not_good = []
         for j in range(len(p_union_s_bad_results[idx])):
-            do_not = []
             exist_equal = False
             for k in range(len(p_union_s_good_results[idx])):
                 if p_union_s_bad_results[idx][j].items == p_union_s_good_results[idx][k].items:
                     exist_equal = True
-                    break
+                    if p_union_s_bad_results[idx][j].support > p_union_s_good_results[idx][k].support:
+                        maybe_do_not_bad.append(p_union_s_bad_results[idx][j])
+                        maybe_do_not_good.append(p_union_s_good_results[idx][k])
             if not exist_equal and not any('acc:' in string for string in p_union_s_bad_results[idx][j].items) and not any('time:' in string for string in p_union_s_bad_results[idx][j].items):
                 do_not.append(p_union_s_bad_results[idx][j])
         do_not_idx = np.argsort([j.support for j in do_not])[::-1]
         for j in range(min(5,len(do_not_idx))):
+            print()
             print(do_not[do_not_idx[j]].items)
             print("support in good subset selection:")
+            print(0.0)
+            print("support in bad subset selection:")
             print(do_not[do_not_idx[j]].support)
+        maybe_do_not_idx = np.argsort([maybe_do_not_bad[j].support /maybe_do_not_good[j].support for j in range(len(maybe_do_not_bad))])[::-1]
+        for j in range(max(0,min(5-len(do_not_idx),len(maybe_do_not_idx)))):
+            print()
+            print(maybe_do_not_good[maybe_do_not_idx[j]].items)
+            print("support in good subset selection:")
+            print(maybe_do_not_good[maybe_do_not_idx[j]].support)
+            print("support in bad subset selection:")
+            print(maybe_do_not_bad[maybe_do_not_idx[j]].support)
             
 
 #define the search space.
