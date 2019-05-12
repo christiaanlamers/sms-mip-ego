@@ -561,6 +561,9 @@ def test_skippy():
     from mipego.mipego import Solution #TODO remove this, only for testing
     from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
     from keras.utils import plot_model
+    
+    with open('skippy_test_train_hist' + '_eval_train_hist.json', 'w') as f:
+        f.write('')
     #define the search space.
     #objective = obj_func('./all-cnn_bi.py')
     activation_fun = ["softmax"]
@@ -692,7 +695,7 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'s_2': 7, 'lr': 0.005478541674651396, 'skstep_2': 4, 'dropout_8': 0.5440199827441856, 'k_12': 15, 'activ_dense': 'softmax', 'stack_4': 3, 'k_5': 2, 'dropout_4': 0.24617655948523018, 's_3': 6, 'k_11': 13, 'filters_10': 84, 'dropout_0': 0.0639815161048702, 'k_7': 13, 'filters_9': 178, 'k_1': 13, 'dropout_6': 0.1752239013431692, 'filters_7': 353, 'skstep_4': 6, 'skstart_2': 0, 'stack_0': 0, 'stack_5': 1, 's_5': 2, 'k_13': 6, 'filters_2': 110, 'filters_0': 248, 'skstart_1': 5, 'filters_6': 341, 'filters_8': 165, 'skstart_4': 2, 'l2': 0.0012874308061650037, 's_0': 9, 'global_pooling': False, 'stack_6': 1, 's_1': 2, 'skstep_0': 4, 'dropout_3': 0.495646008202597, 'skstart_0': 3, 'k_6': 2, 'filters_1': 61, 'dropout_2': 0.028121315386701783, 'stack_3': 2, 'filters_3': 299, 'stack_1': 3, 'max_pooling': True, 'filters_4': 259, 'filters_11': 207, 'k_3': 15, 'k_0': 15, 'dense_size_0': 1400, 'k_4': 10, 's_6': 5, 'dropout_9': 0.004273458743956573, 'skstep_3': 6, 'filters_5': 16, 's_4': 2, 'dropout_1': 0.42526328646019135, 'dense_size_1': 2990, 'k_10': 9, 'k_2': 4, 'skstep_1': 6, 'dropout_5': 0.3927105783290164, 'filters_12': 283, 'dropout_7': 0.01357058138235737, 'activation': 'selu', 'filters_13': 228, 'step': False, 'k_8': 2, 'k_9': 2, 'skstart_3': 1, 'stack_2': 3}
+    vla = {'s_4': 3, 'k_12': 1, 'k_13': 13, 'k_4': 3, 'filters_9': 273, 'stack_2': 5, 'skstep_1': 8, 'stack_4': 2, 's_2': 7, 'filters_8': 463, 's_6': 5, 'dropout_7': 0.14258839346689015, 's_5': 8, 'dropout_3': 0.4887239563686235, 'k_0': 3, 'filters_13': 506, 'dropout_1': 0.02305687664777915, 'stack_5': 6, 'skstart_4': 5, 'dropout_4': 0.2198815770696341, 'filters_12': 368, 'k_9': 13, 'dense_size_0': 915, 'max_pooling': True, 'k_8': 1, 'skstart_1': 4, 'k_1': 3, 's_1': 6, 'filters_6': 476, 'dropout_9': 0.237736517209488, 'k_3': 2, 'skstart_2': 0, 's_3': 4, 'step': True, 'filters_1': 251, 'stack_3': 7, 'dropout_6': 0.009317366697570491, 'filters_5': 199, 'k_10': 10, 'skstart_0': 2, 'filters_4': 239, 'filters_0': 266, 'dense_size_1': 2114, 'lr': 0.0097450688503161, 'skstep_4': 9, 'dropout_8': 0.06911053842571835, 'filters_2': 397, 'filters_3': 341, 'filters_10': 409, 's_0': 3, 'activation': 'elu', 'k_7': 9, 'stack_6': 2, 'skstart_3': 4, 'stack_0': 4, 'k_11': 6, 'k_2': 3, 'l2': 0.0005256770455060354, 'skstep_0': 7, 'skstep_2': 6, 'dropout_2': 0.12188479132476926, 'k_5': 13, 'global_pooling': True, 'skstep_3': 2, 'filters_11': 59, 'dropout_0': 0.0010461409934142763, 'k_6': 4, 'stack_1': 0, 'filters_7': 394, 'dropout_5': 0.3355844862089496, 'activ_dense': 'softmax'}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]

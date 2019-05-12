@@ -585,6 +585,9 @@ def test_skippy():
     from mipego.mipego import Solution #TODO remove this, only for testing
     from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
     from keras.utils import plot_model
+    
+    with open('skippy_test_train_hist' + '_eval_train_hist.json', 'w') as f:
+        f.write('')
     #define the search space.
     #objective = obj_func('./all-cnn_bi.py')
     activation_fun = ["softmax"]
