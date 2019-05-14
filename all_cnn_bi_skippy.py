@@ -197,7 +197,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],x_train.shape[2],1)
     #x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],x_test.shape[2],1)
     
-    use_validation = True#TODO remove this
+    #use_validation = True#TODO remove this
     
     if use_validation:
         x_train,x_val,y_train, y_val = sklearn.model_selection.train_test_split(x_train,y_train, test_size=2000, train_size=None, random_state=42,shuffle=True,stratify=y_train)

@@ -641,7 +641,7 @@ def test_skippy():
     k_13=1
     activation='relu'
     activ_dense='softmax'
-    dropout_0=0.001
+    dropout_0=0.0#0.001
     dropout_1=0.001
     dropout_2=0.001
     dropout_3=0.001
@@ -651,7 +651,7 @@ def test_skippy():
     dropout_7=0.001
     dropout_8=0.001
     dropout_9=0.001
-    lr=0.0097450688503161,#0.01
+    lr=0.0097450688503161#0.01
     l2=0.0005256770455060354#0.0001
     step=True
     global_pooling=True
@@ -692,7 +692,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = True
+    test = False
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         #model = CNN_conf(vla,test=test)
