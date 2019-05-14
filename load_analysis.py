@@ -22,8 +22,8 @@ from apyori import apriori
 from mipego.Surrogate import RandomForest
 from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
-disfunc_time = 200000 #80000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
-cut = True #needed for derived data such as depth, in case of the cut method, the network is less deep
+disfunc_time = 80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
+cut = False #needed for derived data such as depth, in case of the cut method, the network is less deep
 max_stack = 7 #the number of stacks in the construction method
 CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
@@ -34,8 +34,8 @@ do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
-do_rule_finding = True
-do_feature_imp = False
+do_rule_finding = False
+do_feature_imp = True
 do_sens_analysis = False
 
 file_name = str(sys.argv[1])
@@ -457,7 +457,7 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     normalized_df_bad = (selection_2 -minnert)/normalizer
     normalized_df_bad=normalized_df_bad.drop(columns="good")
     return normalized_combo,normalized_df_good,normalized_df_bad
-
+#select = [x for x in data_panda_1.columns if x == 'acc' or x == 'avg_dropout' or x == 'avg_filters' or x == 'avg_kernel' or x == 'avg_skip_start' or x == 'avg_skip_step' or x == 'depth' or x == 'dropout_0' or x == 'dropout_1' or x == 'dropout_2' or x == 'dropout_3' or x == 'dropout_4' or x == 'dropout_5' or x == 'dropout_6' or x == 'dropout_7' or x == 'dropout_8' or x == 'dropout_9' or x == 'elu']
 normalized_df= normalize_panda_data(data_panda)
 normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good,data_panda_bad)
 
@@ -507,8 +507,8 @@ def forbidden(i,j):#Filters out correlations that are too obvious
         return True
     if (i == 'depth' and j == 'num_features') or (j == 'depth' and i == 'num_features'):
         return True
-    if cut and (i == 'total_skip' and j == 'num_features') or (j == 'total_skip' and i == 'num_features'):
-        return True
+    #if cut and ((i == 'total_skip' and j == 'num_features') or (j == 'total_skip' and i == 'num_features')):
+    #    return True
     if (i == 'avg_dropout' and  'dropout' in j) or (j == 'avg_dropout' and  'dropout' in i):
         return True
     if (i == 'total_skip' and j == 'max_pooling') or (j == 'total_skip' and i == 'max_pooling'):
@@ -521,8 +521,12 @@ def forbidden(i,j):#Filters out correlations that are too obvious
         return True
     if (i == 'avg_skip_start' and 'skstart_' in j) or (j == 'avg_skip_start' and 'skstart' in i):
         return True
-    if (i == 'avg_filters' and 'filters_' in j) or (i == 'avg_filters' and 'filters_' in j):
+    if (i == 'avg_filters' and 'filters_' in j) or (j == 'avg_filters' and 'filters_' in i):
         return True
+    #begin for tweaked:
+    if (i == 'avg_filters' and j == 'num_features') or (j == 'avg_filters' and i == 'num_features'):
+        return True
+    #end for tweaked
     kernels = ["k_"+str(i) for i in range(2*max_stack)]
     if any((i == 'avg_kernel_size' and j == m) or (j == 'avg_kernel_size' and i == m) for m in kernels):
         return True
@@ -1099,8 +1103,8 @@ search_space =  stack_sizes * strides * filters *  kernel_size * activation * ac
 
 #print("searchspace",search_space.levels)
 
-time_model = RandomForest(levels=search_space.levels,n_estimators=10,workaround=True)
-loss_model = RandomForest(levels=search_space.levels,n_estimators=10,workaround=True)
+time_model = RandomForest(levels=search_space.levels,n_estimators=1000,workaround=True)
+loss_model = RandomForest(levels=search_space.levels,n_estimators=1000,workaround=True)
 X = np.atleast_2d([s.tolist() for s in solutions])
 time_fitness = np.array([s.time for s in solutions])
 loss_fitness = np.array([s.loss for s in solutions])
