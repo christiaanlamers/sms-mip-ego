@@ -427,9 +427,9 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     layer = Dense(num_classes, kernel_regularizer=l2(cfg['l2']), bias_regularizer=l2(cfg['l2']))(layer)
     out = Activation(cfg['activ_dense'])(layer)
     
-    cfg['decay'] = cfg['lr'] / float(epochs)
+    cfg['decay'] = cfg['lr']*20 / float(epochs)#TODO remove *20
     def step_decay(epoch):
-        initial_lrate = cfg['lr']
+        initial_lrate = cfg['lr']*20 #TODO remove *20
         drop = 0.1
         epochs_drop = 20.0
         lrate = initial_lrate * math.pow(drop,  
@@ -444,7 +444,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
 
     # initiate RMSprop optimizer
     #opt = keras.optimizers.rmsprop(lr= cfg['lr'], decay=cfg['decay'])
-    opt = keras.optimizers.SGD(lr=cfg['lr'], momentum=0.9, decay=cfg['decay'], nesterov=False)
+    opt = keras.optimizers.SGD(lr=cfg['lr']*20, momentum=0.9, decay=cfg['decay'], nesterov=False)#TODO remove *20
 
     model = keras.models.Model(inputs=input1, outputs=out)
 
