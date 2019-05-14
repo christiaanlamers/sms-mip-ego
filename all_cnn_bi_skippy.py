@@ -202,10 +202,6 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     if use_validation:
         x_train,x_val,y_train, y_val = sklearn.model_selection.train_test_split(x_train,y_train, test_size=2000, train_size=None, random_state=42,shuffle=True,stratify=y_train)
     
-    print("shape:")
-    print(x_train.shape)
-    print(x_val.shape)
-    
     cfg_df = pd.DataFrame(cfg, index=[0])
 
     # Convert class vectors to binary class matrices.

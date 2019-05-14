@@ -651,9 +651,9 @@ def test_skippy():
     dropout_7=0.001
     dropout_8=0.001
     dropout_9=0.001
-    lr=0.01
-    l2=0.0001
-    step=False#True
+    lr=0.0097450688503161,#0.01
+    l2=0.0005256770455060354#0.0001
+    step=True
     global_pooling=True
 
     #skippy parameters
@@ -692,7 +692,7 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
         model = CNN_conf(X[0].to_dict(),test=test)
         #model = CNN_conf(vla,test=test)
@@ -701,7 +701,7 @@ def test_skippy():
         print(model.count_params())
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
-        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
+        timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 200,verbose=1)
         #timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1)
         print('timer, loss:')
         print(timer, loss)
