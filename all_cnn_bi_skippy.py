@@ -516,7 +516,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             cval=0.0,
             horizontal_flip=True,  # randomly flip images
             vertical_flip=True,  # randomly flip images
-            rescale=1/255.0)
+            rescale=1.0)
         #datagen = ImageDataGenerator(
         #     featurewise_center=cfg['featurewise_center'],  # set input mean to 0 over the dataset
         #     samplewise_center=cfg['samplewise_center'],  # set each sample mean to 0
