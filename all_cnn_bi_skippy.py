@@ -481,7 +481,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
     
-    if not data_augmentation:#CHRIS data augmentation handles normalization
+    if not data_augmentation or data_augmentation:# CHRIS data augmentation handles normalizationTODO remove or data_augmentation
         x_train /= 255.
         x_test /= 255.
 
@@ -516,7 +516,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             cval=0.0,
             horizontal_flip=True,  # randomly flip images
             vertical_flip=True,  # randomly flip images
-            rescale=1/255.0)
+            rescale=1.0)
         #datagen = ImageDataGenerator(
         #     featurewise_center=cfg['featurewise_center'],  # set input mean to 0 over the dataset
         #     samplewise_center=cfg['samplewise_center'],  # set each sample mean to 0
