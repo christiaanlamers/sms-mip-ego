@@ -79,7 +79,11 @@ class Skip_manager(object):
                 if K.int_shape(padded)[3] != filters:
                     #CHRIS convolution to bound amount of features
                     #CHRIS can funcion as addition, or projection followed by addition
-                    padded = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded)#CHRIS kernel value set to (1,1) in order to simply act as projection
+                    #padded = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded)#CHRIS kernel value set to (1,1) in order to simply act as projection
+                    if K.int_shape(padded)[3] < K.int_shape(layer)[3]:
+                        padded = tf.pad(padded, [[0, 0], [np.ceil((K.int_shape(layer)[3]- K.int_shape(padded)[3])/ 2), np.floor((K.int_shape(layer)[3]- K.int_shape(padded)[3])/ 2)], [0, 0], [0, 0]])
+                    else:
+                        layer = tf.pad(layer, [[0, 0], [np.ceil((K.int_shape(padded)[3] -K.int_shape(layer)[3])/ 2), np.floor((K.int_shape(padded)[3] - K.int_shape(layer)[3])/ 2)], [0, 0], [0, 0]])
                 layer = Add()([layer, padded])
             elif K.int_shape(incoming_layer)[1] < K.int_shape(layer)[1] and K.int_shape(incoming_layer)[2] >= K.int_shape(layer)[2]:
                 padded1 = ZeroPadding2D(padding=(pad_tpl1, 0))(incoming_layer)
@@ -99,17 +103,26 @@ class Skip_manager(object):
                 layer= Add()([padded1, padded2])
             else:
                 #print(layer.shape)
+                #TODO we never get to this branch, but this branch is bugged
                 padded = ZeroPadding2D(padding=(pad_tpl1, pad_tpl2))(layer)
                 if K.int_shape(padded)[3] !=  filters:
                     #CHRIS convolution to bound amount of features
                     #CHRIS can funcion as addition, or projection followed by addition
-                    padded = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded)#CHRIS kernel value set to (1,1) in order to simply act as projection
+                    #padded = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(padded)#CHRIS kernel value set to (1,1) in order to simply act as projection
+                    if K.int_shape(padded)[3] < K.int_shape(layer)[3]:
+                        padded = tf.pad(padded, [[0, 0], [np.ceil((K.int_shape(layer)[3]- K.int_shape(padded)[3])/ 2), np.floor((K.int_shape(layer)[3]- K.int_shape(padded)[3])/ 2)], [0, 0], [0, 0]])
+                    else:
+                        layer = tf.pad(layer, [[0, 0], [np.ceil((K.int_shape(padded)[3] -K.int_shape(layer)[3])/ 2), np.floor((K.int_shape(padded)[3] - K.int_shape(layer)[3])/ 2)], [0, 0], [0, 0]])
                 layer= Add()([padded, incoming_layer])
         else:
             if K.int_shape(incoming_layer)[3] != filters:
                 #CHRIS convolution to bound amount of features
                 #CHRIS can funcion as addition, or projection followed by addition
                 incoming_layer = Conv2D(filters, (1,1), padding='same', kernel_regularizer=l2(regulizer), bias_regularizer=l2(regulizer))(incoming_layer)#CHRIS kernel value set to (1,1) in order to simply act as projection
+                if K.int_shape(incoming_layer)[3] < K.int_shape(layer)[3]:
+                    incoming_layer = tf.pad(incoming_layer, [[0, 0], [np.ceil((K.int_shape(layer)[3]- K.int_shape(incoming_layer)[3])/ 2), np.floor((K.int_shape(layer)[3]- K.int_shape(incoming_layer)[3])/ 2)], [0, 0], [0, 0]])
+                else:
+                    layer = tf.pad(layer, [[0, 0], [np.ceil((K.int_shape(incoming_layer)[3] -K.int_shape(layer)[3])/ 2), np.floor((K.int_shape(incoming_layer)[3] - K.int_shape(layer)[3])/ 2)], [0, 0], [0, 0]])
             layer= Add()([layer, incoming_layer])
         return layer
 
