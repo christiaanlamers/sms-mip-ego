@@ -15,11 +15,13 @@ plt.xlabel('epochs')
 plt.ylabel('accuracy')
 
 for i in eval_data:
-    y = i[1]
-    x = i[2]
+    y_train = i[1]
+    y_val = i[2]
+    x = i[3]
     for j in range(len(x)):
         x[j] /= 60*60
     x = [i + 1 for i in range(len(y))]
-    plt.plot(x,y)
+    plt.plot(x,y_train,'orange')
+    plt.plot(x,y_val,'blue')
 
 plt.show()
