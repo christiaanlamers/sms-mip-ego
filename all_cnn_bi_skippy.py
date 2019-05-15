@@ -512,7 +512,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             shear_range=20.0,
             zoom_range=2.0,
             channel_shift_range=0.0,
-            fill_mode='wrap'',#('constant','nearest',reflect','wrap')
+            fill_mode='wrap',#('constant','nearest',reflect','wrap')
             cval=0.0,
             horizontal_flip=True,  # randomly flip images
             vertical_flip=True,  # randomly flip images
