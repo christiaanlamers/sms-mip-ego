@@ -500,13 +500,13 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         print('Using real-time data augmentation.')
         # This will do preprocessing and realtime data augmentation:
         datagen = ImageDataGenerator(
-            featurewise_center=True,  # set input mean to 0 over the dataset
-            samplewise_center=True,  # set each sample mean to 0
-            featurewise_std_normalization=True,  # divide inputs by std of the dataset
-            samplewise_std_normalization=True,  # divide each input by its std
+            featurewise_center=False,  # set input mean to 0 over the dataset
+            samplewise_center=False,  # set each sample mean to 0
+            featurewise_std_normalization=False,  # divide inputs by std of the dataset
+            samplewise_std_normalization=False,  # divide each input by its std
             zca_epsilon=1*10**-6,
             zca_whitening=False,  # apply ZCA whitening
-            rotation_range=20,  # randomly rotate images in the range (degrees, 0 to 180)
+            rotation_range=180,  # randomly rotate images in the range (degrees, 0 to 180)
             width_shift_range=0.25,  # randomly shift images horizontally (fraction of total width)
             height_shift_range=0.25,  # randomly shift images vertically (fraction of total height)
             shear_range=20.0,
@@ -516,7 +516,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
             cval=0.0,
             horizontal_flip=True,  # randomly flip images
             vertical_flip=True,  # randomly flip images
-            rescale=1.0)
+            rescale=1/255.0)
         #datagen = ImageDataGenerator(
         #     featurewise_center=cfg['featurewise_center'],  # set input mean to 0 over the dataset
         #     samplewise_center=cfg['samplewise_center'],  # set each sample mean to 0
