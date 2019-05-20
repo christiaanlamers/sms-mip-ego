@@ -29,13 +29,13 @@ CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
-do_parallel_plot = False
+do_parallel_plot = True
 do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
-do_feature_imp = True
+do_feature_imp = False
 do_sens_analysis = False
 
 file_name = str(sys.argv[1])
@@ -438,8 +438,8 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     select_2 = [x for x in data_panda_2.columns if x != "activation" and x != "activ_dense"]
     selection_1 = data_panda_1.loc[:, select_1]
     selection_2 = data_panda_2.loc[:, select_2]
-    selection_1["good"] = [True] * len(selection_1["depth"])
-    selection_2["good"] = [False] * len(selection_2["depth"])
+    selection_1["good"] = [True] * len(selection_1["time"])
+    selection_2["good"] = [False] * len(selection_2["time"])
     combo = pd.concat([selection_1, selection_2])
     maxert = combo.max()
     minnert = combo.min()
@@ -457,9 +457,12 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     normalized_df_bad = (selection_2 -minnert)/normalizer
     normalized_df_bad=normalized_df_bad.drop(columns="good")
     return normalized_combo,normalized_df_good,normalized_df_bad
-#select = [x for x in data_panda_1.columns if x == 'acc' or x == 'avg_dropout' or x == 'avg_filters' or x == 'avg_kernel' or x == 'avg_skip_start' or x == 'avg_skip_step' or x == 'depth' or x == 'dropout_0' or x == 'dropout_1' or x == 'dropout_2' or x == 'dropout_3' or x == 'dropout_4' or x == 'dropout_5' or x == 'dropout_6' or x == 'dropout_7' or x == 'dropout_8' or x == 'dropout_9' or x == 'elu']
-normalized_df= normalize_panda_data(data_panda)
-normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good,data_panda_bad)
+#select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu']
+select = [x for x in data_panda.columns if x == 'time']
+#normalized_df= normalize_panda_data(data_panda.loc[:,select])
+normalized_df= data_panda.loc[:,select]
+#normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good.loc[:,select],data_panda_bad.loc[:,select])
+normalized_df_good,normalized_df_bad= data_panda_good.loc[:,select],data_panda_bad.loc[:,select]
 
 if do_parallel_plot:
     #color_good = {'boxes': 'DarkGreen', 'whiskers': 'DarkGreen','medians': 'DarkGreen', 'caps': 'Green'}
@@ -477,7 +480,7 @@ if do_parallel_plot:
             medianprops=dict(linestyle='-', linewidth=2.0),
             whiskerprops=dict(linestyle='-', linewidth=2.0),
             capprops=dict(linestyle='-', linewidth=2.0),
-            showfliers=True, grid=True, rot=0)
+            showfliers=False, grid=True, rot=0)
     normalized_df_bad.plot(kind='box',
              color=dict(boxes='r', whiskers='r', medians='r', caps='r'),
              boxprops=dict(linestyle='-', linewidth=1.0),
@@ -485,7 +488,7 @@ if do_parallel_plot:
              medianprops=dict(linestyle='-', linewidth=1.0),
              whiskerprops=dict(linestyle='-', linewidth=1.0),
              capprops=dict(linestyle='-', linewidth=1.0),
-             showfliers=True, grid=True, rot=0,ax=ax)
+             showfliers=False, grid=True, rot=0,ax=ax)
     plt.show()
     #sns.boxplot(x="variable", y="value",data=pd.melt(normalized_df_combo))#,hue="good", palette="Set3"
     #for i in range(normalized_df.shape[0]):

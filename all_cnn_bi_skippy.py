@@ -413,7 +413,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
-        layer = Dropout(cfg['dropout_7'])(layer)
+        #layer = Dropout(cfg['dropout_7'])(layer) #TODO note that this line was removed between the "tweaked" experiment and the "better data augmentation" experiment
     else:
         layer = Flatten()(layer)
     
