@@ -22,15 +22,20 @@ from apyori import apriori
 from mipego.Surrogate import RandomForest
 from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
-disfunc_time = 80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
-cut = False #needed for derived data such as depth, in case of the cut method, the network is less deep
+cut = '_cut_' in  str(sys.argv[1])#needed for derived data such as depth, in case of the cut method, the network is less deep
+if cut:
+    print("cut!")
+    disfunc_time = 200000#80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
+else:
+    print("no cut!")
+    disfunc_time = 80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
 max_stack = 7 #the number of stacks in the construction method
 CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
-do_parallel_plot = False
-do_pairgrid = True
+do_parallel_plot = True
+do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
@@ -443,8 +448,8 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     select_2 = [x for x in data_panda_2.columns if x != "activation" and x != "activ_dense"]
     selection_1 = data_panda_1.loc[:, select_1]
     selection_2 = data_panda_2.loc[:, select_2]
-    selection_1["good"] = [True] * len(selection_1["time"])
-    selection_2["good"] = [False] * len(selection_2["time"])
+    selection_1["good"] = [True] * len(selection_1[selection_1.columns.values[0]])
+    selection_2["good"] = [False] * len(selection_2[selection_2.columns.values[0]])
     combo = pd.concat([selection_1, selection_2])
     maxert = combo.max()
     minnert = combo.min()
@@ -462,8 +467,9 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     normalized_df_bad = (selection_2 -minnert)/normalizer
     normalized_df_bad=normalized_df_bad.drop(columns="good")
     return normalized_combo,normalized_df_good,normalized_df_bad
-#select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu']
-select = [x for x in data_panda.columns if x == 'time']
+#select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling']
+select = [x for x in data_panda.columns if x == 'batch_size_sp']
+#select = [x for x in data_panda.columns]
 #normalized_df= normalize_panda_data(data_panda.loc[:,select])
 normalized_df= data_panda.loc[:,select]
 #normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good.loc[:,select],data_panda_bad.loc[:,select])
@@ -515,8 +521,6 @@ def forbidden(i,j):#Filters out correlations that are too obvious
         return True
     if (i == 'depth' and j == 'num_features') or (j == 'depth' and i == 'num_features'):
         return True
-    #if cut and ((i == 'total_skip' and j == 'num_features') or (j == 'total_skip' and i == 'num_features')):
-    #    return True
     if (i == 'avg_dropout' and  'dropout' in j) or (j == 'avg_dropout' and  'dropout' in i):
         return True
     if (i == 'total_skip' and j == 'max_pooling') or (j == 'total_skip' and i == 'max_pooling'):
@@ -559,6 +563,8 @@ def forbidden(i,j):#Filters out correlations that are too obvious
     if (i == 'max_pooling' and j == 'num_features') or (j == 'max_pooling' and i == 'num_features'):
         return True
     #end for tweaked
+    if ('overlap_' in i and 'overlap_' in j):
+        return True
     kernels = ["k_"+str(i) for i in range(2*max_stack)]
     if any((i == 'avg_kernel_size' and j == m) or (j == 'avg_kernel_size' and i == m) for m in kernels):
         return True

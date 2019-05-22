@@ -29,7 +29,7 @@ np.random.seed(42)
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 780
+n_step = 80#780
 n_init_sample = 20
 eval_epochs = 10
 verbose = True
@@ -133,14 +133,14 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = 'data_skippy_cifar10_big_one_data_augmentation'
+save_name = '../../../data/s0315435/data_skippy_cifar10_better_data_augmentation'
 objective = obj_func('./all_cnn_bi_skippy_aug.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
 filters = OrdinalSpace([10, 600], 'filters') * 14
 kernel_size = OrdinalSpace([1, 16], 'k') * 14#CHRIS tweaked
-strides = OrdinalSpace([1, 10], 's') * 7#CHRIS tweaked
+strides = OrdinalSpace([1, 3], 's') * 7#CHRIS tweaked TODO maybe limit to max of 3, because now the image is reduces too soon (used to be max 10) CHRIS tweaked again
 stack_sizes = OrdinalSpace([0, 7], 'stack') * 7#[0,2] should be [0,7]
 
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function
@@ -155,22 +155,24 @@ max_pooling = NominalSpace([True, False], "max_pooling")
 dense_size = OrdinalSpace([0,4000],'dense_size')*2#CHRIS tweaked
 #skippy parameters
 
-drop_out = ContinuousSpace([1e-5, .9], 'dropout') * 10        # drop_out rate
-lr_rate = ContinuousSpace([1e-4, 1.0e-2], 'lr')        # learning rate#CHRIS tweaked
+drop_out = ContinuousSpace([0.0, .42], 'dropout') * 10        # drop_out rate #tweaked again, min used to be 1e-5 max used to be 0.9
+lr_rate = ContinuousSpace([1e-4, 1.0e-1], 'lr')        # learning rate#CHRIS tweaked #CHRIS tweaked again for data augmentation (max used to be 1.0e-2)
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
+
+batch_size_sp = OrdinalSpace([50, 200], 'batch_size_sp')#CHRIS tweaked again: added to search space
 
 #augmented parameters
 featurewise_center = NominalSpace([True,False], "featurewise_center")
 samplewise_center = NominalSpace([True,False], "samplewise_center")
 featurewise_std_normalization = NominalSpace([True,False], "featurewise_std_normalization")
 samplewise_std_normalization = NominalSpace([True,False], "samplewise_std_normalization")
-zca_epsilon = ContinuousSpace([1e-7, 1e-5], 'zca_epsilon')
+zca_epsilon = ContinuousSpace([0.5e-6, 2e-6], 'zca_epsilon')
 zca_whitening = NominalSpace([True,False], "zca_whitening")
-rotation_range = OrdinalSpace([0, 180], 'rotation_range')
+rotation_range = OrdinalSpace([0, 360], 'rotation_range')
 width_shift_range = ContinuousSpace([0.0, 1.0], 'width_shift_range')
 height_shift_range = ContinuousSpace([0.0, 1.0], 'height_shift_range')
-shear_range = ContinuousSpace([-90.0, 90.0], 'shear_range')
-zoom_range = ContinuousSpace([0.0, 2.0], 'zoom_range')
+shear_range = ContinuousSpace([0.0, 45.0], 'shear_range')
+zoom_range = ContinuousSpace([0.0, 1.0], 'zoom_range')
 channel_shift_range = ContinuousSpace([0.0, 1.0], 'channel_shift_range')
 fill_mode = NominalSpace(["constant","nearest","reflect","wrap"], "fill_mode")
 cval = ContinuousSpace([0.0, 1.0], 'cval')
@@ -179,7 +181,7 @@ vertical_flip = NominalSpace([True,False], "vertical_flip")
 #augmented parameters
 
 
-search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skstart * skstep * max_pooling * dense_size * featurewise_center * samplewise_center * featurewise_std_normalization * samplewise_std_normalization * zca_epsilon * zca_whitening * rotation_range * width_shift_range * height_shift_range * shear_range * zoom_range * channel_shift_range * fill_mode * cval * horizontal_flip * vertical_flip
+search_space =  stack_sizes * strides * filters *  kernel_size * activation * activation_dense * drop_out * lr_rate * l2_regularizer * step * global_pooling * skstart * skstep * max_pooling * dense_size * batch_size_sp * featurewise_center * samplewise_center * featurewise_std_normalization * samplewise_std_normalization * zca_epsilon * zca_whitening * rotation_range * width_shift_range * height_shift_range * shear_range * zoom_range * channel_shift_range * fill_mode * cval * horizontal_flip * vertical_flip
 
 print('starting program...')    
 #available_gpus = gp.getAvailable(limit=2)

@@ -180,14 +180,14 @@ class Skip_manager(object):
 
 
 def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation=False):
-    batch_size = 100
+    #batch_size = 100
     num_classes = 10
     num_predictions = 20
     logfile = 'mnist-cnn.log'
     savemodel = False
     #data_augmentation = True#TODO remove this
     
-    #batch_size = cfg['batch_size_sp']
+    batch_size = cfg['batch_size_sp']
     #epochs = cfg['epoch_sp']
 
     # The data, shuffled and split between train and test sets:
