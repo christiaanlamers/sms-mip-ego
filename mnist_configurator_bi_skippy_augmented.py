@@ -134,7 +134,7 @@ class obj_func(object):
 
 #define the search space.
 save_name = 'data_skippy_cifar10_big_one_data_augmentation'
-objective = obj_func('./all_cnn_bi_skippy.py',save_name=save_name)
+objective = obj_func('./all_cnn_bi_skippy_aug.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
@@ -223,7 +223,7 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
 
 #incumbent, stop_dict = opt.run() #CHRIS opt.run() does not return anything anymore
 #CHRIS restart code
-if True:
+if False:
     with open('data_skippy_cifar10_big_one_data_augmentation_intermediate_restarted1.json') as f:
         for line in f:
             data = json.loads(line)

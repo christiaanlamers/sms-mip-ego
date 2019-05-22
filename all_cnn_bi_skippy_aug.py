@@ -412,7 +412,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     #global averaging
     if (cfg['global_pooling']):
         layer = GlobalAveragePooling2D()(layer)
-        layer = Dropout(cfg['dropout_7'])(layer) #TODO note that this line was removed between the "tweaked" experiment and the "better data augmentation" experiment
+        #layer = Dropout(cfg['dropout_7'])(layer) #TODO note that this line was removed between the "tweaked" experiment and the "better data augmentation" experiment
     else:
         layer = Flatten()(layer)
     
@@ -732,8 +732,8 @@ def test_skippy():
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
         #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1)
-        #timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1,data_augmentation=True,use_validation=True) #TODO use this for data augmentation and make sure the val set is used for val accuracy, not the test set
+        #timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1)
+        timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1,data_augmentation=True,use_validation=True) #TODO use this for data augmentation and make sure the val set is used for val accuracy, not the test set
         print('timer, loss:')
         print(timer, loss)
 
