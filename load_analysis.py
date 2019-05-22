@@ -29,8 +29,8 @@ CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
-do_parallel_plot = True
-do_pairgrid = False
+do_parallel_plot = False
+do_pairgrid = True
 do_correlations = False
 do_k_means = False
 do_dbscan = False
@@ -99,6 +99,11 @@ data_lib_bad['acc'] = [np.exp(-i.loss) for i in solutions if np.exp(-i.loss) < a
 data_lib_bad['time'] = [i.time for i in solutions if np.exp(-i.loss) < acc_pivot]
 #n_points = 1000
 stopper = 0
+
+print("number of solutions: " + str(len([i.time for i in solutions])))
+print("number of good solutions: " + str(len([i.time for i in solutions if np.exp(-i.loss) >= acc_pivot])))
+print("number of bad solutions: " + str(len([i.time for i in solutions if np.exp(-i.loss) < acc_pivot])))
+
 for i in name_array[0]:
     print(i)
     x = []
@@ -528,6 +533,30 @@ def forbidden(i,j):#Filters out correlations that are too obvious
         return True
     #begin for tweaked:
     if (i == 'avg_filters' and j == 'num_features') or (j == 'avg_filters' and i == 'num_features'):
+        return True
+    if (i == 'depth' and 'stack_' in j) or (j == 'depth' and 'stack_' in i):
+        return True
+    if (i == 'total_skip' and 'stack_' in j) or (j == 'total_skip' and 'stack_' in i):
+        return True
+    if (i == 'num_features' and j == 'total_skip') or (j == 'num_features' and i == 'total_skip'):
+        return True
+    if ('overlap_' in i and 'stack_' in j) or ('overlap_' in j and 'stack_' in i):
+        return True
+    if (i == 'num_features' and 'stack_' in j) or (j == 'num_features' and 'stack_' in i):
+        return True
+    if (i == 'avg_skip_step' and 'overlap_' in j) or (j == 'avg_skip_step' and 'overlap_' in i):
+        return True
+    if (i == 'time' and 'filters_' in j) or (j == 'time' and 'filters_' in i):
+        return True
+    if (i == 'avg_skip_step' and j == 'total_skip') or (j == 'avg_skip_step' and i == 'total_skip'):
+        return True
+    if (i == 'avg_skip_step' and j == 'total_overlap') or (j == 'avg_skip_step' and i == 'total_overlap'):
+        return True
+    if ('skstep_' in i and 'overlap_' in j) or ('skstep_' in j and 'overlap_' in i):
+        return True
+    if (i == 'total_overlap' and 'stack_' in j) or (j == 'total_overlap' and 'stack_' in i):
+        return True
+    if (i == 'max_pooling' and j == 'num_features') or (j == 'max_pooling' and i == 'num_features'):
         return True
     #end for tweaked
     kernels = ["k_"+str(i) for i in range(2*max_stack)]
