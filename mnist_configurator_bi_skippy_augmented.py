@@ -140,7 +140,7 @@ activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
 
 filters = OrdinalSpace([10, 600], 'filters') * 14
 kernel_size = OrdinalSpace([1, 16], 'k') * 14#CHRIS tweaked
-strides = OrdinalSpace([1, 3], 's') * 7#CHRIS tweaked TODO maybe limit to max of 3, because now the image is reduces too soon (used to be max 10) CHRIS tweaked again
+strides = OrdinalSpace([1, 4], 's') * 7#CHRIS tweaked TODO maybe limit to max of 3, because now the image is reduces too soon (used to be max 10) CHRIS tweaked again CHRIS tweaked a third time
 stack_sizes = OrdinalSpace([0, 7], 'stack') * 7#[0,2] should be [0,7]
 
 activation = NominalSpace(activation_fun_conv, "activation")  # activation function

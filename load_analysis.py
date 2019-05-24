@@ -91,7 +91,7 @@ for i in range(len(conf_array)):
 print("len(solutions): " + str(len(solutions)))
 #print([i.to_dict() for i in solutions])
 #y = [np.exp(-i.loss) for i in solutions]#[i.time for i in solutions]
-acc_pivot = 0.7
+acc_pivot = 0.15#0.7
 data_lib = {}
 data_lib_good = {}
 data_lib_bad = {}
@@ -203,6 +203,57 @@ for i in name_array[0]:
         #for j in x_bad:
         #    softmax.append(j=="softmax")
         #data_lib_bad["softmax"] = softmax
+    elif x[0] == "constant" or x[0] == "nearest" or x[0] == "reflect" or x[0] == "wrap":
+        constant = []
+        nearest = []
+        reflect= []
+        wrap = []
+        fill_mode = []
+        for j in x:
+            constant.append(j == "constant")
+            nearest.append(j=="nearest")
+            reflect.append(j=="reflect")
+            wrap.append(j=="wrap")
+            fill_mode.append(j)
+        data_lib["constant"] = constant
+        data_lib["nearest"] = nearest
+        data_lib["reflect"] = reflect
+        data_lib["wrap"] = wrap
+        data_lib["fill_mode"] = fill_mode
+
+        constant = []
+        nearest = []
+        reflect= []
+        wrap = []
+        fill_mode = []
+        for j in x_good:
+            constant.append(j == "constant")
+            nearest.append(j=="nearest")
+            reflect.append(j=="reflect")
+            wrap.append(j=="wrap")
+            fill_mode.append(j)
+        data_lib_good["constant"] = constant
+        data_lib_good["nearest"] = nearest
+        data_lib_good["reflect"] = reflect
+        data_lib_good["wrap"] = wrap
+        data_lib_good["fill_mode"] = fill_mode
+        
+        constant = []
+        nearest = []
+        reflect= []
+        wrap = []
+        fill_mode = []
+        for j in x_bad:
+            constant.append(j == "constant")
+            nearest.append(j=="nearest")
+            reflect.append(j=="reflect")
+            wrap.append(j=="wrap")
+            fill_mode.append(j)
+        data_lib_bad["constant"] = constant
+        data_lib_bad["nearest"] = nearest
+        data_lib_bad["reflect"] = reflect
+        data_lib_bad["wrap"] = wrap
+        data_lib_bad["fill_mode"] = fill_mode
     else:
         print("error, unknown feature!")
     #print(x)
@@ -430,7 +481,7 @@ data_panda_good = pd.DataFrame(data=data_lib_good)
 data_panda_bad = pd.DataFrame(data=data_lib_bad)
 
 def normalize_panda_data(data_panda):
-    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
+    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense" and x != "fill_mode"]
     selection = data_panda.loc[:, select]
     normalizer = selection.max()-selection.min()
     for i in range(normalizer.shape[0]):
@@ -444,8 +495,8 @@ def normalize_panda_data(data_panda):
     return normalized_df
 
 def normalize_two_panda_data(data_panda_1, data_panda_2):
-    select_1 = [x for x in data_panda_1.columns if x != "activation" and x != "activ_dense"]
-    select_2 = [x for x in data_panda_2.columns if x != "activation" and x != "activ_dense"]
+    select_1 = [x for x in data_panda_1.columns if x != "activation" and x != "activ_dense" and x != "fill_mode"]
+    select_2 = [x for x in data_panda_2.columns if x != "activation" and x != "activ_dense" and x != "fill_mode"]
     selection_1 = data_panda_1.loc[:, select_1]
     selection_2 = data_panda_2.loc[:, select_2]
     selection_1["good"] = [True] * len(selection_1[selection_1.columns.values[0]])
@@ -468,12 +519,12 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     normalized_df_bad=normalized_df_bad.drop(columns="good")
     return normalized_combo,normalized_df_good,normalized_df_bad
 #select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling']
-select = [x for x in data_panda.columns if x == 'batch_size_sp']
-#select = [x for x in data_panda.columns]
-#normalized_df= normalize_panda_data(data_panda.loc[:,select])
-normalized_df= data_panda.loc[:,select]
-#normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good.loc[:,select],data_panda_bad.loc[:,select])
-normalized_df_good,normalized_df_bad= data_panda_good.loc[:,select],data_panda_bad.loc[:,select]
+#select = [x for x in data_panda.columns if x == 'batch_size_sp']
+select = [x for x in data_panda.columns]
+normalized_df= normalize_panda_data(data_panda.loc[:,select])
+#normalized_df= data_panda.loc[:,select]
+normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good.loc[:,select],data_panda_bad.loc[:,select])
+#normalized_df_good,normalized_df_bad= data_panda_good.loc[:,select],data_panda_bad.loc[:,select]
 
 if do_parallel_plot:
     #color_good = {'boxes': 'DarkGreen', 'whiskers': 'DarkGreen','medians': 'DarkGreen', 'caps': 'Green'}
