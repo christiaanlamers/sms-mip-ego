@@ -157,7 +157,7 @@ dense_size = OrdinalSpace([0,4000],'dense_size')*2#CHRIS tweaked
 
 drop_out = ContinuousSpace([0.0, .42], 'dropout') * 10        # drop_out rate #tweaked again, min used to be 1e-5 max used to be 0.9
 lr_rate = ContinuousSpace([1e-4, 1.0e-2], 'lr')        # learning rate#CHRIS tweaked #CHRIS tweaked again for data augmentation (max used to be 1.0e-2)
-l2_regularizer = ContinuousSpace([1e-5, 1e-3], 'l2')# l2_regularizer #CHRIS tweaked third time
+l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer 
 
 batch_size_sp = OrdinalSpace([50, 200], 'batch_size_sp')#CHRIS tweaked again: added to search space
 
