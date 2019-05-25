@@ -29,7 +29,7 @@ np.random.seed(42)
 
 #--------------------------- Configuration settings --------------------------------------
 # TODO: implement parallel execution of model
-n_step = 80#780
+n_step = 780
 n_init_sample = 20
 eval_epochs = 10
 verbose = True
@@ -133,7 +133,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = '../../../data/s0315435/data_skippy_cifar10_better_data_augmentation'
+save_name = '../../../data/s0315435/data_skippy_cifar10_better_data_augmentation_big_one'
 objective = obj_func('./all_cnn_bi_skippy_aug.py',save_name=save_name)
 activation_fun = ["softmax"]
 activation_fun_conv = ["elu","relu","tanh","sigmoid","selu"]
@@ -156,7 +156,7 @@ dense_size = OrdinalSpace([0,4000],'dense_size')*2#CHRIS tweaked
 #skippy parameters
 
 drop_out = ContinuousSpace([0.0, .42], 'dropout') * 10        # drop_out rate #tweaked again, min used to be 1e-5 max used to be 0.9
-lr_rate = ContinuousSpace([1e-4, 1.0e-1], 'lr')        # learning rate#CHRIS tweaked #CHRIS tweaked again for data augmentation (max used to be 1.0e-2)
+lr_rate = ContinuousSpace([1e-4, 1.0e-2], 'lr')        # learning rate#CHRIS tweaked #CHRIS tweaked again for data augmentation (max used to be 1.0e-2)
 l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 
 batch_size_sp = OrdinalSpace([50, 200], 'batch_size_sp')#CHRIS tweaked again: added to search space

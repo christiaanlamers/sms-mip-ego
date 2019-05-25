@@ -179,13 +179,15 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation=False):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=True, use_validation=True):
     #batch_size = 100
     num_classes = 10
     num_predictions = 20
     logfile = 'mnist-cnn.log'
     savemodel = False
-    #data_augmentation = True#TODO remove this
+    
+    data_augmentation=True#TODO remove this
+    use_validation=True#TODO remove this
     
     batch_size = cfg['batch_size_sp']
     #epochs = cfg['epoch_sp']

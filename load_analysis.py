@@ -518,13 +518,16 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
     normalized_df_bad = (selection_2 -minnert)/normalizer
     normalized_df_bad=normalized_df_bad.drop(columns="good")
     return normalized_combo,normalized_df_good,normalized_df_bad
+
+strides = ["s_"+str(i) for i in range(max_stack)]
 #select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling']
-#select = [x for x in data_panda.columns if x == 'batch_size_sp']
-select = [x for x in data_panda.columns]
-normalized_df= normalize_panda_data(data_panda.loc[:,select])
-#normalized_df= data_panda.loc[:,select]
-normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good.loc[:,select],data_panda_bad.loc[:,select])
-#normalized_df_good,normalized_df_bad= data_panda_good.loc[:,select],data_panda_bad.loc[:,select]
+#select = [x for x in data_panda.columns if x == 'lr']
+select = [x for x in data_panda.columns if any(x == m for m in strides)]
+#select = [x for x in data_panda.columns]
+#normalized_df= normalize_panda_data(data_panda.loc[:,select])
+normalized_df= data_panda.loc[:,select]
+#normalized_df_combo,normalized_df_good,normalized_df_bad= normalize_two_panda_data(data_panda_good.loc[:,select],data_panda_bad.loc[:,select])
+normalized_df_good,normalized_df_bad= data_panda_good.loc[:,select],data_panda_bad.loc[:,select]
 
 if do_parallel_plot:
     #color_good = {'boxes': 'DarkGreen', 'whiskers': 'DarkGreen','medians': 'DarkGreen', 'caps': 'Green'}
