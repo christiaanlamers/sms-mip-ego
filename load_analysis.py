@@ -521,7 +521,7 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
 
 strides = ["s_"+str(i) for i in range(max_stack)]
 #select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling']
-select = [x for x in data_panda.columns if x == 'l2']
+select = [x for x in data_panda.columns if x == 'lr']
 #select = [x for x in data_panda.columns if any(x == m for m in strides)]
 #select = [x for x in data_panda.columns]
 #normalized_df= normalize_panda_data(data_panda.loc[:,select])

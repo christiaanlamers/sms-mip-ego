@@ -162,10 +162,10 @@ l2_regularizer = ContinuousSpace([1e-5, 1e-2], 'l2')# l2_regularizer
 batch_size_sp = OrdinalSpace([50, 200], 'batch_size_sp')#CHRIS tweaked again: added to search space
 
 #augmented parameters
-featurewise_center = NominalSpace([True,False], "featurewise_center")
-samplewise_center = NominalSpace([True,False], "samplewise_center")
-featurewise_std_normalization = NominalSpace([True,False], "featurewise_std_normalization")
-samplewise_std_normalization = NominalSpace([True,False], "samplewise_std_normalization")
+featurewise_center = NominalSpace([False], "featurewise_center")
+samplewise_center = NominalSpace([False], "samplewise_center")
+featurewise_std_normalization = NominalSpace([False], "featurewise_std_normalization")
+samplewise_std_normalization = NominalSpace([False], "samplewise_std_normalization")
 zca_epsilon = ContinuousSpace([0.5e-6, 2e-6], 'zca_epsilon')
 zca_whitening = NominalSpace([True,False], "zca_whitening")
 rotation_range = OrdinalSpace([0, 360], 'rotation_range')
