@@ -31,7 +31,7 @@ import json
 import sklearn
 import sklearn.model_selection
 
-setproctitle.setproctitle('lamers c, do not use GPU 3-7,10-12 please')
+setproctitle.setproctitle('lamers c, do not use GPU 3-7,11,12,14 please')
 
 class TimedAccHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
