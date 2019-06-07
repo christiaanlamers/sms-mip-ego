@@ -137,10 +137,10 @@ save_name = '../../../data/s0315435/data_skippy_cifar10_better_data_augmentation
 objective = obj_func('./all_cnn_bi_skippy_aug_tr_tw.py',save_name=save_name)
 lr_rate = ContinuousSpace([1e-4, 2 * 0.003521543292982737], 'lr')
 drop = ContinuousSpace([0.1, 0.95], 'drop')
-epochs_drop = ContinuousSpace([1.0, 40.0], 'epochs_drop'])
-momentum = ContinuousSpace([0.8,0.99], 'momentum'])
+epochs_drop = ContinuousSpace([1.0, 40.0], 'epochs_drop')
+momentum = ContinuousSpace([0.8,0.99], 'momentum')
 optimizer = NominalSpace(["SGD","RMSprop","Adagrad","Adadelta","Adam","Adamax","Nadam"], 'optimizer')
-rho = ContinuousSpace([0.8,0.99], 'rho'])
+rho = ContinuousSpace([0.8,0.99], 'rho')
 
 search_space = lr_rate * drop * epochs_drop * momentum *optimizer * rho
 
