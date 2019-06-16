@@ -133,7 +133,7 @@ class obj_func(object):
 
 
 #define the search space.
-save_name = '../../../data/s0315435/data_skippy_cifar10_better_data_augmentation_train_tweak_big_one'
+save_name = '../../../data/s0315435/data_skippy_cifar10_better_data_augmentation_train_tweak_big_one_restarted1'
 objective = obj_func('./all_cnn_bi_skippy_aug_tr_tw.py',save_name=save_name)
 lr_rate = ContinuousSpace([1e-4, 2 * 0.003521543292982737], 'lr')
 drop = ContinuousSpace([0.1, 0.95], 'drop')
@@ -186,8 +186,8 @@ opt = mipego(search_space, objective, time_model, loss_model, ftarget=None,
 
 #incumbent, stop_dict = opt.run() #CHRIS opt.run() does not return anything anymore
 #CHRIS restart code
-if False:
-    with open('data_skippy_cifar10_better_data_augmentation_big_one_intermediate.json') as f:
+if True:
+    with open('data_skippy_cifar10_better_data_augmentation_train_tweak_big_one_intermediate.json') as f:
         for line in f:
             data = json.loads(line)
 
