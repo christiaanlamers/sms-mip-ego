@@ -44,7 +44,7 @@ class obj_func(object):
         with open(self.save_name + '_thread_log.json', 'a') as outfile:
             outfile.write('thread ' + str(gpu_no) + ': step 3 gpu 3 obj_func 1\n')
         print("calling program with gpu "+str(gpu_no))
-        cmd = ['python3', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name),str(data_augmentation),str(use_validation)]
+        cmd = ['python3.4', self.program, '--cfg', str(cfg), str(gpu_no),str(eval_epochs),str(save_name),str(data_augmentation),str(use_validation)]
         #outputval = 0
         outputval = ""
         outs = ""
