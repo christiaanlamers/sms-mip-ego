@@ -69,7 +69,7 @@ class Skip_manager(object):
         return
     
     def pad_and_connect(self, layer, incoming_layer,filters,regulizer):
-        max_layer_width = 7
+        max_layer_width = 1
         if K.int_shape(incoming_layer)[1] != K.int_shape(layer)[1] or K.int_shape(incoming_layer)[2] != K.int_shape(layer)[2]:
             pad_tpl1 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[1]-K.int_shape(layer)[1])/2)))
             pad_tpl2 = (int(np.floor(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)),int(np.ceil(np.abs(K.int_shape(incoming_layer)[2]-K.int_shape(layer)[2])/2)))
@@ -692,10 +692,10 @@ def test_skippy():
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
-    test = False
+    test = True
     if test:
-        #model = CNN_conf(X[0].to_dict(),test=test)
-        model = CNN_conf(vla,test=test)
+        model = CNN_conf(X[0].to_dict(),test=test)
+        #model = CNN_conf(vla,test=test)
         plot_model(model, to_file='model_skippy_test.png',show_shapes=True,show_layer_names=True)
         model.summary()
         print(model.count_params())

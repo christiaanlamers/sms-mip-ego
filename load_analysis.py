@@ -23,9 +23,13 @@ from mipego.Surrogate import RandomForest
 from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
 
 cut = '_cut_' in  str(sys.argv[1])#needed for derived data such as depth, in case of the cut method, the network is less deep
+train_tweak = 'train_tweak' in str(sys.argv[1])
 if cut:
     print("cut!")
     disfunc_time = 200000#80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
+elif train_tweak:
+    print("train tweak!")
+    disfunc_time = 800000
 else:
     print("no cut!")
     disfunc_time = 80000 #200000 #CHRIS penalty value given to a disfuncitonal network. This differs per experiment
@@ -91,7 +95,7 @@ for i in range(len(conf_array)):
 print("len(solutions): " + str(len(solutions)))
 #print([i.to_dict() for i in solutions])
 #y = [np.exp(-i.loss) for i in solutions]#[i.time for i in solutions]
-acc_pivot = 0.15#0.7
+acc_pivot = 0.7#0.4#0.86
 data_lib = {}
 data_lib_good = {}
 data_lib_bad = {}
@@ -141,11 +145,11 @@ for i in name_array[0]:
             sigmoid.append(j=="sigmoid")
             selu.append(j=="selu")
             activation.append(j)
-        data_lib["elu"] = elu
-        data_lib["relu"] = relu
-        data_lib["tanh"] = tanh
-        data_lib["sigmoid"] = sigmoid
-        data_lib["selu"] = selu
+        data_lib["elu"] = [int(i) for i in elu]
+        data_lib["relu"] = [int(i) for i in relu]
+        data_lib["tanh"] = [int(i) for i in tanh]
+        data_lib["sigmoid"] = [int(i) for i in sigmoid]
+        data_lib["selu"] = [int(i) for i in selu]
         data_lib["activation"] = activation
 
         elu = []
@@ -161,11 +165,11 @@ for i in name_array[0]:
             sigmoid.append(j=="sigmoid")
             selu.append(j=="selu")
             activation.append(j)
-        data_lib_good["elu"] = elu
-        data_lib_good["relu"] = relu
-        data_lib_good["tanh"] = tanh
-        data_lib_good["sigmoid"] = sigmoid
-        data_lib_good["selu"] = selu
+        data_lib_good["elu"] = [int(i) for i in elu]
+        data_lib_good["relu"] = [int(i) for i in relu]
+        data_lib_good["tanh"] = [int(i) for i in tanh]
+        data_lib_good["sigmoid"] = [int(i) for i in sigmoid]
+        data_lib_good["selu"] = [int(i) for i in selu]
         data_lib_good["activation"] = activation
         
         elu = []
@@ -181,11 +185,11 @@ for i in name_array[0]:
             sigmoid.append(j=="sigmoid")
             selu.append(j=="selu")
             activation.append(j)
-        data_lib_bad["elu"] = elu
-        data_lib_bad["relu"] = relu
-        data_lib_bad["tanh"] = tanh
-        data_lib_bad["sigmoid"] = sigmoid
-        data_lib_bad["selu"] = selu
+        data_lib_bad["elu"] = [int(i) for i in elu]
+        data_lib_bad["relu"] = [int(i) for i in relu]
+        data_lib_bad["tanh"] = [int(i) for i in tanh]
+        data_lib_bad["sigmoid"] = [int(i) for i in sigmoid]
+        data_lib_bad["selu"] = [int(i) for i in selu]
         data_lib_bad["activation"] = activation
     elif x[0] == "softmax":
         pass
@@ -215,10 +219,10 @@ for i in name_array[0]:
             reflect.append(j=="reflect")
             wrap.append(j=="wrap")
             fill_mode.append(j)
-        data_lib["constant"] = constant
-        data_lib["nearest"] = nearest
-        data_lib["reflect"] = reflect
-        data_lib["wrap"] = wrap
+        data_lib["constant"] = [int(i) for i in constant]
+        data_lib["nearest"] = [int(i) for i in nearest]
+        data_lib["reflect"] = [int(i) for i in reflect]
+        data_lib["wrap"] = [int(i) for i in wrap]
         data_lib["fill_mode"] = fill_mode
 
         constant = []
@@ -232,10 +236,10 @@ for i in name_array[0]:
             reflect.append(j=="reflect")
             wrap.append(j=="wrap")
             fill_mode.append(j)
-        data_lib_good["constant"] = constant
-        data_lib_good["nearest"] = nearest
-        data_lib_good["reflect"] = reflect
-        data_lib_good["wrap"] = wrap
+        data_lib_good["constant"] = [int(i) for i in constant]
+        data_lib_good["nearest"] = [int(i) for i in nearest]
+        data_lib_good["reflect"] = [int(i) for i in reflect]
+        data_lib_good["wrap"] = [int(i) for i in wrap]
         data_lib_good["fill_mode"] = fill_mode
         
         constant = []
@@ -249,11 +253,89 @@ for i in name_array[0]:
             reflect.append(j=="reflect")
             wrap.append(j=="wrap")
             fill_mode.append(j)
-        data_lib_bad["constant"] = constant
-        data_lib_bad["nearest"] = nearest
-        data_lib_bad["reflect"] = reflect
-        data_lib_bad["wrap"] = wrap
+        data_lib_bad["constant"] = [int(i) for i in constant]
+        data_lib_bad["nearest"] = [int(i) for i in nearest]
+        data_lib_bad["reflect"] = [int(i) for i in reflect]
+        data_lib_bad["wrap"] = [int(i) for i in wrap]
         data_lib_bad["fill_mode"] = fill_mode
+    elif x[0] == "SGD" or x[0] == "RMSprop" or x[0] == "Adagrad" or x[0] == "Adadelta" or x[0] == "Adam" or x[0] == "Adamax" or x[0] == "Nadam":
+        SGD = []
+        RMSprop = []
+        Adagrad = []
+        Adadelta = []
+        Adam = []
+        Adamax = []
+        Nadam = []
+        optimizer = []
+        for j in x:
+            SGD.append(j == "SGD")
+            RMSprop.append(j=="RMSprop")
+            Adagrad.append(j=="Adagrad")
+            Adadelta.append(j=="Adadelta")
+            Adam.append(j=="Adam")
+            Adamax.append(j=="Adamax")
+            Nadam.append(j=="Nadam")
+            optimizer.append(j)
+        data_lib["SGD"] = [int(i) for i in SGD]
+        data_lib["RMSprop"] = [int(i) for i in RMSprop]
+        data_lib["Adagrad"] = [int(i) for i in Adagrad]
+        data_lib["Adadelta"] = [int(i) for i in Adadelta]
+        data_lib["Adam"] = [int(i) for i in Adam]
+        data_lib["Adamax"] = [int(i) for i in Adamax]
+        data_lib["Nadam"] = [int(i) for i in Nadam]
+        data_lib["optimizer"] = optimizer
+        
+        SGD = []
+        RMSprop = []
+        Adagrad = []
+        Adadelta = []
+        Adam = []
+        Adamax = []
+        Nadam = []
+        optimizer = []
+        for j in x_good:
+            SGD.append(j == "SGD")
+            RMSprop.append(j=="RMSprop")
+            Adagrad.append(j=="Adagrad")
+            Adadelta.append(j=="Adadelta")
+            Adam.append(j=="Adam")
+            Adamax.append(j=="Adamax")
+            Nadam.append(j=="Nadam")
+            optimizer.append(j)
+        data_lib_good["SGD"] = [int(i) for i in SGD]
+        data_lib_good["RMSprop"] = [int(i) for i in RMSprop]
+        data_lib_good["Adagrad"] = [int(i) for i in Adagrad]
+        data_lib_good["Adadelta"] = [int(i) for i in Adadelta]
+        data_lib_good["Adam"] = [int(i) for i in Adam]
+        data_lib_good["Adamax"] = [int(i) for i in Adamax]
+        data_lib_good["Nadam"] = [int(i) for i in Nadam]
+        data_lib_good["optimizer"] = optimizer
+        
+        SGD = []
+        RMSprop = []
+        Adagrad = []
+        Adadelta = []
+        Adam = []
+        Adamax = []
+        Nadam = []
+        optimizer = []
+        for j in x_bad:
+            SGD.append(j == "SGD")
+            RMSprop.append(j=="RMSprop")
+            Adagrad.append(j=="Adagrad")
+            Adadelta.append(j=="Adadelta")
+            Adam.append(j=="Adam")
+            Adamax.append(j=="Adamax")
+            Nadam.append(j=="Nadam")
+            optimizer.append(j)
+        data_lib_bad["SGD"] = [int(i) for i in SGD]
+        data_lib_bad["RMSprop"] = [int(i) for i in RMSprop]
+        data_lib_bad["Adagrad"] = [int(i) for i in Adagrad]
+        data_lib_bad["Adadelta"] = [int(i) for i in Adadelta]
+        data_lib_bad["Adam"] = [int(i) for i in Adam]
+        data_lib_bad["Adamax"] = [int(i) for i in Adamax]
+        data_lib_bad["Nadam"] = [int(i) for i in Nadam]
+        data_lib_bad["optimizer"] = optimizer
     else:
         print("error, unknown feature!")
     #print(x)
@@ -279,23 +361,24 @@ for i in name_array[0]:
             pass
 
 #add extra features to data_lib TODO test this code
-depth = np.array([0] * len(data_lib["stack_0"]))
-num_features = np.array([0] * len(data_lib["stack_0"]))
-img_size = np.array([img_dim] * len(data_lib["stack_0"]))
-avg_dropout = np.array([j for j in data_lib["dropout_0"]])
-dropout_norm = np.array([1] * len(data_lib["stack_0"]))
+if not train_tweak:
+    depth = np.array([0] * len(data_lib["stack_0"]))
+    num_features = np.array([0] * len(data_lib["stack_0"]))
+    img_size = np.array([img_dim] * len(data_lib["stack_0"]))
+    avg_dropout = np.array([j for j in data_lib["dropout_0"]])
+    dropout_norm = np.array([1] * len(data_lib["stack_0"]))
 
-depth_good = np.array([0] * len(data_lib_good["stack_0"]))
-num_features_good = np.array([0] * len(data_lib_good["stack_0"]))
-img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
-avg_dropout_good = np.array([j for j in data_lib_good["dropout_0"]])
-dropout_norm_good = np.array([1] * len(data_lib_good["stack_0"]))
+    depth_good = np.array([0] * len(data_lib_good["stack_0"]))
+    num_features_good = np.array([0] * len(data_lib_good["stack_0"]))
+    img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
+    avg_dropout_good = np.array([j for j in data_lib_good["dropout_0"]])
+    dropout_norm_good = np.array([1] * len(data_lib_good["stack_0"]))
 
-depth_bad = np.array([0] * len(data_lib_bad["stack_0"]))
-num_features_bad = np.array([0] * len(data_lib_bad["stack_0"]))
-img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
-avg_dropout_bad = np.array([j for j in data_lib_bad["dropout_0"]])
-dropout_norm_bad = np.array([1] * len(data_lib_bad["stack_0"]))
+    depth_bad = np.array([0] * len(data_lib_bad["stack_0"]))
+    num_features_bad = np.array([0] * len(data_lib_bad["stack_0"]))
+    img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
+    avg_dropout_bad = np.array([j for j in data_lib_bad["dropout_0"]])
+    dropout_norm_bad = np.array([1] * len(data_lib_bad["stack_0"]))
 
 def make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_norm):
     for i in range(max_stack):
@@ -333,9 +416,10 @@ def make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_
     return data_lib,depth,num_features,img_size,avg_dropout,dropout_norm
 
 #CHRIS this is ugly, because numpy tends to make a new local variable "array" when assigning like array = array + bla, not necessarily passing "array" by reference
-data_lib,depth,num_features,img_size,avg_dropout,dropout_norm = make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_norm)
-data_lib_good,depth_good,num_features_good,img_size_good,avg_dropout_good,dropout_norm_good = make_some_features(data_lib_good,depth_good,num_features_good,img_size_good,avg_dropout_good,dropout_norm_good)
-data_lib_bad,depth_bad,num_features_bad,img_size_bad,avg_dropout_bad,dropout_norm_bad = make_some_features(data_lib_bad,depth_bad,num_features_bad,img_size_bad,avg_dropout_bad,dropout_norm_bad)
+if not train_tweak:
+    data_lib,depth,num_features,img_size,avg_dropout,dropout_norm = make_some_features(data_lib,depth,num_features,img_size,avg_dropout,dropout_norm)
+    data_lib_good,depth_good,num_features_good,img_size_good,avg_dropout_good,dropout_norm_good = make_some_features(data_lib_good,depth_good,num_features_good,img_size_good,avg_dropout_good,dropout_norm_good)
+    data_lib_bad,depth_bad,num_features_bad,img_size_bad,avg_dropout_bad,dropout_norm_bad = make_some_features(data_lib_bad,depth_bad,num_features_bad,img_size_bad,avg_dropout_bad,dropout_norm_bad)
 
 def make_overlap(data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_step,avg_skip_start,avg_kernel_size,avg_stride,avg_filters):
     avg_kernel_size_norm = np.array([0.0] * len(avg_kernel_size))
@@ -401,80 +485,80 @@ def make_overlap(data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_ste
         avg_filters[i] /= avg_filters_norm[i]
     return data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_step,avg_skip_start,avg_kernel_size,avg_stride,avg_filters
             
+if not train_tweak:
+    img_size = np.array([img_dim] * len(data_lib["stack_0"]))
+    overlap = np.array([[0]*len(data_lib["stack_0"])] * 5)
+    total_skip = np.array([0] * len(data_lib["stack_0"]))
+    total_overlap = np.array([0] * len(data_lib["stack_0"]))
+    avg_skip_step = np.array([0.0] * len(data_lib["stack_0"]))
+    avg_skip_start = np.array([0.0] * len(data_lib["stack_0"]))
+    avg_kernel_size = np.array([0.0] * len(data_lib["stack_0"]))
+    avg_stride = np.array([0.0] * len(data_lib["stack_0"]))
+    avg_filters = np.array([0.0] * len(data_lib["stack_0"]))
+    data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_step,avg_skip_start,avg_kernel_size,avg_stride,avg_filters = make_overlap(data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_step,avg_skip_start,avg_kernel_size,avg_stride,avg_filters)
 
-img_size = np.array([img_dim] * len(data_lib["stack_0"]))
-overlap = np.array([[0]*len(data_lib["stack_0"])] * 5)
-total_skip = np.array([0] * len(data_lib["stack_0"]))
-total_overlap = np.array([0] * len(data_lib["stack_0"]))
-avg_skip_step = np.array([0.0] * len(data_lib["stack_0"]))
-avg_skip_start = np.array([0.0] * len(data_lib["stack_0"]))
-avg_kernel_size = np.array([0.0] * len(data_lib["stack_0"]))
-avg_stride = np.array([0.0] * len(data_lib["stack_0"]))
-avg_filters = np.array([0.0] * len(data_lib["stack_0"]))
-data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_step,avg_skip_start,avg_kernel_size,avg_stride,avg_filters = make_overlap(data_lib,img_size,overlap,total_skip,total_overlap,avg_skip_step,avg_skip_start,avg_kernel_size,avg_stride,avg_filters)
-
-img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
-overlap_good = np.array([[0]*len(data_lib_good["stack_0"])] * 5)
-total_skip_good = np.array([0] * len(data_lib_good["stack_0"]))
-total_overlap_good = np.array([0] * len(data_lib_good["stack_0"]))
-avg_skip_step_good = np.array([0.0] * len(data_lib_good["stack_0"]))
-avg_skip_start_good = np.array([0.0] * len(data_lib_good["stack_0"]))
-avg_kernel_size_good = np.array([0.0] * len(data_lib_good["stack_0"]))
-avg_stride_good = np.array([0.0] * len(data_lib_good["stack_0"]))
-avg_filters_good = np.array([0.0] * len(data_lib_good["stack_0"]))
-data_lib_good,img_size_good,overlap_good,total_skip_good,total_overlap_good,avg_skip_step_good,avg_skip_start_good,avg_kernel_size_good,avg_stride_good,avg_filters_good = make_overlap(data_lib_good,img_size_good,overlap_good,total_skip_good,total_overlap_good,avg_skip_step_good,avg_skip_start_good,avg_kernel_size_good,avg_stride_good,avg_filters_good)
+    img_size_good = np.array([img_dim] * len(data_lib_good["stack_0"]))
+    overlap_good = np.array([[0]*len(data_lib_good["stack_0"])] * 5)
+    total_skip_good = np.array([0] * len(data_lib_good["stack_0"]))
+    total_overlap_good = np.array([0] * len(data_lib_good["stack_0"]))
+    avg_skip_step_good = np.array([0.0] * len(data_lib_good["stack_0"]))
+    avg_skip_start_good = np.array([0.0] * len(data_lib_good["stack_0"]))
+    avg_kernel_size_good = np.array([0.0] * len(data_lib_good["stack_0"]))
+    avg_stride_good = np.array([0.0] * len(data_lib_good["stack_0"]))
+    avg_filters_good = np.array([0.0] * len(data_lib_good["stack_0"]))
+    data_lib_good,img_size_good,overlap_good,total_skip_good,total_overlap_good,avg_skip_step_good,avg_skip_start_good,avg_kernel_size_good,avg_stride_good,avg_filters_good = make_overlap(data_lib_good,img_size_good,overlap_good,total_skip_good,total_overlap_good,avg_skip_step_good,avg_skip_start_good,avg_kernel_size_good,avg_stride_good,avg_filters_good)
 
 
-img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
-overlap_bad = np.array([[0]*len(data_lib_bad["stack_0"])] * 5)
-total_skip_bad = np.array([0] * len(data_lib_bad["stack_0"]))
-total_overlap_bad = np.array([0] * len(data_lib_bad["stack_0"]))
-avg_skip_step_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
-avg_skip_start_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
-avg_kernel_size_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
-avg_stride_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
-avg_filters_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
-data_lib_bad,img_size_bad,overlap_bad,total_skip_bad,total_overlap_bad,avg_skip_step_bad,avg_skip_start_bad,avg_kernel_size_bad,avg_stride_bad,avg_filters_bad = make_overlap(data_lib_bad,img_size_bad,overlap_bad,total_skip_bad,total_overlap_bad,avg_skip_step_bad,avg_skip_start_bad,avg_kernel_size_bad,avg_stride_bad,avg_filters_bad)
+    img_size_bad = np.array([img_dim] * len(data_lib_bad["stack_0"]))
+    overlap_bad = np.array([[0]*len(data_lib_bad["stack_0"])] * 5)
+    total_skip_bad = np.array([0] * len(data_lib_bad["stack_0"]))
+    total_overlap_bad = np.array([0] * len(data_lib_bad["stack_0"]))
+    avg_skip_step_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
+    avg_skip_start_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
+    avg_kernel_size_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
+    avg_stride_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
+    avg_filters_bad = np.array([0.0] * len(data_lib_bad["stack_0"]))
+    data_lib_bad,img_size_bad,overlap_bad,total_skip_bad,total_overlap_bad,avg_skip_step_bad,avg_skip_start_bad,avg_kernel_size_bad,avg_stride_bad,avg_filters_bad = make_overlap(data_lib_bad,img_size_bad,overlap_bad,total_skip_bad,total_overlap_bad,avg_skip_step_bad,avg_skip_start_bad,avg_kernel_size_bad,avg_stride_bad,avg_filters_bad)
 
-data_lib["avg_filters"] = avg_filters
-data_lib_good["avg_filters"] = avg_filters_good
-data_lib_bad["avg_filters"] = avg_filters_bad
+    data_lib["avg_filters"] = avg_filters
+    data_lib_good["avg_filters"] = avg_filters_good
+    data_lib_bad["avg_filters"] = avg_filters_bad
 
-data_lib["avg_stride"] = avg_stride
-data_lib_good["avg_stride"] = avg_stride_good
-data_lib_bad["avg_stride"] = avg_stride_bad
+    data_lib["avg_stride"] = avg_stride
+    data_lib_good["avg_stride"] = avg_stride_good
+    data_lib_bad["avg_stride"] = avg_stride_bad
 
-data_lib["avg_skip_step"] = avg_skip_step
-data_lib_good["avg_skip_step"] = avg_skip_step_good
-data_lib_bad["avg_skip_step"] = avg_skip_step_bad
+    data_lib["avg_skip_step"] = avg_skip_step
+    data_lib_good["avg_skip_step"] = avg_skip_step_good
+    data_lib_bad["avg_skip_step"] = avg_skip_step_bad
 
-data_lib["avg_skip_start"] = avg_skip_start
-data_lib_good["avg_skip_start"] = avg_skip_start_good
-data_lib_bad["avg_skip_start"] = avg_skip_start_bad
+    data_lib["avg_skip_start"] = avg_skip_start
+    data_lib_good["avg_skip_start"] = avg_skip_start_good
+    data_lib_bad["avg_skip_start"] = avg_skip_start_bad
 
-data_lib["avg_kernel_size"] = avg_kernel_size
-data_lib_good["avg_kernel_size"] = avg_kernel_size_good
-data_lib_bad["avg_kernel_size"] = avg_kernel_size_bad
+    data_lib["avg_kernel_size"] = avg_kernel_size
+    data_lib_good["avg_kernel_size"] = avg_kernel_size_good
+    data_lib_bad["avg_kernel_size"] = avg_kernel_size_bad
 
-data_lib["total_skip"] = total_skip
-data_lib_good["total_skip"] = total_skip_good
-data_lib_bad["total_skip"] = total_skip_bad
+    data_lib["total_skip"] = total_skip
+    data_lib_good["total_skip"] = total_skip_good
+    data_lib_bad["total_skip"] = total_skip_bad
 
-data_lib["total_overlap"] = total_overlap
-data_lib_good["total_overlap"] = total_overlap_good
-data_lib_bad["total_overlap"] = total_overlap_bad
+    data_lib["total_overlap"] = total_overlap
+    data_lib_good["total_overlap"] = total_overlap_good
+    data_lib_bad["total_overlap"] = total_overlap_bad
 
-data_lib["depth"]=depth
-data_lib_good["depth"] = depth_good
-data_lib_bad["depth"] = depth_bad
+    data_lib["depth"]=depth
+    data_lib_good["depth"] = depth_good
+    data_lib_bad["depth"] = depth_bad
 
-data_lib["num_features"] = num_features
-data_lib_good["num_features"] = num_features_good
-data_lib_bad["num_features"] = num_features_bad
+    data_lib["num_features"] = num_features
+    data_lib_good["num_features"] = num_features_good
+    data_lib_bad["num_features"] = num_features_bad
 
-data_lib["avg_dropout"] = avg_dropout
-data_lib_good["avg_dropout"] = avg_dropout_good
-data_lib_bad["avg_dropout"] = avg_dropout_bad
+    data_lib["avg_dropout"] = avg_dropout
+    data_lib_good["avg_dropout"] = avg_dropout_good
+    data_lib_bad["avg_dropout"] = avg_dropout_bad
 
 data_panda = pd.DataFrame(data=data_lib)
 data_panda_good = pd.DataFrame(data=data_lib_good)
@@ -521,7 +605,9 @@ def normalize_two_panda_data(data_panda_1, data_panda_2):
 
 strides = ["s_"+str(i) for i in range(max_stack)]
 #select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling']
-select = [x for x in data_panda.columns if x == 'lr']
+#select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling' or x == 'channel_shift_range' or x == 'constant' or x == 'global_pooling' or x == 'height_shift_range' or x == 'horizontal_flip' or x == 'max_pooling' or x == 'nearest' or x == 'rotation_range' or x == 'vertical_flip' or x == 'width_shift_range' or x == 'zoom_range']
+#select = [x for x in data_panda.columns if x == 'lr' or x == 'drop' or x == 'epochs_drop' or x == 'momentum' or x == 'SGD' or x == 'RMSprop' or x == 'Adagrad' or x == 'Adadelta' or x == 'Adam' or x == 'Adamax' or x == 'Nadam' or x == 'rho']
+select = [x for x in data_panda.columns if x == 'time']
 #select = [x for x in data_panda.columns if any(x == m for m in strides)]
 #select = [x for x in data_panda.columns]
 #normalized_df= normalize_panda_data(data_panda.loc[:,select])
