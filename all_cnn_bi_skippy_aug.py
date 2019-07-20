@@ -592,7 +592,7 @@ def test_skippy():
     from mipego.SearchSpace import ContinuousSpace, NominalSpace, OrdinalSpace
     from keras.utils import plot_model
     
-    with open('skippy_test_train_hist' + '_eval_train_hist.json', 'w') as f:
+    with open('skippy_test_train_hist_aug' + '_eval_train_hist.json', 'w') as f:
         f.write('')
     #define the search space.
     #objective = obj_func('./all-cnn_bi.py')
