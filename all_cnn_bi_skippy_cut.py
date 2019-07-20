@@ -208,6 +208,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
     # Convert class vectors to binary class matrices.
     y_train = keras.utils.to_categorical(y_train.flatten(), num_classes)
     y_test = keras.utils.to_categorical(y_test.flatten(), num_classes)
+    y_val = keras.utils.to_categorical(y_val.flatten(), num_classes)
     
     #print('skip steps:')
     #print([cfg['skint_0'],cfg['skint_1'],cfg['skint_2']],[cfg['skst_0'],cfg['skst_1'],cfg['skst_2']])
