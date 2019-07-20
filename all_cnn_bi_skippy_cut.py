@@ -179,11 +179,11 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=False, use_validation=True,use_epoch_sp=True):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist_cut',data_augmentation=False, use_validation=True,use_epoch_sp=True):
     batch_size = 100
     num_classes = 10
     num_predictions = 20
-    logfile = 'mnist-cnn.log'
+    logfile = 'mnist-cnn-cut.log'
     savemodel = False
     
     batch_size = cfg['batch_size_sp']
@@ -501,9 +501,16 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         #return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
+    x_val = x_val.astype('float32')
+    
     if not data_augmentation:#CHRIS data augmentation handles normalization
         x_train /= 255.
         x_test /= 255.
+        x_val /= 255.
+    
+    if True:#In case of training for validation
+        x_test = x_val
+        y_test = y_val
 
     if not data_augmentation:
         print('Not using data augmentation.')
@@ -719,7 +726,7 @@ def test_skippy():
 
     
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'stack_3': 0, 'k_13': 13, 'filters_4': 96, 'dropout_8': 0.4334407345524673, 'skstart_1': 0, 'k_4': 11, 'stack_0': 0, 'activ_dense': 'softmax', 'k_11': 2, 'stack_4': 5, 'filters_9': 164, 'dropout_7': 0.722057620926275, 'skstep_2': 6, 'batch_size_sp': 161, 's_3': 2, 'dropout_0': 0.006585730795479166, 'filters_2': 223, 's_2': 3, 'max_pooling': True, 'filters_8': 258, 'filters_6': 551, 'activation': 'tanh', 'stack_6': 4, 'dense_size_0': 2138, 'lr': 0.006308299610988853, 'epoch_sp': 24, 'dropout_6': 0.8251804103904812, 'filters_3': 437, 'filters_12': 349, 'filters_11': 190, 'global_pooling': False, 'skstep_0': 7, 'l2': 0.0019845517494426227, 'dropout_5': 0.5061046505734745, 'k_0': 11, 's_4': 8, 'skstep_4': 5, 'filters_7': 239, 'dropout_4': 0.7522812347648945, 'filters_13': 264, 'dropout_3': 0.04315591833160787, 'filters_1': 92, 'k_12': 15, 's_5': 6, 'k_9': 15, 'filters_5': 266, 'step': True, 'filters_10': 171, 'dropout_1': 0.14516130505677416, 'dropout_9': 0.33853188036625337, 'stack_2': 0, 'skstart_3': 4, 'stack_5': 4, 'k_8': 8, 'skstep_3': 9, 'filters_0': 61, 'k_6': 7, 'skstart_4': 7, 'k_10': 3, 's_0': 7, 'k_1': 9, 'dense_size_1': 3254, 'skstart_2': 0, 'stack_1': 7, 'dropout_2': 0.17276412402942404, 's_6': 6, 'k_5': 12, 'k_2': 5, 'skstart_0': 3, 'k_3': 10, 'skstep_1': 3, 's_1': 7, 'k_7': 15}
+    vla = {'dropout_9': 0.33853188036625337, 's_3': 2, 'lr': 0.006308299610988853, 'dropout_3': 0.04315591833160787, 'k_9': 15, 'dropout_6': 0.8251804103904812, 'stack_0': 0, 'dropout_7': 0.722057620926275, 's_4': 8, 'k_11': 2, 'filters_4': 96, 'skstep_4': 5, 'step': True, 'dense_size_0': 2138, 'stack_1': 7, 'skstep_3': 9, 'filters_10': 171, 'k_3': 10, 'max_pooling': True, 'dropout_8': 0.4334407345524673, 'k_2': 5, 'skstart_2': 0, 'filters_6': 551, 'dropout_5': 0.5061046505734745, 'batch_size_sp': 161, 'filters_5': 266, 'filters_2': 223, 'skstart_3': 4, 'k_0': 11, 'filters_13': 264, 'skstep_2': 6, 'filters_3': 437, 'k_7': 15, 'activation': 'tanh', 'global_pooling': False, 's_6': 6, 'filters_9': 164, 'k_1': 9, 'skstart_4': 7, 's_1': 7, 'stack_3': 0, 'dropout_0': 0.006585730795479166, 's_5': 6, 'filters_11': 190, 'epoch_sp': 24, 'k_8': 8, 'activ_dense': 'softmax', 'stack_6': 4, 'k_13': 13, 'dense_size_1': 3254, 'stack_5': 4, 'filters_8': 258, 'filters_0': 61, 'filters_7': 239, 'skstep_0': 7, 'skstart_1': 0, 'skstep_1': 3, 'l2': 0.0019845517494426227, 'k_10': 3, 'stack_4': 5, 'dropout_4': 0.7522812347648945, 'dropout_2': 0.17276412402942404, 'stack_2': 0, 'filters_12': 349, 'k_12': 15, 's_0': 7, 'dropout_1': 0.14516130505677416, 'skstart_0': 3, 'k_5': 12, 's_2': 3, 'k_4': 11, 'filters_1': 92, 'k_6': 7}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]
@@ -733,7 +740,7 @@ def test_skippy():
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
         #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        timer, loss = CNN_conf(vla,test=test,epochs= 2000,verbose=1,use_epoch_sp=False)
+        timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1,use_epoch_sp=False)
         print('timer, loss:')
         print(timer, loss)
 

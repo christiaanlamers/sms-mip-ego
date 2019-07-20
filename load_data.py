@@ -167,8 +167,8 @@ if len(all_time_r2) > 0 and len(all_loss_r2) > 0:
 print(par)
 for i in range(len(par)):
     print(par[i].to_dict())
-    model = CNN_conf(par[i].to_dict(),test=True)
-    plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
+    #model = CNN_conf(par[i].to_dict(),test=True)
+    #plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
 
 print('top 7 highest accuracy:')
 top_seven = np.argsort(loss)[0:7]
@@ -207,16 +207,19 @@ axes.set_ylim([y_bound[0],y_bound[1]])
 #plt.plot(par_time, par_loss, 'ro')
 #plt.pause(float('inf'))
 init = pd.DataFrame(data={'time':time[0:init_amount], 'loss':loss[0:init_amount]})
-a=sns.scatterplot(x='time', y='loss', data=init,color = 'y')
-#a.set_xscale('log')
+a=sns.scatterplot(x='time', y='loss', data=init,color = 'y',label='Init',marker='+')
+a.set_xscale('log')
 heur = pd.DataFrame(data={'time':time[init_amount:], 'loss':loss[init_amount:]})
-b=sns.scatterplot(x='time', y='loss', data=heur, color = 'b')
-#b.set_xscale('log')
+b=sns.scatterplot(x='time', y='loss', data=heur, color = 'b',label='Heuristic',marker='x')
+b.set_xscale('log')
 par_data = pd.DataFrame(data={'time':par_time, 'loss':par_loss})
-c=sns.scatterplot(x='time', y='loss', data=par_data, color = 'r')
-#c.set_xscale('log')
+c=sns.scatterplot(x='time', y='loss', data=par_data, color = 'r',label='Pareto')
+c.set_xscale('log')
 plt.xlabel('time (s)')#CHRIS x^2
 plt.ylabel('loss')#(x-2)^2
+a.legend()
+b.legend()
+c.legend()
 if zoom:
     a.set(xlim=(0,5000),ylim=(0, 2.5))
     b.set(xlim=(0,5000),ylim=(0, 2.5))

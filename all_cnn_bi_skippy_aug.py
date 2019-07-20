@@ -179,11 +179,11 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist',data_augmentation=True, use_validation=True):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist_aug',data_augmentation=True, use_validation=True):
     #batch_size = 100
     num_classes = 10
     num_predictions = 20
-    logfile = 'mnist-cnn.log'
+    logfile = 'mnist-cnn-aug.log'
     savemodel = False
     
     data_augmentation=True#TODO remove this
@@ -481,10 +481,16 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         #return 1000000000.0*(model.count_params()/max_size), 5.0*(model.count_params()/max_size)
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
+    x_val = x_val.astype('float32')
     
     if not data_augmentation or data_augmentation:# CHRIS data augmentation handles normalizationTODO remove or data_augmentation
         x_train /= 255.
         x_test /= 255.
+        x_val /= 255.
+    
+    if True:#In case of training for validation
+        x_test = x_val
+        y_test = y_val
 
     if not data_augmentation:
         print('Not using data augmentation.')
@@ -720,7 +726,7 @@ def test_skippy():
     dropout_mult = 1.0
     lr_mult = 1.0
     X = [Solution(s, index=k, var_name=var_names) for k, s in enumerate(samples)]
-    vla = {'dense_size_0': 1344, 'k_12': 4, 'k_6': 8, 'samplewise_center': False, 'step': False, 'filters_4': 191, 'stack_3': 1, 's_6': 3, 'cval': 0.24779638415638786, 'batch_size_sp': 75, 'stack_5': 0, 'stack_0': 3, 'rotation_range': 31, 'fill_mode': 'nearest', 's_2': 3, 'samplewise_std_normalization': False, 'filters_7': 202, 'k_3': 4, 'dropout_9': 0.282536761776477, 'k_4': 14, 'zoom_range': 0.02446592218470434, 'k_0': 2, 'dropout_1': 0.16597601970646955, 'skstart_2': 6, 's_4': 3, 'filters_9': 339, 'k_11': 9, 'k_1': 11, 's_1': 1, 'skstart_3': 3, 'stack_4': 5, 'skstart_0': 6, 'k_5': 10, 'l2': 0.00043366714416766863, 'k_10': 10, 'vertical_flip': False, 's_0': 2, 'featurewise_std_normalization': False, 'dropout_3': 0.11567654065541401, 'filters_2': 397, 'k_8': 9, 'skstep_2': 2, 'featurewise_center': False, 'filters_6': 535, 'skstart_1': 0, 'skstart_4': 1, 'skstep_4': 1, 'shear_range': 4.413108635288765, 'k_9': 5, 'dropout_5': 0.09773198911653828, 'dropout_2': 0.3496803660826153, 'skstep_3': 2, 'dropout_8': 0.10220859898802954, 'stack_1': 1, 'skstep_0': 2, 'filters_11': 507, 'lr': 0.003521543292982737, 'filters_1': 120, 's_5': 3, 'zca_whitening': False, 'filters_5': 109, 'k_13': 4, 'dropout_0': 0.005004155479145995, 'filters_12': 474, 'filters_3': 473, 'filters_10': 305, 'activ_dense': 'softmax', 'horizontal_flip': True, 'zca_epsilon': 1.2393513955305375e-06, 'dropout_4': 0.025329970168830974, 'filters_13': 350, 'filters_8': 353, 'width_shift_range': 0.11326574574565945, 'stack_6': 0, 'activation': 'selu', 'dropout_7': 0.2567508735733037, 's_3': 3, 'channel_shift_range': 0.002134671459292783, 'k_7': 9, 'dropout_6': 0.19656398582242512, 'skstep_1': 8, 'max_pooling': True, 'global_pooling': True, 'k_2': 4, 'dense_size_1': 1216, 'height_shift_range': 0.5512549395731117, 'filters_0': 246, 'stack_2': 2}
+    vla = {'k_6': 8, 'dropout_3': 0.11567654065541401, 'stack_2': 2, 'skstep_3': 2, 'skstart_2': 6, 'k_11': 9, 'zca_whitening': False, 'k_1': 11, 's_4': 3, 'filters_4': 191, 'k_7': 9, 'dropout_6': 0.19656398582242512, 'fill_mode': 'nearest', 'filters_0': 246, 'lr': 0.003521543292982737, 'skstart_4': 1, 's_3': 3, 'height_shift_range': 0.5512549395731117, 'dropout_9': 0.282536761776477, 'dense_size_0': 1344, 'filters_11': 507, 's_0': 2, 'dropout_4': 0.025329970168830974, 'filters_10': 305, 'filters_12': 474, 'dropout_8': 0.10220859898802954, 'samplewise_std_normalization': False, 'cval': 0.24779638415638786, 'step': False, 'skstep_0': 2, 'skstart_3': 3, 'featurewise_std_normalization': False, 's_5': 3, 'skstep_1': 8, 'k_4': 14, 'stack_0': 3, 'max_pooling': True, 'dropout_0': 0.005004155479145995, 'batch_size_sp': 75, 'skstart_1': 0, 'skstep_2': 2, 'filters_6': 535, 'k_12': 4, 'stack_5': 0, 'horizontal_flip': True, 'filters_2': 397, 'stack_4': 5, 'l2': 0.00043366714416766863, 'skstart_0': 6, 'filters_7': 202, 'filters_13': 350, 'k_2': 4, 'k_3': 4, 's_2': 3, 's_6': 3, 'rotation_range': 31, 'shear_range': 4.413108635288765, 'filters_5': 109, 's_1': 1, 'k_8': 9, 'k_9': 5, 'channel_shift_range': 0.002134671459292783, 'samplewise_center': False, 'k_0': 2, 'dropout_5': 0.09773198911653828, 'vertical_flip': False, 'k_5': 10, 'zoom_range': 0.02446592218470434, 'width_shift_range': 0.11326574574565945, 'stack_6': 0, 'k_10': 10, 'dropout_2': 0.3496803660826153, 'activation': 'selu', 'stack_3': 1, 'k_13': 4, 'zca_epsilon': 1.2393513955305375e-06, 'filters_3': 473, 'dense_size_1': 1216, 'stack_1': 1, 'dropout_1': 0.16597601970646955, 'filters_8': 353, 'dropout_7': 0.2567508735733037, 'featurewise_center': False, 'filters_9': 339, 'global_pooling': True, 'skstep_4': 1, 'activ_dense': 'softmax', 'filters_1': 120}
     print(X)
     print(X[0].to_dict())
     #cfg = [Solution(x, index=len(self.data) + i, var_name=self.var_names) for i, x in enumerate(X)]

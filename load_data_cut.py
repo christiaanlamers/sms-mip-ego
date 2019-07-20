@@ -167,8 +167,8 @@ if len(all_time_r2) > 0 and len(all_loss_r2) > 0:
 print(par)
 for i in range(len(par)):
     print(par[i].to_dict())
-    model = CNN_conf(par[i].to_dict(),test=True)
-    plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
+    #model = CNN_conf(par[i].to_dict(),test=True)
+    #plot_model(model, to_file='conf_pareto_skippy_' + str(i)+ '.png',show_shapes=True,show_layer_names=True)
 
 print('top 7 highest accuracy:')
 top_seven = np.argsort(loss)[0:7]
