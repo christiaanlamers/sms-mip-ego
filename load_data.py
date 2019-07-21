@@ -215,8 +215,8 @@ b.set_xscale('log')
 par_data = pd.DataFrame(data={'time':par_time, 'loss':par_loss})
 c=sns.scatterplot(x='time', y='loss', data=par_data, color = 'r',label='Pareto')
 c.set_xscale('log')
-plt.xlabel('time (s)')#CHRIS x^2
-plt.ylabel('loss')#(x-2)^2
+plt.xlabel('time (s)',size=20)#CHRIS x^2
+plt.ylabel('loss',size=20)#(x-2)^2
 a.legend()
 b.legend()
 c.legend()
