@@ -179,7 +179,7 @@ class Skip_manager(object):
         return layer
 
 
-def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist_cut',data_augmentation=False, use_validation=True,use_epoch_sp=True):
+def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_train_hist_cut',data_augmentation=False, use_validation=True,use_epoch_sp=True,test_on_validation=False):
     batch_size = 100
     num_classes = 10
     num_predictions = 20
@@ -509,7 +509,7 @@ def CNN_conf(cfg,epochs=1,test=False,gpu_no=0,verbose=0,save_name='skippy_test_t
         x_test /= 255.
         x_val /= 255.
     
-    if True:#In case of training for validation
+    if test_on_validation:#In case of training for validation
         x_test = x_val
         y_test = y_val
 
@@ -741,7 +741,7 @@ def test_skippy():
         print(str(model.count_params() * 4 * 2 / 1024/1024/1024) + ' Gb')
     else:
         #timer, loss = CNN_conf(X[0].to_dict(),test=test,epochs= 2000,verbose=1)
-        timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1,use_epoch_sp=False)
+        timer, loss = CNN_conf(vla,test=test,epochs= 200,verbose=1,use_epoch_sp=False,test_on_validation=True)
         print('timer, loss:')
         print(timer, loss)
 
