@@ -38,13 +38,13 @@ CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
-do_parallel_plot = True
+do_parallel_plot = False
 do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
-do_feature_imp = False
+do_feature_imp = True
 do_sens_analysis = False
 
 file_name = str(sys.argv[1])
@@ -131,6 +131,10 @@ for i in name_array[0]:
         data_lib[i] = x
         data_lib_good[i] = x_good
         data_lib_bad[i] = x_bad
+    elif x[0] == "True" or x[0] == "False":
+        data_lib[i] = [float(bool(i)) for i in x]
+        data_lib_good[i] = [float(bool(i)) for i in x_good]
+        data_lib_bad[i] = [float(bool(i)) for i in x_bad]
     elif x[0] == "elu" or x[0] == "relu" or x[0] == "tanh" or x[0] == "sigmoid" or x[0] == "selu":
         elu = []
         relu = []
@@ -858,10 +862,10 @@ if do_correlations:
     corr_select_bad = selection_bad[corr_pivot_labels_bad].corr()
     sns.heatmap(corr_select_bad,xticklabels=corr_select_bad.columns.values,yticklabels=corr_select_bad.columns.values,cmap='coolwarm')
     plt.show()
-
-select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
-scaler = sklearn.preprocessing.StandardScaler()
-scaler.fit(data_panda.loc[:, select])
+if do_k_means or do_dbscan:
+    select = [x for x in data_panda.columns if x != "time" and x != "acc" and x != "activation" and x != "activ_dense"]
+    scaler = sklearn.preprocessing.StandardScaler()
+    scaler.fit(data_panda.loc[:, select])
 
 if do_k_means:
     # K Means Cluster
@@ -1301,8 +1305,9 @@ if do_feature_imp:
     print(len(importances))
     #print(importances)
 
-    for f in range(X.shape[1]):
-        print("%d. feature %s (%f)" % (f + 1, name_array[0][indices[f]], importances[indices[f]]))
+    for f in range(min(10,X.shape[1])):
+        #print("%d. feature %s (%f)" % (f + 1, name_array[0][indices[f]], importances[indices[f]]))
+        print("%s & %f" % (name_array[0][indices[f]], importances[indices[f]]))
 
     ## Plot the feature importances of the forest
     #plt.figure(figsize=(20,10))
