@@ -1,0 +1,2 @@
+The json files in this folder contain the configurations evaluated by the experiments described in the thesis text.
+Each subfolder contains the Pareto optimal solutions per experiment. The solutions are numerically ordered from short training time, low accuracy, to long training time, high accuracy.
