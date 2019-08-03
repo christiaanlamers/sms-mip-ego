@@ -38,13 +38,13 @@ CIFAR10 = True #do we use CIFAR-10 or MNIST?
 img_dim = 32 #CIFAR-10 has 32x32 images
 
 do_spline_fit = False
-do_parallel_plot = False
+do_parallel_plot = True
 do_pairgrid = False
 do_correlations = False
 do_k_means = False
 do_dbscan = False
 do_rule_finding = False
-do_feature_imp = True
+do_feature_imp = False
 do_sens_analysis = False
 
 file_name = str(sys.argv[1])
@@ -95,7 +95,7 @@ for i in range(len(conf_array)):
 print("len(solutions): " + str(len(solutions)))
 #print([i.to_dict() for i in solutions])
 #y = [np.exp(-i.loss) for i in solutions]#[i.time for i in solutions]
-acc_pivot = 0.7#0.4#0.86
+acc_pivot = 0.4#0.7#0.4#0.86
 data_lib = {}
 data_lib_good = {}
 data_lib_bad = {}
@@ -611,7 +611,8 @@ strides = ["s_"+str(i) for i in range(max_stack)]
 #select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling']
 #select = [x for x in data_panda.columns if x == 'avg_dropout' or x == 'avg_kernel_size' or x == 'num_features' or x == 'time' or x == 'l2' or x == 'dropout_0' or x == 'elu' or x == 'batch_size_sp' or x == 'epoch_sp' or x == 'lr' or x == 'max_pooling' or x == 'channel_shift_range' or x == 'constant' or x == 'global_pooling' or x == 'height_shift_range' or x == 'horizontal_flip' or x == 'max_pooling' or x == 'nearest' or x == 'rotation_range' or x == 'vertical_flip' or x == 'width_shift_range' or x == 'zoom_range']
 #select = [x for x in data_panda.columns if x == 'lr' or x == 'drop' or x == 'epochs_drop' or x == 'momentum' or x == 'SGD' or x == 'RMSprop' or x == 'Adagrad' or x == 'Adadelta' or x == 'Adam' or x == 'Adamax' or x == 'Nadam' or x == 'rho']
-select = [x for x in data_panda.columns if x == 'time']
+#select = [x for x in data_panda.columns if x == 'time']
+select = [x for x in data_panda.columns if x == 's_0' or x == 's_1' or x == 's_2' or x == 's_3' or x == 's_4' or x == 's_5' or x == 's_6']
 #select = [x for x in data_panda.columns if any(x == m for m in strides)]
 #select = [x for x in data_panda.columns]
 #normalized_df= normalize_panda_data(data_panda.loc[:,select])
@@ -626,7 +627,7 @@ if do_parallel_plot:
     #normalized_df_combo.plot.box(by="good")
     boxprops_good = dict(linestyle='-', linewidth=4, color='green')
     medianprops_good = dict(linestyle='-', linewidth=4, color='green')
-
+    #plt.xlabel('',size=20)
     fig = matplotlib.pyplot.gcf()
     ax = normalized_df_good.plot(kind='box',
             color=dict(boxes='g', whiskers='g', medians='g', caps='g'),
@@ -644,6 +645,7 @@ if do_parallel_plot:
              whiskerprops=dict(linestyle='-', linewidth=1.0),
              capprops=dict(linestyle='-', linewidth=1.0),
              showfliers=False, grid=True, rot=0,ax=ax)
+    plt.tight_layout()
     plt.show()
     #sns.boxplot(x="variable", y="value",data=pd.melt(normalized_df_combo))#,hue="good", palette="Set3"
     #for i in range(normalized_df.shape[0]):

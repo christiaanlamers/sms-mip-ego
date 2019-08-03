@@ -215,10 +215,14 @@ b=sns.scatterplot(x='time', y='loss', data=heur, color = 'b')
 par_data = pd.DataFrame(data={'time':par_time, 'loss':par_loss})
 c=sns.scatterplot(x='time', y='loss', data=par_data, color = 'r')
 #c.set_xscale('log')
-plt.xlabel('time (s)')#CHRIS x^2
-plt.ylabel('loss')#(x-2)^2
+plt.xlabel('time (s)',size=20)#CHRIS x^2
+plt.ylabel('loss',size=20)#(x-2)^2
+a.legend()
+b.legend()
+c.legend()
 if zoom:
     a.set(xlim=(0,5000),ylim=(0, 2.5))
     b.set(xlim=(0,5000),ylim=(0, 2.5))
     c.set(xlim=(0,5000),ylim=(0, 2.5))
+plt.tight_layout()
 plt.pause(float('inf'))
